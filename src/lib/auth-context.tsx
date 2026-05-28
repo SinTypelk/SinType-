@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import { SUPABASE_CONFIGURED, supabase } from "@/integrations/supabase/client";
 import type { Session, User } from "@supabase/supabase-js";
 import type { UserProfile } from "@/lib/profile-service";
-import { ensureProfileWithLicense, fetchProfileByUserId } from "@/lib/profile-service";
+import { loadProfileForUser } from "@/lib/profile-service";
 
 interface AuthCtx {
   user: User | null;
@@ -33,12 +33,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     setProfileLoading(true);
     try {
-      // If the row exists, fetch it. If missing (first login), create it.
-      const existing = await fetchProfileByUserId(u.id);
-      const next = existing ?? (await ensureProfileWithLicense(u));
+      // Profile row is created by DB trigger on auth.users — app only reads it.
+      const next = await loadProfileForUser(u);
       setProfile(next);
-    } catch {
-      // Don't block the whole app if profile sync fails; UI will show missing info.
+    } catch (err) {
+      console.warn("[auth] profile sync failed:", err);
       setProfile(null);
     } finally {
       setProfileLoading(false);

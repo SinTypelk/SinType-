@@ -1,6 +1,5 @@
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
-import { generateLicenseKey } from "@/lib/license-service";
 
 export type UserProfile = {
   id: string;
@@ -18,6 +17,13 @@ type ProfileRow = {
   updated_at: string | null;
 };
 
+const PROFILE_RETRY_MS = 600;
+const PROFILE_MAX_ATTEMPTS = 6;
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 function rowToProfile(row: ProfileRow): UserProfile | null {
   if (!row?.id) return null;
   const email = (row.email ?? "").trim();
@@ -32,59 +38,65 @@ function rowToProfile(row: ProfileRow): UserProfile | null {
   };
 }
 
-export async function fetchProfileByUserId(userId: string): Promise<UserProfile | null> {
+export async function fetchProfileByUserId(
+  userId: string,
+): Promise<UserProfile | null> {
   const { data, error } = await supabase
     .from("profiles")
     .select("id, email, license_key, created_at, updated_at")
     .eq("id", userId)
     .maybeSingle();
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    console.warn("[profile] fetch failed:", error.message);
+    return null;
+  }
   if (!data) return null;
   return rowToProfile(data as ProfileRow);
 }
 
 /**
- * Ensure the logged-in user has exactly one permanent activation license key.
- * - keyed by `profiles.id = auth.users.id` (RLS-safe)
- * - only generates a key if missing
+ * Load profile created by the DB trigger on auth.users.
+ * Retries briefly so OAuth sign-in is not blocked while the trigger finishes.
+ * Never throws — auth must keep working even if profile sync fails.
  */
-export async function ensureProfileWithLicense(user: User): Promise<UserProfile> {
-  if (!user?.id) throw new Error("Missing user id.");
-  const email = (user.email ?? "").trim().toLowerCase();
-  if (!email) throw new Error("Missing user email.");
+export async function loadProfileForUser(
+  user: User,
+): Promise<UserProfile | null> {
+  if (!user?.id) return null;
 
-  const existing = await fetchProfileByUserId(user.id);
-  if (existing?.license_key) {
-    // keep email in sync opportunistically
-    if (existing.email.toLowerCase() !== email) {
-      const { error } = await supabase
-        .from("profiles")
-        .update({ email })
-        .eq("id", user.id);
-      if (error) throw new Error(error.message);
-      return { ...existing, email };
+  for (let attempt = 1; attempt <= PROFILE_MAX_ATTEMPTS; attempt++) {
+    const profile = await fetchProfileByUserId(user.id);
+    if (profile) {
+      const email = (user.email ?? "").trim().toLowerCase();
+      if (email && profile.email.toLowerCase() !== email) {
+        await supabase
+          .from("profiles")
+          .update({ email })
+          .eq("id", user.id)
+          .then(({ error }) => {
+            if (error) console.warn("[profile] email sync:", error.message);
+          });
+        return { ...profile, email };
+      }
+      return profile;
     }
-    return existing;
+    if (attempt < PROFILE_MAX_ATTEMPTS) {
+      await sleep(PROFILE_RETRY_MS);
+    }
   }
 
-  const license_key = generateLicenseKey();
-  const { data, error } = await supabase
-    .from("profiles")
-    .upsert(
-      {
-        id: user.id,
-        email,
-        license_key,
-      },
-      { onConflict: "id" },
-    )
-    .select("id, email, license_key, created_at, updated_at")
-    .single();
-
-  if (error) throw new Error(error.message);
-  const profile = rowToProfile(data as ProfileRow);
-  if (!profile) throw new Error("Profile saved but could not be read back.");
-  return profile;
+  console.warn(
+    "[profile] No row yet for user",
+    user.id,
+    "— check Supabase trigger public.handle_new_user on auth.users",
+  );
+  return null;
 }
 
+/** @deprecated Use loadProfileForUser — trigger creates the row on sign-up. */
+export async function ensureProfileWithLicense(
+  user: User,
+): Promise<UserProfile | null> {
+  return loadProfileForUser(user);
+}
