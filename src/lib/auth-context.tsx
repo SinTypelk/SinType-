@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { SUPABASE_CONFIGURED, supabase } from "@/integrations/supabase/client";
 import type { Session, User } from "@supabase/supabase-js";
 
 interface AuthCtx {
@@ -20,6 +20,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [authRedirectInProgress, setAuthRedirectInProgress] = useState(false);
 
   useEffect(() => {
+    if (!SUPABASE_CONFIGURED) {
+      // Allow the app to run (converter/marketing pages) even if Supabase env vars
+      // are not set. Auth/mobilesync/license pages will prompt for configuration.
+      setLoading(false);
+      setAuthRedirectInProgress(false);
+      setSession(null);
+      return;
+    }
+
     const hasOAuthParams = () => {
       if (typeof window === "undefined") return false;
       const hash = window.location.hash || "";
