@@ -35,7 +35,7 @@
 | **UI components** | [shadcn/ui](https://ui.shadcn.com/) primitives ([Radix UI](https://www.radix-ui.com/)) |
 | **State / data** | [TanStack Query](https://tanstack.com/query), React Context (`app-context`, `auth-context`) |
 | **Backend / auth** | [Supabase](https://supabase.com/) (Auth + Realtime broadcast) |
-| **OAuth bridge** | [@lovable.dev/cloud-auth-js](https://www.npmjs.com/package/@lovable.dev/cloud-auth-js) (Google sign-in) |
+| **OAuth** | Supabase native OAuth (`supabase.auth.signInWithOAuth`) |
 | **Animation** | [Framer Motion](https://www.framer.com/motion/) |
 | **Forms / validation** | [React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/) |
 | **QR codes** | [qrcode](https://www.npmjs.com/package/qrcode) |
@@ -73,7 +73,7 @@ SinType.lk Web Site/
 │   │   └── rules.ts             # Spell-check heuristics
 │   ├── integrations/
 │   │   ├── supabase/            # Client, types, auth middleware
-│   │   └── lovable/             # Google OAuth helper
+│   │   └── (removed)            # Lovable OAuth helper removed (native Supabase OAuth)
 │   ├── styles.css               # Global theme tokens
 │   └── routes/__root.tsx        # App shell, providers, layout
 ├── vite.config.ts
@@ -151,10 +151,9 @@ SinType.lk uses **Supabase Auth** for identity and session management, with **Go
    - Subscribes to `supabase.auth.onAuthStateChange` for live session updates.
    - Exposes `user`, `session`, `signIn`, `signUp`, and `signOut`.
 
-2. **`/login`** uses **Lovable Cloud Auth** (`src/integrations/lovable/index.ts`):
-   - `lovable.auth.signInWithOAuth("google", { redirect_uri })` starts the Google flow.
-   - On success, tokens are passed to `supabase.auth.setSession(...)`.
-   - Authenticated users are redirected to `/`.
+2. **`/login`** uses **native Supabase OAuth**:
+   - `supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.origin } })`
+   - Supabase captures the callback, persists the session, and `AuthProvider` reacts to `onAuthStateChange`.
 
 3. **Email / password** sign-in is available on `/login` and in `LoginModal` (used before generating a 7-day desktop key).
 
@@ -175,7 +174,7 @@ SinType.lk uses **Supabase Auth** for identity and session management, with **Go
 ### Integrating additional providers
 
 1. Enable the provider in the Supabase dashboard (Authentication → Providers).
-2. Add a button on `/login` that calls `lovable.auth.signInWithOAuth("provider", …)` or native `supabase.auth.signInWithOAuth`.
+2. Add a button on `/login` that calls `supabase.auth.signInWithOAuth({ provider: "provider", options: { redirectTo: window.location.origin } })`.
 3. Ensure redirect URLs match your deployment origin.
 
 ---
