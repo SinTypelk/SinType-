@@ -30,7 +30,7 @@
 |-------|------------|
 | **Framework** | [React 19](https://react.dev/) |
 | **Routing / SSR** | [TanStack Router](https://tanstack.com/router) + [TanStack Start](https://tanstack.com/start) |
-| **Build** | [Vite 7](https://vitejs.dev/) via `@lovable.dev/vite-tanstack-config` |
+| **Build** | [Vite 7](https://vitejs.dev/) + TanStack Start Vite plugin |
 | **Styling** | [Tailwind CSS 4](https://tailwindcss.com/) (`@tailwindcss/vite`) |
 | **UI components** | [shadcn/ui](https://ui.shadcn.com/) primitives ([Radix UI](https://www.radix-ui.com/)) |
 | **State / data** | [TanStack Query](https://tanstack.com/query), React Context (`app-context`, `auth-context`) |

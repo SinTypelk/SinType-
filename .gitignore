@@ -31,5 +31,9 @@ dist-ssr
 *.sln
 *.sw?
 
+# Env files (do not commit)
+.env
+.env.*
+
 # Credentials (do not commit)
 supabase real data.txt
