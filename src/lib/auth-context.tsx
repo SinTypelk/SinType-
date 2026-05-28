@@ -1,11 +1,15 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { SUPABASE_CONFIGURED, supabase } from "@/integrations/supabase/client";
 import type { Session, User } from "@supabase/supabase-js";
+import type { UserProfile } from "@/lib/profile-service";
+import { ensureProfileWithLicense, fetchProfileByUserId } from "@/lib/profile-service";
 
 interface AuthCtx {
   user: User | null;
   session: Session | null;
+  profile: UserProfile | null;
   loading: boolean;
+  profileLoading: boolean;
   authRedirectInProgress: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signUp: (email: string, password: string) => Promise<{ error: string | null }>;
@@ -18,6 +22,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [authRedirectInProgress, setAuthRedirectInProgress] = useState(false);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [profileLoading, setProfileLoading] = useState(false);
+
+  const syncProfile = async (u: User | null) => {
+    if (!u) {
+      setProfile(null);
+      setProfileLoading(false);
+      return;
+    }
+    setProfileLoading(true);
+    try {
+      // If the row exists, fetch it. If missing (first login), create it.
+      const existing = await fetchProfileByUserId(u.id);
+      const next = existing ?? (await ensureProfileWithLicense(u));
+      setProfile(next);
+    } catch {
+      // Don't block the whole app if profile sync fails; UI will show missing info.
+      setProfile(null);
+    } finally {
+      setProfileLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (!SUPABASE_CONFIGURED) {
@@ -26,6 +52,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
       setAuthRedirectInProgress(false);
       setSession(null);
+      setProfile(null);
+      setProfileLoading(false);
       return;
     }
 
@@ -57,6 +85,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.log("Current URL:", window.location.href);
       }
       setSession(s);
+      // Keep profiles in sync across session changes.
+      void syncProfile(s?.user ?? null);
       if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "USER_UPDATED") {
         setAuthRedirectInProgress(false);
       }
@@ -67,6 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .then(({ data }) => {
         setSession(data.session);
         setAuthRedirectInProgress(hasOAuthParams() && !data.session);
+        void syncProfile(data.session?.user ?? null);
 
         // If we have an OAuth callback in the URL but no session yet, keep the app in
         // a loading state briefly to give Supabase time to exchange PKCE codes.
@@ -111,7 +142,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => { await supabase.auth.signOut(); };
 
   return (
-    <Ctx.Provider value={{ user: session?.user ?? null, session, loading, authRedirectInProgress, signIn, signUp, signOut }}>
+    <Ctx.Provider
+      value={{
+        user: session?.user ?? null,
+        session,
+        profile,
+        loading,
+        profileLoading,
+        authRedirectInProgress,
+        signIn,
+        signUp,
+        signOut,
+      }}
+    >
       {children}
     </Ctx.Provider>
   );

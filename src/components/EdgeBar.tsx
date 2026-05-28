@@ -3,6 +3,8 @@ import { Home, Download, KeyRound, HelpCircle, Info, LogIn, LogOut, Moon, Sun, Z
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { useApp } from "@/lib/app-context";
 import { useAuth } from "@/lib/auth-context";
+import { useState } from "react";
+import { LoginModal } from "@/components/LoginModal";
 
 const items = [
   { to: "/", label: "Converter", icon: Home, exact: true },
@@ -15,11 +17,15 @@ const items = [
 export function EdgeBar() {
   const { theme, setTheme } = useApp();
   const { user, signOut } = useAuth();
+  const [loginOpen, setLoginOpen] = useState(false);
+  const [loginRedirect, setLoginRedirect] = useState<string>("/license");
   const path = useRouterState({ select: (s) => s.location.pathname });
   if (path.startsWith("/m/")) return null;
 
   const isActive = (to: string, exact?: boolean) =>
     exact ? path === to : path === to || path.startsWith(to + "/");
+
+  const requiresAuth = (to: string) => to === "/download" || to === "/license";
 
   return (
     <aside
@@ -30,6 +36,11 @@ export function EdgeBar() {
         WebkitBackdropFilter: "blur(22px) saturate(160%)",
       }}
     >
+      <LoginModal
+        open={loginOpen}
+        onOpenChange={setLoginOpen}
+        redirectTo={loginRedirect}
+      />
       <Link to="/" className="p-2 rounded-2xl">
         <Zap className="w-5 h-5 text-[var(--neon-cyan)] logo-glow" />
       </Link>
@@ -40,8 +51,19 @@ export function EdgeBar() {
           {items.map((it) => {
             const active = isActive(it.to, "exact" in it ? it.exact : false);
             const Icon = it.icon;
+            const locked = requiresAuth(it.to) && !user;
             return (
-              <Link key={it.to} to={it.to} className="group relative">
+              <Link
+                key={it.to}
+                to={it.to}
+                className="group relative"
+                onClick={(e) => {
+                  if (!locked) return;
+                  e.preventDefault();
+                  setLoginRedirect(it.to);
+                  setLoginOpen(true);
+                }}
+              >
                 <motion.div
                   whileHover={{ scale: 1.08 }}
                   whileTap={{ scale: 0.92 }}
@@ -66,7 +88,7 @@ export function EdgeBar() {
                   />
                 </motion.div>
                 <span className="pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 px-2 py-1 rounded-md text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition border border-border bg-card/90 backdrop-blur">
-                  {it.label}
+                  {locked ? `${it.label} (sign in)` : it.label}
                 </span>
               </Link>
             );
@@ -126,12 +148,17 @@ export function EdgeBar() {
 
 /** Compact bottom dock for mobile (sm:hidden). */
 export function EdgeDock() {
+  const { user } = useAuth();
+  const [loginOpen, setLoginOpen] = useState(false);
+  const [loginRedirect, setLoginRedirect] = useState<string>("/license");
   const path = useRouterState({ select: (s) => s.location.pathname });
   if (path.startsWith("/m/")) return null;
   const isActive = (to: string, exact?: boolean) =>
     exact ? path === to : path === to || path.startsWith(to + "/");
+  const requiresAuth = (to: string) => to === "/download" || to === "/license";
   return (
     <div className="sm:hidden fixed bottom-3 left-1/2 -translate-x-1/2 z-50">
+      <LoginModal open={loginOpen} onOpenChange={setLoginOpen} redirectTo={loginRedirect} />
       <LayoutGroup id="edgedock">
         <div
           className="flex items-center gap-1 p-1.5 rounded-full border border-white/10 shadow-2xl"
@@ -144,8 +171,18 @@ export function EdgeDock() {
           {items.map((it) => {
             const active = isActive(it.to, "exact" in it ? it.exact : false);
             const Icon = it.icon;
+            const locked = requiresAuth(it.to) && !user;
             return (
-              <Link key={it.to} to={it.to}>
+              <Link
+                key={it.to}
+                to={it.to}
+                onClick={(e) => {
+                  if (!locked) return;
+                  e.preventDefault();
+                  setLoginRedirect(it.to);
+                  setLoginOpen(true);
+                }}
+              >
                 <motion.div
                   whileTap={{ scale: 0.9 }}
                   className="relative w-10 h-10 rounded-full flex items-center justify-center"

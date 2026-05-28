@@ -3,11 +3,9 @@ import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
 function getSupabaseEnv() {
-  const url =
-    (import.meta as any).env?.VITE_SUPABASE_URL || (process as any).env?.SUPABASE_URL;
-  const anon =
-    (import.meta as any).env?.VITE_SUPABASE_ANON_KEY ||
-    (process as any).env?.SUPABASE_ANON_KEY;
+  // Strictly use Vite env vars (works locally via `.env` and in production via Netlify env vars)
+  const url = (import.meta as any).env?.VITE_SUPABASE_URL;
+  const anon = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY;
   return {
     url: typeof url === 'string' ? url : '',
     anon: typeof anon === 'string' ? anon : '',
@@ -20,20 +18,16 @@ export const SUPABASE_CONFIGURED = (() => {
 })();
 
 function createSupabaseClient() {
-  // Use import.meta.env for client-side (Vite build-time replacement)
-  // Fall back to process.env for SSR (server-side rendering)
   const { url: SUPABASE_URL, anon: SUPABASE_ANON_KEY } = getSupabaseEnv();
 
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
     const missing = [
-      ...(!SUPABASE_URL ? ['SUPABASE_URL'] : []),
-      ...(!SUPABASE_ANON_KEY ? ['SUPABASE_ANON_KEY'] : []),
+      ...(!SUPABASE_URL ? ['VITE_SUPABASE_URL'] : []),
+      ...(!SUPABASE_ANON_KEY ? ['VITE_SUPABASE_ANON_KEY'] : []),
     ];
     const message =
       `Missing Supabase environment variable(s): ${missing.join(', ')}. ` +
       `Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to enable auth/sync/telemetry.`;
-    // Don't throw here; allow the app to run without Supabase (converter still works).
-    console.warn(`[Supabase] ${message}`);
     throw new Error(message);
   }
 
@@ -43,7 +37,7 @@ function createSupabaseClient() {
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true,
-    }
+    },
   });
 }
 

@@ -10,9 +10,10 @@ type AccountPanelProps = {
 };
 
 export function AccountPanel({ compact = false }: AccountPanelProps) {
-  const { user, signOut, loading } = useAuth();
+  const { user, profile, profileLoading, signOut, loading } = useAuth();
   const [origin, setOrigin] = useState("");
   const [copied, setCopied] = useState(false);
+  const [copiedKey, setCopiedKey] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -85,6 +86,13 @@ export function AccountPanel({ compact = false }: AccountPanelProps) {
     setTimeout(() => setCopied(false), 1500);
   };
 
+  const copyKey = async () => {
+    if (!profile?.license_key) return;
+    await navigator.clipboard.writeText(profile.license_key);
+    setCopiedKey(true);
+    setTimeout(() => setCopiedKey(false), 1500);
+  };
+
   if (compact) {
     return (
       <div className={shell}>
@@ -97,6 +105,16 @@ export function AccountPanel({ compact = false }: AccountPanelProps) {
               Mobile Sync · Secondary
             </p>
             <p className="text-xs truncate text-foreground/90">{user.email}</p>
+            <p className="mt-1 text-[10px] text-muted-foreground">
+              Activation Key:{" "}
+              {profileLoading ? (
+                <span>Loading…</span>
+              ) : profile?.license_key ? (
+                <code className="font-mono">{profile.license_key}</code>
+              ) : (
+                <span>Not ready</span>
+              )}
+            </p>
             <p className="mt-1.5 text-[10px] text-muted-foreground leading-snug">
               Scan QR — phone input streams into the converter below.
             </p>
@@ -113,6 +131,18 @@ export function AccountPanel({ compact = false }: AccountPanelProps) {
                 <Copy className="w-3.5 h-3.5" />
               )}
             </button>
+          <button
+            onClick={copyKey}
+            disabled={!profile?.license_key || profileLoading}
+            className="p-1.5 rounded-md border border-border/70 hover:bg-accent/20 disabled:opacity-50"
+            title="Copy activation key"
+          >
+            {copiedKey ? (
+              <Check className="w-3.5 h-3.5 text-[var(--neon-cyan)]" />
+            ) : (
+              <Copy className="w-3.5 h-3.5" />
+            )}
+          </button>
             <button
               onClick={signOut}
               className="inline-flex items-center gap-1 text-[10px] px-2 py-1.5 rounded-md border border-border/70 hover:bg-accent/20"
@@ -136,6 +166,27 @@ export function AccountPanel({ compact = false }: AccountPanelProps) {
             Your account
           </p>
           <p className="text-base mt-0.5 truncate">{user.email}</p>
+
+          <p className="mt-4 text-[10px] uppercase tracking-widest text-muted-foreground">
+            Activation key
+          </p>
+          <div className="flex items-center gap-2 mt-1">
+            <code className="flex-1 text-xs font-mono px-3 py-2 rounded-md bg-secondary truncate">
+              {profileLoading ? "Loading…" : profile?.license_key ?? "Not ready"}
+            </code>
+            <button
+              onClick={copyKey}
+              disabled={!profile?.license_key || profileLoading}
+              className="p-2 rounded-md border border-border hover:bg-accent/30 disabled:opacity-50"
+              title="Copy activation key"
+            >
+              {copiedKey ? (
+                <Check className="w-4 h-4 text-[var(--neon-cyan)]" />
+              ) : (
+                <Copy className="w-4 h-4" />
+              )}
+            </button>
+          </div>
 
           <p className="mt-4 text-[10px] uppercase tracking-widest text-muted-foreground">
             Unique ID
