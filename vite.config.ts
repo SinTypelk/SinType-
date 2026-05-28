@@ -12,6 +12,13 @@ export default defineConfig({
     tanstackStart({
       server: { entry: "server" },
       client: { entry: "client" },
+      // Netlify static hosting needs an actual dist/client/index.html.
+      // Prerender at least the shell route (/) so deep links can fall back to index.html.
+      prerender: {
+        enabled: true,
+        crawlLinks: false,
+        failOnError: false,
+      },
     }),
   ],
 });
