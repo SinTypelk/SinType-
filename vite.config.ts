@@ -1,17 +1,14 @@
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 import tailwindcss from "@tailwindcss/vite";
+import react from "@vitejs/plugin-react";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
-import tanstackRouter from "@tanstack/router-plugin/vite";
 
 // Standard TanStack Start + Vite config (Netlify-friendly).
 export default defineConfig({
   plugins: [
     tsconfigPaths(),
-    tanstackRouter(),
-    // Tailwind v4 (required for global styling)
-    tailwindcss(),
-    // TanStack Start SSR/client build
+    // TanStack Start SSR/client build (includes TanStack Router integration)
     tanstackStart({
       server: { entry: "server" },
       client: { entry: "client" },
@@ -23,5 +20,9 @@ export default defineConfig({
         failOnError: false,
       },
     }),
+    // Required for /@react-refresh in dev (TanStack Start expects it)
+    react(),
+    // Tailwind v4 (required for global styling)
+    tailwindcss(),
   ],
 });
