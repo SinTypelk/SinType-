@@ -23,18 +23,19 @@ export function HeroDownloadCta() {
         onOpenChange={setLoginOpen}
         redirectTo="/license"
         title="Sign in to get your key"
-        description="Generate a free 7-day activation key for the Windows app after you sign in."
+        description="Generate a free 30-day activation key for the Windows app after you sign in."
       />
       <p className="text-[10px] sm:text-xs uppercase tracking-[0.35em] text-[var(--neon-cyan)] font-semibold mb-3">
         SinType.lk
       </p>
       <h1 className="font-display text-3xl sm:text-5xl lg:text-[3.25rem] font-extrabold tracking-tight leading-tight text-foreground">
-        Type Singlish.{" "}
-        <span className="neon-text">Get Sinhala Instantly.</span>
+        Professional Sinhala Typing.{" "}
+        <span className="neon-text">Sinhala Unicode &amp; FM Abhaya Converter.</span>
       </h1>
       <p className="mt-4 max-w-2xl mx-auto text-muted-foreground text-sm sm:text-base leading-relaxed">
-        The ultimate real-time transliteration tool for creators and professionals.
-        Seamlessly type in Unicode and Legacy FM fonts anywhere.
+        Lightning-fast Singlish transliteration with a professional, glassmorphic design.
+        Convert to Sinhala Unicode or Legacy FM fonts online — or install the offline
+        Windows desktop app for system-wide typing in any program.
       </p>
       <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
         <Link
@@ -62,7 +63,7 @@ export function HeroDownloadCta() {
           className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-sm sm:text-base font-semibold border border-[var(--neon-cyan)] text-[var(--neon-cyan)] hover:bg-accent/20 transition-transform hover:scale-[1.02] active:scale-[0.98]"
         >
           <KeyRound className="w-5 h-5" />
-          Generate 7-day key
+          Generate 30-day key
         </button>
       </div>
       <p className="mt-3 text-xs text-muted-foreground">

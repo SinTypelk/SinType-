@@ -2,7 +2,8 @@ import { createFileRoute, useNavigate, Link, useSearch } from "@tanstack/react-r
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
-import { LogIn, Zap } from "lucide-react";
+import { LogIn } from "lucide-react";
+import { BrandLogo } from "@/components/BrandLogo";
 
 type LoginSearch = { redirect?: string };
 
@@ -86,7 +87,10 @@ function LoginPage() {
   return (
     <section className="max-w-md mx-auto px-4 py-16">
       <div className="text-center mb-8">
-        <Zap className="w-10 h-10 text-[var(--neon-cyan)] logo-glow mx-auto" />
+        <BrandLogo
+          className="w-12 h-12 mx-auto"
+          alt="SinType sign-in logo — Singlish to Sinhala converter"
+        />
         <h1 className="font-display text-3xl neon-text mt-3">Welcome to Sintype</h1>
         <p className="text-sm text-muted-foreground mt-2">
           Sign in to generate activation keys and use mobile sync.

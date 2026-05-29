@@ -5,6 +5,8 @@ export type UserProfile = {
   id: string;
   email: string;
   license_key: string;
+  status: string;
+  expires_at: string;
   created_at: string;
   updated_at: string;
 };
@@ -13,6 +15,8 @@ type ProfileRow = {
   id: string;
   email: string | null;
   license_key: string | null;
+  status: string | null;
+  expires_at: string | null;
   created_at: string | null;
   updated_at: string | null;
 };
@@ -28,11 +32,14 @@ function rowToProfile(row: ProfileRow): UserProfile | null {
   if (!row?.id) return null;
   const email = (row.email ?? "").trim();
   const key = (row.license_key ?? "").trim();
-  if (!email || !key) return null;
+  const expiresAt = row.expires_at;
+  if (!email || !key || !expiresAt) return null;
   return {
     id: row.id,
     email,
     license_key: key,
+    status: row.status ?? "active",
+    expires_at: expiresAt,
     created_at: row.created_at ?? new Date().toISOString(),
     updated_at: row.updated_at ?? new Date().toISOString(),
   };
@@ -43,7 +50,7 @@ export async function fetchProfileByUserId(
 ): Promise<UserProfile | null> {
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, email, license_key, created_at, updated_at")
+    .select("id, email, license_key, status, expires_at, created_at, updated_at")
     .eq("id", userId)
     .maybeSingle();
 
@@ -56,8 +63,7 @@ export async function fetchProfileByUserId(
 }
 
 /**
- * Load profile created by the DB trigger on auth.users.
- * Retries briefly so OAuth sign-in is not blocked while the trigger finishes.
+ * Load profile created by the DB trigger on auth.users (30-day license).
  * Never throws — auth must keep working even if profile sync fails.
  */
 export async function loadProfileForUser(
@@ -89,14 +95,7 @@ export async function loadProfileForUser(
   console.warn(
     "[profile] No row yet for user",
     user.id,
-    "— check Supabase trigger public.handle_new_user on auth.users",
+    "— run supabase-master-schema.sql and check handle_new_user trigger",
   );
   return null;
-}
-
-/** @deprecated Use loadProfileForUser — trigger creates the row on sign-up. */
-export async function ensureProfileWithLicense(
-  user: User,
-): Promise<UserProfile | null> {
-  return loadProfileForUser(user);
 }

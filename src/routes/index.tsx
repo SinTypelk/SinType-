@@ -2,23 +2,25 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Converter } from "@/components/Converter";
 import { HeroDownloadCta } from "@/components/HeroDownloadCta";
 import { AccountPanel } from "@/components/AccountPanel";
+import {
+  HOME_DESCRIPTION,
+  HOME_TITLE,
+  canonicalLink,
+  openGraphMeta,
+} from "@/lib/site-seo";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Sintype.lk — Singlish to Sinhala Converter" },
-      {
-        name: "description",
-        content:
-          "Type Singlish and get real-time Sinhala Unicode or Legacy FM font output. Download the desktop app, voice input, history, and mobile sync.",
-      },
-      { property: "og:title", content: "Sintype.lk — Singlish to Sinhala Converter" },
-      {
-        property: "og:description",
-        content: "Type Singlish. Get Sinhala instantly. Unicode + Legacy FM. Download the desktop app.",
-      },
+      { title: HOME_TITLE },
+      { name: "description", content: HOME_DESCRIPTION },
+      ...openGraphMeta({
+        title: HOME_TITLE,
+        description: HOME_DESCRIPTION,
+        path: "/",
+      }),
     ],
-    links: [{ rel: "canonical", href: "/" }],
+    links: [canonicalLink("/")],
   }),
   component: Index,
 });

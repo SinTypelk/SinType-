@@ -1,13 +1,16 @@
 import { supabase } from "@/integrations/supabase/client";
 
-export const LICENSE_DAYS = 7;
-export const SEVEN_DAYS_MS = LICENSE_DAYS * 24 * 60 * 60 * 1000;
+export const LICENSE_DAYS = 30;
+export const LICENSE_MS = LICENSE_DAYS * 24 * 60 * 60 * 1000;
+
+/** @deprecated use LICENSE_MS */
+export const SEVEN_DAYS_MS = LICENSE_MS;
 
 export interface UserLicense {
   license_key: string;
   email: string;
   created_at: string;
-  /** Absolute expiry (from `expires_at` or created_at + 7 days). */
+  /** Absolute expiry (from `expires_at` or created_at + 30 days). */
   expires_at: string;
   expiry_date: string;
   status: string;
@@ -34,9 +37,9 @@ export function generateLicenseKey(): string {
   return `STKR-${segment()}-${segment()}-${segment()}`;
 }
 
-/** Expiry = exactly 7 days after `created_at`. */
+/** Expiry = exactly 30 days after `created_at`. */
 export function computeExpiresAtFromCreated(createdAt: Date): Date {
-  return new Date(createdAt.getTime() + SEVEN_DAYS_MS);
+  return new Date(createdAt.getTime() + LICENSE_MS);
 }
 
 function normalizeEmail(email: string): string {
@@ -88,7 +91,9 @@ function rowToUserLicense(row: LicenseRow): UserLicense | null {
     return null;
   }
   const createdAt = row.created_at ?? new Date().toISOString();
-  const expiresIso = resolveExpiresAtIso(row) ?? computeExpiresAtFromCreated(new Date(createdAt)).toISOString();
+  const expiresIso =
+    resolveExpiresAtIso(row) ??
+    computeExpiresAtFromCreated(new Date(createdAt)).toISOString();
   const expiryDate =
     row.expiry_date ?? new Date(expiresIso).toISOString().split("T")[0];
 
@@ -133,20 +138,22 @@ export async function fetchActiveLicenseForEmail(
   return null;
 }
 
-/** Return existing active license or create a new 7-day key. */
-export async function getOrCreateSevenDayLicense(
-  email: string,
-): Promise<UserLicense> {
+/** Return existing active license or create a new 30-day key. */
+export async function getOrCreateLicense(email: string): Promise<UserLicense> {
   const existing = await fetchActiveLicenseForEmail(email);
   if (existing) {
     return existing;
   }
-  return createSevenDayLicense(email);
+  return createLicense(email);
 }
 
-/** Create a new 7-day license; `expires_at` is always created_at + 7 days. */
-export async function createSevenDayLicense(
+/** @deprecated use getOrCreateLicense */
+export const getOrCreateSevenDayLicense = getOrCreateLicense;
+
+/** Create a new 30-day license; `expires_at` is created_at + 30 days. */
+export async function createLicense(
   email: string,
+  userId?: string,
 ): Promise<UserLicense> {
   const normalized = normalizeEmail(email);
   const createdAt = new Date();
@@ -157,6 +164,7 @@ export async function createSevenDayLicense(
   const { data, error } = await supabase
     .from("licenses")
     .insert({
+      user_id: userId ?? null,
       email: normalized,
       license_key: key,
       key_code: key,
@@ -176,6 +184,18 @@ export async function createSevenDayLicense(
     throw new Error(error.message);
   }
 
+  if (userId) {
+    await supabase
+      .from("profiles")
+      .update({
+        email: normalized,
+        license_key: key,
+        status: "active",
+        expires_at: expiresAt.toISOString(),
+      })
+      .eq("id", userId);
+  }
+
   const license = rowToUserLicense(data as LicenseRow);
   if (!license) {
     throw new Error("License was created but could not be read back.");
@@ -183,7 +203,9 @@ export async function createSevenDayLicense(
   return license;
 }
 
-/** @deprecated Use UserLicense — kept for copy/progress helpers. */
+/** @deprecated use createLicense */
+export const createSevenDayLicense = createLicense;
+
 export function userLicenseToDisplay(license: UserLicense): GeneratedLicense {
   const createdMs = new Date(license.created_at).getTime();
   const expiresMs = new Date(license.expires_at).getTime();
@@ -192,5 +214,27 @@ export function userLicenseToDisplay(license: UserLicense): GeneratedLicense {
     created_at: createdMs,
     expires_at: expiresMs,
     expiry_date: license.expiry_date,
+  };
+}
+
+/** Map profile row (from trigger) to dashboard license display. */
+export function profileToUserLicense(profile: {
+  email: string;
+  license_key: string;
+  status: string;
+  expires_at: string;
+  created_at: string;
+}): UserLicense {
+  const expiresIso = profile.expires_at;
+  return {
+    license_key: profile.license_key,
+    email: profile.email,
+    created_at: profile.created_at,
+    expires_at: expiresIso,
+    expiry_date: new Date(expiresIso).toISOString().split("T")[0],
+    status: profile.status,
+    is_active:
+      profile.status === "active" &&
+      new Date(expiresIso).getTime() > Date.now(),
   };
 }

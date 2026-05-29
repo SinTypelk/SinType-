@@ -1,5 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LogIn, LogOut, Moon, Sun, Zap } from "lucide-react";
+import { LogIn, LogOut, Moon, Sun } from "lucide-react";
+import { BrandLogo } from "@/components/BrandLogo";
 import { useApp } from "@/lib/app-context";
 import { useAuth } from "@/lib/auth-context";
 
@@ -14,7 +15,10 @@ export function Navbar() {
     <header className="sticky top-0 z-40 backdrop-blur-xl bg-background/70 border-b border-border">
       <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-3 gap-4">
         <Link to="/" className="flex items-center gap-2">
-          <Zap className="w-6 h-6 text-[var(--neon-cyan)] logo-glow" />
+          <BrandLogo
+            className="w-7 h-7"
+            alt="SinType logo — Singlish to Sinhala converter home"
+          />
           <span className="font-display text-lg sm:text-xl font-bold tracking-wider neon-text">
             Sintype.lk
           </span>

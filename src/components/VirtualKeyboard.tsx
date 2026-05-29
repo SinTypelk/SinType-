@@ -118,9 +118,10 @@ function KeyGrid({
       className="grid gap-1.5 justify-items-center"
       style={{ gridTemplateColumns: "repeat(auto-fill, minmax(36px, 1fr))" }}
     >
-      {items.map((ch, i) => (
+      {items.map((ch, i) =>
+        !ch.trim() ? null : (
         <motion.button
-          key={i}
+          key={`${ch}-${i}`}
           whileTap={{ scale: 0.9 }}
           transition={{ type: "spring", stiffness: 500, damping: 18 }}
           className="vk-key vk-key-sm"
@@ -129,7 +130,8 @@ function KeyGrid({
         >
           {ch}
         </motion.button>
-      ))}
+        ),
+      )}
     </div>
   );
 }

@@ -5,7 +5,9 @@ import { Loader2, Copy, Check, KeyRound, LogIn } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import {
   fetchActiveLicenseForEmail,
-  getOrCreateSevenDayLicense,
+  getOrCreateLicense,
+  LICENSE_DAYS,
+  profileToUserLicense,
   userLicenseToDisplay,
   type UserLicense,
 } from "@/lib/license-service";
@@ -16,11 +18,11 @@ import { OptionalShareCard } from "@/components/OptionalShareCard";
 export const Route = createFileRoute("/license")({
   head: () => ({
     meta: [
-      { title: "Get a 7-day Activation Key — SinType.lk" },
+      { title: "Get a 30-day Activation Key — SinType.lk" },
       {
         name: "description",
         content:
-          "Sign in and get a free 7-day activation key for the SinType Windows desktop app.",
+          "Sign in and get a free 30-day activation key for the SinType Windows desktop app.",
       },
     ],
   }),
@@ -28,29 +30,36 @@ export const Route = createFileRoute("/license")({
 });
 
 function LicenseHub() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, profile, profileLoading: authProfileLoading, loading: authLoading } = useAuth();
   const [loginOpen, setLoginOpen] = useState(false);
   const [license, setLicense] = useState<UserLicense | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const loadLicense = useCallback(async (email: string) => {
-    setProfileLoading(true);
-    setError(null);
-    try {
-      const active = await fetchActiveLicenseForEmail(email);
-      setLicense(active);
-    } catch (e: unknown) {
-      setError((e as Error).message ?? "Could not load your license.");
-      setLicense(null);
-    } finally {
-      setProfileLoading(false);
-    }
-  }, []);
+  const loadLicense = useCallback(
+    async (email: string, fromProfile?: typeof profile) => {
+      setProfileLoading(true);
+      setError(null);
+      try {
+        if (fromProfile?.license_key && fromProfile.expires_at) {
+          setLicense(profileToUserLicense(fromProfile));
+          return;
+        }
+        const active = await fetchActiveLicenseForEmail(email);
+        setLicense(active);
+      } catch (e: unknown) {
+        setError((e as Error).message ?? "Could not load your license.");
+        setLicense(null);
+      } finally {
+        setProfileLoading(false);
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
-    if (authLoading) {
+    if (authLoading || authProfileLoading) {
       return;
     }
     if (!user?.email) {
@@ -58,8 +67,8 @@ function LicenseHub() {
       setProfileLoading(false);
       return;
     }
-    loadLicense(user.email);
-  }, [user?.email, authLoading, loadLicense]);
+    loadLicense(user.email, profile ?? undefined);
+  }, [user?.email, authLoading, authProfileLoading, profile, loadLicense]);
 
   const generate = async () => {
     if (!user) {
@@ -75,7 +84,7 @@ function LicenseHub() {
     setGenerating(true);
 
     try {
-      const record = await getOrCreateSevenDayLicense(user.email);
+      const record = await getOrCreateLicense(user.email, user.id);
       setLicense(record);
     } catch (e: unknown) {
       setError((e as Error).message ?? "Could not create your key. Try again.");
@@ -95,7 +104,7 @@ function LicenseHub() {
         <p className="text-[11px] uppercase tracking-[0.35em] text-muted-foreground">License</p>
         <h1 className="font-display text-4xl sm:text-5xl font-bold mt-2">Activation Hub</h1>
         <p className="mt-3 text-muted-foreground max-w-xl">
-          Sign in to get a free 7-day activation key for the Windows desktop app. If you already
+          Sign in to get a free {LICENSE_DAYS}-day activation key for the Windows desktop app. If you already
           have an active key, we will show it here instead of creating a duplicate.
           {!authLoading && !user && (
             <span className="block mt-2 text-[var(--neon-cyan)]">
@@ -118,7 +127,7 @@ function LicenseHub() {
         <LicenseProfileCard
           email={user.email}
           license={license}
-          loading={profileLoading || authLoading}
+          loading={profileLoading || authLoading || authProfileLoading}
         />
       )}
 
@@ -169,17 +178,7 @@ function LicenseHub() {
           )}
         </AnimatePresence>
 
-        {user && hasActiveKey && !generating && (
-          <div className="flex justify-center">
-            <button
-              type="button"
-              onClick={() => user.email && loadLicense(user.email)}
-              className="text-xs text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
-            >
-              Refresh license info
-            </button>
-          </div>
-        )}
+        {user && hasActiveKey && !generating && <LicenseInstructionsCard />}
 
         {error && user && (
           <p className="text-sm text-destructive text-center">{error}</p>
@@ -188,6 +187,31 @@ function LicenseHub() {
         {user && <OptionalShareCard />}
       </div>
     </section>
+  );
+}
+
+function LicenseInstructionsCard() {
+  return (
+    <div
+      className="rounded-2xl border border-white/10 p-5 sm:p-6 space-y-3"
+      style={{
+        background: "color-mix(in oklab, var(--card) 80%, transparent)",
+        backdropFilter: "blur(16px)",
+      }}
+    >
+      <h3 className="font-display text-lg">Using your license</h3>
+      <ol className="list-decimal pl-5 space-y-2 text-sm text-muted-foreground leading-relaxed">
+        <li>
+          Your license is valid for <strong className="text-foreground">{LICENSE_DAYS} days</strong>{" "}
+          and requires renewal every month.
+        </li>
+        <li>
+          To use SinType Desktop, copy your <strong className="text-foreground">Activation Key</strong>{" "}
+          above and paste it into the Desktop app&apos;s License section (use the same email you
+          signed in with here).
+        </li>
+      </ol>
+    </div>
   );
 }
 
@@ -203,7 +227,7 @@ function GuestCard({ onSignIn }: { onSignIn: () => void }) {
       <KeyRound className="w-10 h-10 mx-auto text-[var(--neon-cyan)]" />
       <h2 className="font-display text-2xl mt-4">Sign in to generate your key</h2>
       <p className="text-sm text-muted-foreground mt-2 max-w-md mx-auto">
-        Use email/password or Google. No sharing required — one free 7-day key per account while
+        Use email/password or Google. No sharing required — one free {LICENSE_DAYS}-day key per account while
         active.
       </p>
       <button
@@ -239,7 +263,7 @@ function GenerateCard({
     >
       <h2 className="font-display text-2xl">Generate activation key</h2>
       <p className="text-sm text-muted-foreground mt-2 max-w-lg">
-        Your key stays active for 7 days from the moment it is created.
+        Your key stays active for {LICENSE_DAYS} days from the moment it is created.
       </p>
       <motion.button
         type="button"
@@ -289,18 +313,24 @@ function KeyCard({
 
   return (
     <div
-      className="rounded-3xl border border-white/10 p-8 grid lg:grid-cols-[auto_1fr] gap-8 items-center"
+      className="rounded-3xl border border-white/10 p-8 grid lg:grid-cols-[auto_1fr] gap-8 items-start lg:items-center"
       style={{
         background: "color-mix(in oklab, var(--card) 85%, transparent)",
         backdropFilter: "blur(20px)",
       }}
     >
-      <div className="relative w-[140px] h-[140px] grid place-items-center justify-self-center">
-        <svg width="140" height="140" viewBox="0 0 140 140" className="-rotate-90">
-          <circle cx="70" cy="70" r={r} stroke="var(--border)" strokeWidth="6" fill="none" />
+      <div className="relative w-[132px] h-[132px] shrink-0 mx-auto lg:mx-0">
+        <svg
+          width="132"
+          height="132"
+          viewBox="0 0 132 132"
+          className="-rotate-90 block"
+          aria-hidden
+        >
+          <circle cx="66" cy="66" r={r} stroke="var(--border)" strokeWidth="6" fill="none" />
           <motion.circle
-            cx="70"
-            cy="70"
+            cx="66"
+            cy="66"
             r={r}
             stroke="url(#kg)"
             strokeWidth="6"
@@ -318,13 +348,11 @@ function KeyCard({
             </linearGradient>
           </defs>
         </svg>
-        <div className="absolute inset-0 grid place-items-center text-center">
-          <div>
-            <p className="font-display text-3xl">{daysLeft}</p>
-            <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-              Days left
-            </p>
-          </div>
+        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+          <p className="font-display text-3xl leading-none tabular-nums">{daysLeft}</p>
+          <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mt-1">
+            days left
+          </p>
         </div>
       </div>
 

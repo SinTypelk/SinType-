@@ -48,7 +48,7 @@ export function LoginModal({
   onOpenChange,
   redirectTo = "/license",
   title = "Sign in required",
-  description = "You must be signed in to generate a 7-day activation key for the desktop app.",
+  description = "You must be signed in to generate a 30-day activation key for the desktop app.",
 }: LoginModalProps) {
   const navigate = useNavigate();
   const { signIn, signUp } = useAuth();

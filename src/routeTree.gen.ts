@@ -17,10 +17,18 @@ import { Route as LicenseRouteImport } from './routes/license'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as DownloadRouteImport } from './routes/download'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as MSessionIdRouteImport } from './routes/m.$sessionId'
+import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
+import { Route as AdminDashboardIndexRouteImport } from './routes/admin/dashboard.index'
 import { Route as ApiSinhalaLearnRouteImport } from './routes/api/sinhala/learn'
+import { Route as AdminDashboardUsersRouteImport } from './routes/admin/dashboard.users'
+import { Route as AdminDashboardUpdatesRouteImport } from './routes/admin/dashboard.updates'
+import { Route as AdminDashboardNotificationsRouteImport } from './routes/admin/dashboard.notifications'
+import { Route as AdminDashboardFeedbackRouteImport } from './routes/admin/dashboard.feedback'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -62,6 +70,11 @@ const ContactRoute = ContactRouteImport.update({
   path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
@@ -72,20 +85,57 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
 const MSessionIdRoute = MSessionIdRouteImport.update({
   id: '/m/$sessionId',
   path: '/m/$sessionId',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminDashboardRoute = AdminDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminDashboardIndexRoute = AdminDashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminDashboardRoute,
 } as any)
 const ApiSinhalaLearnRoute = ApiSinhalaLearnRouteImport.update({
   id: '/api/sinhala/learn',
   path: '/api/sinhala/learn',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminDashboardUsersRoute = AdminDashboardUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AdminDashboardRoute,
+} as any)
+const AdminDashboardUpdatesRoute = AdminDashboardUpdatesRouteImport.update({
+  id: '/updates',
+  path: '/updates',
+  getParentRoute: () => AdminDashboardRoute,
+} as any)
+const AdminDashboardNotificationsRoute =
+  AdminDashboardNotificationsRouteImport.update({
+    id: '/notifications',
+    path: '/notifications',
+    getParentRoute: () => AdminDashboardRoute,
+  } as any)
+const AdminDashboardFeedbackRoute = AdminDashboardFeedbackRouteImport.update({
+  id: '/feedback',
+  path: '/feedback',
+  getParentRoute: () => AdminDashboardRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/admin': typeof AdminRouteWithChildren
   '/contact': typeof ContactRoute
   '/download': typeof DownloadRoute
   '/faq': typeof FaqRoute
@@ -94,8 +144,15 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/admin/dashboard': typeof AdminDashboardRouteWithChildren
   '/m/$sessionId': typeof MSessionIdRoute
+  '/admin/': typeof AdminIndexRoute
+  '/admin/dashboard/feedback': typeof AdminDashboardFeedbackRoute
+  '/admin/dashboard/notifications': typeof AdminDashboardNotificationsRoute
+  '/admin/dashboard/updates': typeof AdminDashboardUpdatesRoute
+  '/admin/dashboard/users': typeof AdminDashboardUsersRoute
   '/api/sinhala/learn': typeof ApiSinhalaLearnRoute
+  '/admin/dashboard/': typeof AdminDashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -109,12 +166,19 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/m/$sessionId': typeof MSessionIdRoute
+  '/admin': typeof AdminIndexRoute
+  '/admin/dashboard/feedback': typeof AdminDashboardFeedbackRoute
+  '/admin/dashboard/notifications': typeof AdminDashboardNotificationsRoute
+  '/admin/dashboard/updates': typeof AdminDashboardUpdatesRoute
+  '/admin/dashboard/users': typeof AdminDashboardUsersRoute
   '/api/sinhala/learn': typeof ApiSinhalaLearnRoute
+  '/admin/dashboard': typeof AdminDashboardIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/admin': typeof AdminRouteWithChildren
   '/contact': typeof ContactRoute
   '/download': typeof DownloadRoute
   '/faq': typeof FaqRoute
@@ -123,14 +187,22 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/admin/dashboard': typeof AdminDashboardRouteWithChildren
   '/m/$sessionId': typeof MSessionIdRoute
+  '/admin/': typeof AdminIndexRoute
+  '/admin/dashboard/feedback': typeof AdminDashboardFeedbackRoute
+  '/admin/dashboard/notifications': typeof AdminDashboardNotificationsRoute
+  '/admin/dashboard/updates': typeof AdminDashboardUpdatesRoute
+  '/admin/dashboard/users': typeof AdminDashboardUsersRoute
   '/api/sinhala/learn': typeof ApiSinhalaLearnRoute
+  '/admin/dashboard/': typeof AdminDashboardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/about'
+    | '/admin'
     | '/contact'
     | '/download'
     | '/faq'
@@ -139,8 +211,15 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/sitemap.xml'
     | '/terms'
+    | '/admin/dashboard'
     | '/m/$sessionId'
+    | '/admin/'
+    | '/admin/dashboard/feedback'
+    | '/admin/dashboard/notifications'
+    | '/admin/dashboard/updates'
+    | '/admin/dashboard/users'
     | '/api/sinhala/learn'
+    | '/admin/dashboard/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -154,11 +233,18 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/m/$sessionId'
+    | '/admin'
+    | '/admin/dashboard/feedback'
+    | '/admin/dashboard/notifications'
+    | '/admin/dashboard/updates'
+    | '/admin/dashboard/users'
     | '/api/sinhala/learn'
+    | '/admin/dashboard'
   id:
     | '__root__'
     | '/'
     | '/about'
+    | '/admin'
     | '/contact'
     | '/download'
     | '/faq'
@@ -167,13 +253,21 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/sitemap.xml'
     | '/terms'
+    | '/admin/dashboard'
     | '/m/$sessionId'
+    | '/admin/'
+    | '/admin/dashboard/feedback'
+    | '/admin/dashboard/notifications'
+    | '/admin/dashboard/updates'
+    | '/admin/dashboard/users'
     | '/api/sinhala/learn'
+    | '/admin/dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  AdminRoute: typeof AdminRouteWithChildren
   ContactRoute: typeof ContactRoute
   DownloadRoute: typeof DownloadRoute
   FaqRoute: typeof FaqRoute
@@ -244,6 +338,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/about': {
       id: '/about'
       path: '/about'
@@ -258,12 +359,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/m/$sessionId': {
       id: '/m/$sessionId'
       path: '/m/$sessionId'
       fullPath: '/m/$sessionId'
       preLoaderRoute: typeof MSessionIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/dashboard': {
+      id: '/admin/dashboard'
+      path: '/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AdminDashboardRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/dashboard/': {
+      id: '/admin/dashboard/'
+      path: '/'
+      fullPath: '/admin/dashboard/'
+      preLoaderRoute: typeof AdminDashboardIndexRouteImport
+      parentRoute: typeof AdminDashboardRoute
     }
     '/api/sinhala/learn': {
       id: '/api/sinhala/learn'
@@ -272,12 +394,73 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiSinhalaLearnRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/dashboard/users': {
+      id: '/admin/dashboard/users'
+      path: '/users'
+      fullPath: '/admin/dashboard/users'
+      preLoaderRoute: typeof AdminDashboardUsersRouteImport
+      parentRoute: typeof AdminDashboardRoute
+    }
+    '/admin/dashboard/updates': {
+      id: '/admin/dashboard/updates'
+      path: '/updates'
+      fullPath: '/admin/dashboard/updates'
+      preLoaderRoute: typeof AdminDashboardUpdatesRouteImport
+      parentRoute: typeof AdminDashboardRoute
+    }
+    '/admin/dashboard/notifications': {
+      id: '/admin/dashboard/notifications'
+      path: '/notifications'
+      fullPath: '/admin/dashboard/notifications'
+      preLoaderRoute: typeof AdminDashboardNotificationsRouteImport
+      parentRoute: typeof AdminDashboardRoute
+    }
+    '/admin/dashboard/feedback': {
+      id: '/admin/dashboard/feedback'
+      path: '/feedback'
+      fullPath: '/admin/dashboard/feedback'
+      preLoaderRoute: typeof AdminDashboardFeedbackRouteImport
+      parentRoute: typeof AdminDashboardRoute
+    }
   }
 }
+
+interface AdminDashboardRouteChildren {
+  AdminDashboardFeedbackRoute: typeof AdminDashboardFeedbackRoute
+  AdminDashboardNotificationsRoute: typeof AdminDashboardNotificationsRoute
+  AdminDashboardUpdatesRoute: typeof AdminDashboardUpdatesRoute
+  AdminDashboardUsersRoute: typeof AdminDashboardUsersRoute
+  AdminDashboardIndexRoute: typeof AdminDashboardIndexRoute
+}
+
+const AdminDashboardRouteChildren: AdminDashboardRouteChildren = {
+  AdminDashboardFeedbackRoute: AdminDashboardFeedbackRoute,
+  AdminDashboardNotificationsRoute: AdminDashboardNotificationsRoute,
+  AdminDashboardUpdatesRoute: AdminDashboardUpdatesRoute,
+  AdminDashboardUsersRoute: AdminDashboardUsersRoute,
+  AdminDashboardIndexRoute: AdminDashboardIndexRoute,
+}
+
+const AdminDashboardRouteWithChildren = AdminDashboardRoute._addFileChildren(
+  AdminDashboardRouteChildren,
+)
+
+interface AdminRouteChildren {
+  AdminDashboardRoute: typeof AdminDashboardRouteWithChildren
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminDashboardRoute: AdminDashboardRouteWithChildren,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  AdminRoute: AdminRouteWithChildren,
   ContactRoute: ContactRoute,
   DownloadRoute: DownloadRoute,
   FaqRoute: FaqRoute,

@@ -272,3 +272,33 @@
   background: color-mix(in oklab, var(--neon-cyan) 55%, transparent);
 }
 .vk-scroll { scrollbar-width: thin; scrollbar-color: color-mix(in oklab, var(--neon-purple) 45%, transparent) transparent; }
+
+/* Admin console (Nebula) */
+:root {
+  --gradient-primary: linear-gradient(
+    135deg,
+    var(--neon-cyan),
+    var(--neon-purple)
+  );
+  --gradient-surface: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--card) 95%, transparent),
+    color-mix(in oklab, var(--background) 90%, transparent)
+  );
+  --shadow-glow: 0 0 40px -8px color-mix(in oklab, var(--neon-cyan) 40%, transparent);
+  --shadow-elegant: 0 10px 40px -10px color-mix(in oklab, var(--background) 60%, transparent);
+  --success: oklch(0.72 0.18 155);
+}
+
+@utility glass-panel {
+  background: color-mix(in oklab, var(--card) 80%, transparent);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+}
+
+@utility text-gradient {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}

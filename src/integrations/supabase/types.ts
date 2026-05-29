@@ -38,45 +38,159 @@ export type Database = {
         }
         Relationships: []
       }
+      app_updates: {
+        Row: {
+          created_at: string
+          download_url: string
+          id: string
+          is_critical: boolean
+          release_notes: string
+          version_number: string
+        }
+        Insert: {
+          created_at?: string
+          download_url: string
+          id?: string
+          is_critical?: boolean
+          release_notes?: string
+          version_number: string
+        }
+        Update: {
+          created_at?: string
+          download_url?: string
+          id?: string
+          is_critical?: boolean
+          release_notes?: string
+          version_number?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          title: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          title?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          title?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_feedback: {
+        Row: {
+          created_at: string
+          email: string | null
+          feedback_type: string
+          id: string
+          machine_id: string
+          message: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          feedback_type: string
+          id?: string
+          machine_id: string
+          message: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          feedback_type?: string
+          id?: string
+          machine_id?: string
+          message?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       licenses: {
         Row: {
-          created_at: string | null
-          email: string | null
-          expires_at: string | null
-          expiry_date: string | null
+          created_at: string
+          email: string
+          expires_at: string
+          expiry_date: string
           id: string
           is_active: boolean
           is_ad_key: boolean
           key_code: string | null
-          license_key: string | null
+          license_key: string
           machine_id: string | null
-          status: string | null
+          status: string
+          updated_at: string
+          user_id: string | null
         }
         Insert: {
-          created_at?: string | null
-          email?: string | null
-          expires_at?: string | null
-          expiry_date?: string | null
+          created_at?: string
+          email: string
+          expires_at: string
+          expiry_date: string
           id?: string
           is_active?: boolean
           is_ad_key?: boolean
           key_code?: string | null
-          license_key?: string | null
+          license_key: string
           machine_id?: string | null
-          status?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
         }
         Update: {
-          created_at?: string | null
-          email?: string | null
-          expires_at?: string | null
-          expiry_date?: string | null
+          created_at?: string
+          email?: string
+          expires_at?: string
+          expiry_date?: string
           id?: string
           is_active?: boolean
           is_ad_key?: boolean
           key_code?: string | null
-          license_key?: string | null
+          license_key?: string
           machine_id?: string | null
-          status?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      reviews: {
+        Row: {
+          comment: string
+          created_at: string
+          display_name: string | null
+          id: string
+          rating: number
+          user_id: string | null
+        }
+        Insert: {
+          comment: string
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          rating: number
+          user_id?: string | null
+        }
+        Update: {
+          comment?: string
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          rating?: number
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -84,22 +198,28 @@ export type Database = {
         Row: {
           created_at: string
           email: string
+          expires_at: string
           id: string
           license_key: string
+          status: string
           updated_at: string
         }
         Insert: {
           created_at?: string
           email: string
+          expires_at: string
           id: string
           license_key: string
+          status?: string
           updated_at?: string
         }
         Update: {
           created_at?: string
           email?: string
+          expires_at?: string
           id?: string
           license_key?: string
+          status?: string
           updated_at?: string
         }
         Relationships: []

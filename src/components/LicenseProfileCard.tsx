@@ -1,5 +1,5 @@
 import { Mail, KeyRound, CalendarClock, ShieldCheck } from "lucide-react";
-import type { UserLicense } from "@/lib/license-service";
+import { LICENSE_DAYS, type UserLicense } from "@/lib/license-service";
 
 type LicenseProfileCardProps = {
   email: string;
@@ -18,6 +18,70 @@ function formatDate(iso: string): string {
   }
 }
 
+function daysLeftFromExpiry(expiresAt: string | null): number {
+  if (!expiresAt) return 0;
+  const ms = new Date(expiresAt).getTime() - Date.now();
+  return Math.max(0, Math.ceil(ms / (1000 * 60 * 60 * 24)));
+}
+
+function DaysRing({
+  daysLeft,
+  loading,
+  isExpired,
+}: {
+  daysLeft: number;
+  loading: boolean;
+  isExpired: boolean;
+}) {
+  const size = 100;
+  const r = 38;
+  const c = 2 * Math.PI * r;
+  const progress =
+    !loading && !isExpired ? Math.min(1, daysLeft / LICENSE_DAYS) : 0;
+
+  return (
+    <div
+      className="relative shrink-0"
+      style={{ width: size, height: size }}
+    >
+      <svg
+        width={size}
+        height={size}
+        viewBox={`0 0 ${size} ${size}`}
+        className="-rotate-90 block"
+      >
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          stroke="var(--border)"
+          strokeWidth="6"
+          fill="none"
+        />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          stroke="var(--neon-cyan)"
+          strokeWidth="6"
+          fill="none"
+          strokeLinecap="round"
+          strokeDasharray={c}
+          strokeDashoffset={c * (1 - progress)}
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+        <span className="font-display text-2xl leading-none tabular-nums">
+          {loading ? "…" : daysLeft}
+        </span>
+        <span className="text-[9px] uppercase tracking-wider text-muted-foreground mt-0.5">
+          days left
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export function LicenseProfileCard({
   email,
   license,
@@ -25,6 +89,7 @@ export function LicenseProfileCard({
 }: LicenseProfileCardProps) {
   const expiryIso = license?.expires_at ?? null;
   const isExpired = expiryIso ? new Date(expiryIso).getTime() <= Date.now() : false;
+  const daysLeft = daysLeftFromExpiry(expiryIso);
 
   return (
     <div
@@ -38,17 +103,19 @@ export function LicenseProfileCard({
         <ShieldCheck className="w-3.5 h-3.5 text-[var(--neon-cyan)]" />
         License info
       </div>
-      <h2 className="font-display text-2xl mt-2">My profile</h2>
-      <p className="text-sm text-muted-foreground mt-1">
-        Your account and desktop activation details from Supabase.
-      </p>
 
-      <dl className="mt-6 grid gap-4 sm:grid-cols-1">
-        <ProfileRow
-          icon={Mail}
-          label="User email"
-          value={loading ? "…" : email}
-        />
+      <div className="mt-5 flex flex-col sm:flex-row items-center sm:items-start gap-5">
+        <DaysRing daysLeft={daysLeft} loading={loading} isExpired={isExpired} />
+        <div className="flex-1 min-w-0 text-center sm:text-left">
+          <h2 className="font-display text-2xl">My profile</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Valid days load automatically when you open this page.
+          </p>
+        </div>
+      </div>
+
+      <dl className="mt-6 grid gap-4">
+        <ProfileRow icon={Mail} label="User email" value={loading ? "…" : email} />
         <ProfileRow
           icon={KeyRound}
           label="Active license key"
@@ -62,18 +129,12 @@ export function LicenseProfileCard({
         <ProfileRow
           icon={CalendarClock}
           label="Expiry date"
-          value={
-            loading
-              ? "…"
-              : expiryIso
-                ? formatDate(expiryIso)
-                : "—"
-          }
+          value={loading ? "…" : expiryIso ? formatDate(expiryIso) : "—"}
           hint={
             license && !loading
               ? isExpired
                 ? "This key has expired."
-                : `Valid for 7 days from issue (${formatDate(license.created_at)})`
+                : `${daysLeft} day(s) remaining · ${LICENSE_DAYS}-day license`
               : undefined
           }
         />

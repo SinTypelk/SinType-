@@ -1,5 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, Download, KeyRound, HelpCircle, Info, LogIn, LogOut, Moon, Sun, Zap } from "lucide-react";
+import { Home, Download, KeyRound, HelpCircle, Info, LogIn, LogOut, Moon, Sun } from "lucide-react";
+import { BrandLogo } from "@/components/BrandLogo";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { useApp } from "@/lib/app-context";
 import { useAuth } from "@/lib/auth-context";
@@ -41,8 +42,11 @@ export function EdgeBar() {
         onOpenChange={setLoginOpen}
         redirectTo={loginRedirect}
       />
-      <Link to="/" className="p-2 rounded-2xl">
-        <Zap className="w-5 h-5 text-[var(--neon-cyan)] logo-glow" />
+      <Link to="/" className="p-1.5 rounded-2xl" title="SinType home">
+        <BrandLogo
+          className="w-8 h-8"
+          alt="SinType Desktop App toolbar logo — home"
+        />
       </Link>
       <div className="h-px w-8 bg-white/10 my-1" />
 

@@ -1,4 +1,11 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { SUPABASE_CONFIGURED, supabase } from "@/integrations/supabase/client";
 import type { Session, User } from "@supabase/supabase-js";
 import type { UserProfile } from "@/lib/profile-service";
@@ -18,12 +25,37 @@ interface AuthCtx {
 
 const Ctx = createContext<AuthCtx | null>(null);
 
+function hasOAuthCallbackParams(): boolean {
+  if (typeof window === "undefined") return false;
+  const hash = window.location.hash || "";
+  const search = window.location.search || "";
+  return (
+    hash.includes("access_token=") ||
+    hash.includes("refresh_token=") ||
+    search.includes("code=") ||
+    search.includes("error=")
+  );
+}
+
+function cleanOAuthCallbackUrl(): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.history.replaceState({}, document.title, window.location.pathname || "/");
+  } catch {
+    // ignore
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [authRedirectInProgress, setAuthRedirectInProgress] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
+
+  const initDoneRef = useRef(false);
+  const oauthPendingRef = useRef(false);
+  const urlCleanupTimerRef = useRef<number | null>(null);
 
   const syncProfile = async (u: User | null) => {
     if (!u) {
@@ -33,7 +65,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     setProfileLoading(true);
     try {
-      // Profile row is created by DB trigger on auth.users — app only reads it.
       const next = await loadProfileForUser(u);
       setProfile(next);
     } catch (err) {
@@ -46,8 +77,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!SUPABASE_CONFIGURED) {
-      // Allow the app to run (converter/marketing pages) even if Supabase env vars
-      // are not set. Auth/mobilesync/license pages will prompt for configuration.
       setLoading(false);
       setAuthRedirectInProgress(false);
       setSession(null);
@@ -56,74 +85,95 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const hasOAuthParams = () => {
-      if (typeof window === "undefined") return false;
-      const hash = window.location.hash || "";
-      const search = window.location.search || "";
-      // Covers implicit flow (#access_token=...) and PKCE (?code=...)
-      return (
-        hash.includes("access_token=") ||
-        hash.includes("refresh_token=") ||
-        hash.includes("&access_token=") ||
-        search.includes("code=") ||
-        search.includes("error=")
-      );
+    oauthPendingRef.current = hasOAuthCallbackParams();
+    setAuthRedirectInProgress(oauthPendingRef.current);
+
+    const applySession = (next: Session | null) => {
+      setSession(next);
+      void syncProfile(next?.user ?? null);
     };
 
-    if (typeof window !== "undefined") {
-      // Requested debugging: confirm whether code/tokens arrive before being wiped.
-      // eslint-disable-next-line no-console
-      console.log("Current URL:", window.location.href);
-    }
-
-    setAuthRedirectInProgress(hasOAuthParams());
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, s) => {
-      if (typeof window !== "undefined") {
-        // eslint-disable-next-line no-console
-        console.log("Current URL:", window.location.href);
-      }
-      setSession(s);
-      // Keep profiles in sync across session changes.
-      void syncProfile(s?.user ?? null);
-      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "USER_UPDATED") {
-        setAuthRedirectInProgress(false);
+    const finishBootstrap = () => {
+      if (!initDoneRef.current) {
+        initDoneRef.current = true;
       }
       setLoading(false);
+    };
+
+    const scheduleUrlCleanup = () => {
+      if (!hasOAuthCallbackParams()) return;
+      if (urlCleanupTimerRef.current !== null) {
+        window.clearTimeout(urlCleanupTimerRef.current);
+      }
+      urlCleanupTimerRef.current = window.setTimeout(() => {
+        urlCleanupTimerRef.current = null;
+        if (hasOAuthCallbackParams()) {
+          cleanOAuthCallbackUrl();
+        }
+        oauthPendingRef.current = false;
+        setAuthRedirectInProgress(false);
+      }, 1500);
+    };
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, nextSession) => {
+      if (event === "INITIAL_SESSION") {
+        applySession(nextSession);
+        oauthPendingRef.current = hasOAuthCallbackParams() && !nextSession;
+        setAuthRedirectInProgress(oauthPendingRef.current);
+        finishBootstrap();
+        if (nextSession && hasOAuthCallbackParams()) {
+          scheduleUrlCleanup();
+        }
+        return;
+      }
+
+      if (event === "SIGNED_OUT") {
+        applySession(null);
+        oauthPendingRef.current = false;
+        setAuthRedirectInProgress(false);
+        finishBootstrap();
+        return;
+      }
+
+      if (
+        event === "SIGNED_IN" ||
+        event === "TOKEN_REFRESHED" ||
+        event === "USER_UPDATED"
+      ) {
+        applySession(nextSession);
+        oauthPendingRef.current = false;
+        setAuthRedirectInProgress(false);
+        finishBootstrap();
+        if (event === "SIGNED_IN" && hasOAuthCallbackParams()) {
+          scheduleUrlCleanup();
+        }
+        return;
+      }
+
+      applySession(nextSession);
+      finishBootstrap();
     });
-    supabase.auth
-      .getSession()
-      .then(({ data }) => {
-        setSession(data.session);
-        setAuthRedirectInProgress(hasOAuthParams() && !data.session);
-        void syncProfile(data.session?.user ?? null);
 
-        // If we have an OAuth callback in the URL but no session yet, keep the app in
-        // a loading state briefly to give Supabase time to exchange PKCE codes.
-        if (hasOAuthParams() && !data.session) {
-          setLoading(true);
-        }
-      })
-      .finally(() => {
-        // Delay clearing callback params until Supabase has had a chance to read them.
-        // This prevents routers or eager URL cleanup from breaking the PKCE exchange.
-        if (typeof window !== "undefined" && hasOAuthParams()) {
-          window.setTimeout(() => {
-            try {
-              window.history.replaceState({}, document.title, window.location.pathname);
-            } catch {
-              // ignore
-            } finally {
-              setAuthRedirectInProgress(false);
-              setLoading(false);
-            }
-          }, 1200);
-          return;
-        }
+    // Fallback for clients that do not emit INITIAL_SESSION promptly.
+    void supabase.auth.getSession().then(({ data: { session: stored } }) => {
+      if (initDoneRef.current) return;
+      applySession(stored);
+      oauthPendingRef.current = hasOAuthCallbackParams() && !stored;
+      setAuthRedirectInProgress(oauthPendingRef.current);
+      finishBootstrap();
+      if (stored && hasOAuthCallbackParams()) {
+        scheduleUrlCleanup();
+      }
+    });
 
-        setLoading(false);
-      });
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      if (urlCleanupTimerRef.current !== null) {
+        window.clearTimeout(urlCleanupTimerRef.current);
+      }
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -133,12 +183,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
   const signUp: AuthCtx["signUp"] = async (email, password) => {
     const { error } = await supabase.auth.signUp({
-      email, password,
+      email,
+      password,
       options: { emailRedirectTo: window.location.origin },
     });
     return { error: error?.message ?? null };
   };
-  const signOut = async () => { await supabase.auth.signOut(); };
+  const signOut = async () => {
+    await supabase.auth.signOut();
+  };
 
   return (
     <Ctx.Provider

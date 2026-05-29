@@ -19,6 +19,7 @@ export function Converter() {
   const [linked, setLinked] = useState(false);
   const [kbOpen, setKbOpen] = useState(false);
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const voiceBaseRef = useRef("");
 
   const output = useMemo(() => processConversion(input, mode), [input, mode]);
   const unicodePreview = useMemo(() => processConversion(input, "unicode"), [input]);
@@ -114,7 +115,22 @@ export function Converter() {
               <button onClick={() => setInput("")} className="p-2 rounded-md border border-border hover:bg-accent/30" title="Clear">
                 <Eraser className="w-4 h-4" />
               </button>
-              <MicButton onTranscript={(t) => setInput((prev) => (prev ? prev + " " : "") + t)} />
+              <MicButton
+                onListenStart={() => {
+                  voiceBaseRef.current = input;
+                }}
+                onTranscript={(raw, { final }) => {
+                  const converted = processConversion(raw, mode);
+                  const merged =
+                    voiceBaseRef.current +
+                    (voiceBaseRef.current && converted ? " " : "") +
+                    converted;
+                  setInput(merged);
+                  if (final) {
+                    voiceBaseRef.current = merged;
+                  }
+                }}
+              />
             </div>
           </div>
           <textarea

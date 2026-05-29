@@ -1,3 +1,5 @@
+# Website-local ignores (root .gitignore covers most; keep in sync for standalone clones)
+
 # Logs
 logs
 *.log
@@ -7,6 +9,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies & build
 node_modules
 dist
 dist-ssr
@@ -14,13 +17,13 @@ dist-ssr
 .vinxi
 .tanstack/**
 .nitro
-*.local
+*.tsbuildinfo
 
 # Wrangler / Cloudflare
 .wrangler/
 .dev.vars
 
-# Editor directories and files
+# Editor
 .vscode/*
 !.vscode/extensions.json
 .idea
@@ -31,9 +34,12 @@ dist-ssr
 *.sln
 *.sw?
 
-# Env files (do not commit)
+# Secrets (CRITICAL — never commit)
 .env
 .env.*
-
-# Credentials (do not commit)
+!.env.example
+.env.local
 supabase real data.txt
+
+# Local overrides
+*.local
