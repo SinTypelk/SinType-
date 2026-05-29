@@ -124,9 +124,9 @@ export function Converter() {
           {user && syncStatus === "error" && (
             <span
               className="text-xs px-3 py-2 rounded-md border border-destructive/40 text-destructive max-w-[14rem]"
-              title="Supabase SQL Editor: run supabase-realtime-mobile-sync.sql (creates mobile_sync_state + Realtime). Then hard-refresh."
+              title="Run supabase-realtime-mobile-sync.sql in Supabase, set VITE_SUPABASE_* on Cloudflare build, redeploy, then hard-refresh."
             >
-              Sync offline — run updated SQL in Supabase
+              Sync offline — check Supabase + redeploy
             </span>
           )}
           {user && syncStatus === "unconfigured" && (

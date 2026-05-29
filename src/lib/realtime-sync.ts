@@ -3,7 +3,6 @@ import type { RealtimeChannel } from "@supabase/supabase-js";
 
 export type SyncConnectionStatus = "connecting" | "live" | "error" | "unconfigured";
 
-/** Session id = Supabase auth user id (UUID from QR /m/:sessionId). */
 export function syncSessionId(sessionId: string): string {
   return sessionId.trim();
 }
@@ -19,8 +18,8 @@ export type SyncSubscription = {
   unsubscribe: () => void;
 };
 
-const MAX_SUBSCRIBE_ATTEMPTS = 4;
 const TABLE = "mobile_sync_state";
+const POLL_MS = 450;
 
 type SyncRow = {
   session_id: string;
@@ -28,12 +27,33 @@ type SyncRow = {
   updated_at: string;
 };
 
+function isValidSessionId(sid: string): boolean {
+  return /^[0-9a-f-]{36}$/i.test(sid);
+}
+
 function applyRow(handlers: MobileSyncHandlers, row: Partial<SyncRow> | null) {
   if (!row || typeof row.text_content !== "string") return;
   handlers.onSet?.(row.text_content);
 }
 
-/** Listen for phone typing via Postgres Realtime (works with standard RLS). */
+async function fetchSyncText(sessionId: string): Promise<string | null> {
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select("text_content")
+    .eq("session_id", sessionId)
+    .maybeSingle();
+
+  if (error) {
+    console.warn("[sync] fetch failed:", error.message, error.code);
+    return null;
+  }
+  return data?.text_content ?? "";
+}
+
+/**
+ * Desktop listens via HTTP poll + optional Postgres Realtime.
+ * Polling works even when Realtime websocket auth fails.
+ */
 export function subscribeMobileSync(
   sessionId: string,
   handlers: MobileSyncHandlers,
@@ -44,85 +64,92 @@ export function subscribeMobileSync(
   }
 
   const sid = syncSessionId(sessionId);
-  if (!/^[0-9a-f-]{36}$/i.test(sid)) {
+  if (!isValidSessionId(sid)) {
     handlers.onStatus?.("error");
     return Promise.resolve(null);
   }
 
   handlers.onStatus?.("connecting");
 
-  void supabase
-    .from(TABLE)
-    .select("text_content")
-    .eq("session_id", sid)
-    .maybeSingle()
-    .then(({ data }) => {
-      if (data?.text_content) handlers.onSet?.(data.text_content);
-    });
+  let lastText = "__unset__";
+  let pollTimer: ReturnType<typeof setInterval> | null = null;
+  let realtimeChannel: RealtimeChannel | null = null;
+  let stopped = false;
 
-  const subscribeOnce = (attempt: number): Promise<SyncSubscription | null> =>
-    new Promise((resolve) => {
-      const ch = supabase
-        .channel(`mobile-sync:${sid}`)
-        .on(
-          "postgres_changes",
-          {
-            event: "INSERT",
-            schema: "public",
-            table: TABLE,
-            filter: `session_id=eq.${sid}`,
-          },
-          (payload) => {
-            applyRow(handlers, payload.new as SyncRow);
-          },
-        )
-        .on(
-          "postgres_changes",
-          {
-            event: "UPDATE",
-            schema: "public",
-            table: TABLE,
-            filter: `session_id=eq.${sid}`,
-          },
-          (payload) => {
-            applyRow(handlers, payload.new as SyncRow);
-          },
-        );
+  const poll = async () => {
+    if (stopped) return;
+    const text = await fetchSyncText(sid);
+    if (text === null) {
+      handlers.onStatus?.("error");
+      return;
+    }
+    handlers.onStatus?.("live");
+    if (text !== lastText) {
+      lastText = text;
+      handlers.onSet?.(text);
+    }
+  };
 
-      ch.subscribe((status, err) => {
-        if (status === "SUBSCRIBED") {
-          handlers.onStatus?.("live");
-          resolve({
-            channel: ch,
-            unsubscribe: () => {
-              void ch.unsubscribe();
-            },
-          });
-          return;
-        }
-        if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
-          console.warn("[sync] postgres subscribe failed:", status, err);
-          if (attempt < MAX_SUBSCRIBE_ATTEMPTS) {
-            void ch.unsubscribe();
-            window.setTimeout(() => {
-              void subscribeOnce(attempt + 1).then(resolve);
-            }, 500 * attempt);
-            return;
-          }
-          handlers.onStatus?.("error");
-          resolve(null);
-        }
-      });
-    });
+  void poll();
+  pollTimer = setInterval(() => void poll(), POLL_MS);
 
-  return subscribeOnce(1);
+  const ch = supabase
+    .channel(`mobile-sync:${sid}`)
+    .on(
+      "postgres_changes",
+      {
+        event: "INSERT",
+        schema: "public",
+        table: TABLE,
+        filter: `session_id=eq.${sid}`,
+      },
+      (payload) => {
+        applyRow(handlers, payload.new as SyncRow);
+        lastText = (payload.new as SyncRow).text_content ?? lastText;
+        handlers.onStatus?.("live");
+      },
+    )
+    .on(
+      "postgres_changes",
+      {
+        event: "UPDATE",
+        schema: "public",
+        table: TABLE,
+        filter: `session_id=eq.${sid}`,
+      },
+      (payload) => {
+        applyRow(handlers, payload.new as SyncRow);
+        lastText = (payload.new as SyncRow).text_content ?? lastText;
+        handlers.onStatus?.("live");
+      },
+    );
+
+  ch.subscribe((status, err) => {
+    if (status === "SUBSCRIBED") {
+      handlers.onStatus?.("live");
+      return;
+    }
+    if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+      console.warn("[sync] realtime optional:", status, err);
+    }
+  });
+  realtimeChannel = ch;
+
+  return Promise.resolve({
+    channel: realtimeChannel,
+    unsubscribe: () => {
+      stopped = true;
+      if (pollTimer) clearInterval(pollTimer);
+      void realtimeChannel?.unsubscribe();
+    },
+  });
 }
 
-/** Push Singlish draft from phone → DB (desktop receives via postgres_changes). */
+/** Phone → DB (desktop picks up via poll / realtime). */
 export async function pushSyncText(sessionId: string, text: string): Promise<void> {
   if (!SUPABASE_CONFIGURED) return;
   const sid = syncSessionId(sessionId);
-  if (!/^[0-9a-f-]{36}$/i.test(sid)) return;
+  if (!isValidSessionId(sid)) return;
 
   const { error } = await supabase.from(TABLE).upsert(
     {
@@ -134,6 +161,6 @@ export async function pushSyncText(sessionId: string, text: string): Promise<voi
   );
 
   if (error) {
-    console.warn("[sync] upsert failed:", error.message, error.code);
+    console.warn("[sync] upsert failed:", error.message, error.code, error.details);
   }
 }
