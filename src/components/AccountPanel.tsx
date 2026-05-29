@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import QRCode from "qrcode";
 import { Copy, Check, LogIn, Smartphone, ExternalLink } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { SUPABASE_CONFIGURED } from "@/integrations/supabase/client";
 
 type AccountPanelProps = {
   compact?: boolean;
@@ -106,6 +107,13 @@ export function AccountPanel({ compact = false }: AccountPanelProps) {
             Scan this QR code with your phone to use it as a remote keyboard. Type or speak
             Singlish on your phone — text streams live into the converter below.
           </p>
+          {!SUPABASE_CONFIGURED && (
+            <p className="text-xs text-destructive">
+              Mobile sync is disabled: set <code className="font-mono">VITE_SUPABASE_URL</code> and{" "}
+              <code className="font-mono">VITE_SUPABASE_ANON_KEY</code> on your host (e.g. Cloudflare
+              build env).
+            </p>
+          )}
           {profile?.license_key && !profileLoading && (
             <div className="flex flex-wrap items-center gap-2 pt-1">
               <code className="text-xs font-mono px-2 py-1 rounded-md bg-secondary/80 truncate max-w-[14rem]">

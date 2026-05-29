@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 import { Clipboard, Copy, Eraser, Keyboard as KeyboardIcon, Radio } from "lucide-react";
 import { VirtualKeyboard } from "./VirtualKeyboard";
 import { SmartLearningEngine } from "@/lib/smartEngine";
@@ -7,18 +8,22 @@ import { useApp, pushHistory } from "@/lib/app-context";
 import { useAuth } from "@/lib/auth-context";
 import { MicButton } from "./MicButton";
 import { HistoryPanel } from "./HistoryPanel";
-import { supabase } from "@/integrations/supabase/client";
+import { SUPABASE_CONFIGURED } from "@/integrations/supabase/client";
+import {
+  subscribeMobileSync,
+  type SyncConnectionStatus,
+} from "@/lib/realtime-sync";
 
 export function Converter() {
   // ටයිප් කරද්දී වෙනස්කම් බලාගන්නා SmartEngine එක (Local + Cloud Learning)
   const smartEngine = useRef(new SmartLearningEngine()).current;
 
   const { mode } = useApp();
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const [input, setInput] = useState("");
-  const [linked, setLinked] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<SyncConnectionStatus>("connecting");
   const [kbOpen, setKbOpen] = useState(false);
-  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const channelRef = useRef<RealtimeChannel | null>(null);
   const voiceBaseRef = useRef("");
 
   const output = useMemo(() => processConversion(input, mode), [input, mode]);
@@ -49,23 +54,43 @@ export function Converter() {
     return () => clearTimeout(id);
   }, [input, output]);
 
-  // Real-time link: when signed in, listen for messages from this user's phone
-  // and stream the text directly into the input box.
+  // Real-time link: when signed in, listen for Singlish from the phone (/m/:userId).
   useEffect(() => {
-    if (!user) { setLinked(false); return; }
-    const ch = supabase.channel(`sintype:${user.id}`, { config: { broadcast: { self: false } } });
-    ch.on("broadcast", { event: "set" }, (payload) => {
-      const text = (payload.payload as { text?: string }).text ?? "";
-      setInput(text);
-    }).on("broadcast", { event: "append" }, (payload) => {
-      const text = (payload.payload as { text?: string }).text ?? "";
-      if (text) setInput((prev) => (prev ? prev + " " : "") + text);
-    }).subscribe((status) => {
-      if (status === "SUBSCRIBED") setLinked(true);
+    if (!user) {
+      setSyncStatus("connecting");
+      return;
+    }
+    if (!SUPABASE_CONFIGURED) {
+      setSyncStatus("unconfigured");
+      return;
+    }
+
+    let cancelled = false;
+    void subscribeMobileSync(
+      user.id,
+      {
+        onSet: (text) => setInput(text),
+        onAppend: (text) => {
+          if (text) setInput((prev) => (prev ? `${prev} ${text}` : text));
+        },
+        onStatus: (status) => {
+          if (!cancelled) setSyncStatus(status);
+        },
+      },
+      session?.access_token ?? null,
+    ).then((ch) => {
+      if (!cancelled) channelRef.current = ch;
     });
-    channelRef.current = ch;
-    return () => { ch.unsubscribe(); setLinked(false); };
-  }, [user]);
+
+    return () => {
+      cancelled = true;
+      channelRef.current?.unsubscribe();
+      channelRef.current = null;
+      setSyncStatus("connecting");
+    };
+  }, [user, session?.access_token]);
+
+  const linked = syncStatus === "live";
 
   const renderOutput = () => {
     if (mode === "legacy" || issues.length === 0) return output;
@@ -94,9 +119,22 @@ export function Converter() {
         </div>
         <div className="flex items-center gap-2">
           <HistoryPanel onRestore={(t) => setInput(t)} />
-          {linked && (
+          {user && syncStatus === "live" && (
             <span className="flex items-center gap-2 text-xs px-3 py-2 rounded-md border border-[var(--neon-cyan)] text-[var(--neon-cyan)]">
               <Radio className="w-3.5 h-3.5 animate-pulse" /> Phone linked
+            </span>
+          )}
+          {user && syncStatus === "error" && (
+            <span
+              className="text-xs px-3 py-2 rounded-md border border-destructive/40 text-destructive"
+              title="Check Supabase Realtime is enabled and VITE_SUPABASE_* env vars are set on the host"
+            >
+              Sync offline
+            </span>
+          )}
+          {user && syncStatus === "unconfigured" && (
+            <span className="text-xs px-3 py-2 rounded-md border border-border text-muted-foreground">
+              Sync unavailable (Supabase env)
             </span>
           )}
         </div>

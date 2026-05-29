@@ -34,7 +34,8 @@ Netlify (primary) or Cloudflare Pages (static `dist/client`)
 - **Deploy command**: `npx wrangler deploy` (or `npm run deploy:cf`)
 - `wrangler.toml` uses `[assets] directory = "./dist/client"` with `not_found_handling = "single-page-application"` (do not add `public/_redirects` — it conflicts with Workers deploy)
 - Netlify SPA fallback: `netlify.toml` `[[redirects]]` (not `_redirects`)
-- Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in build environment variables
+- Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in build environment variables (required for auth, mobile sync, and voice is browser-only)
+- Enable **Supabase Realtime** in the project dashboard (see `developer/sql/supabase-realtime-mobile-sync.md`)
 
 #### Authentication error [code: 10000] on `wrangler pages deploy`
 Workers Builds already authenticates `wrangler deploy`. If you use `wrangler pages deploy`, your `CLOUDFLARE_API_TOKEN` must include:

@@ -1,10 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 import { useEffect, useRef, useState } from "react";
 import { Trash2 } from "lucide-react";
 import { processConversion } from "@/lib/sinhala";
 import { MicButton } from "@/components/MicButton";
 import { BrandLogo } from "@/components/BrandLogo";
-import { supabase } from "@/integrations/supabase/client";
+import {
+  broadcastSet,
+  subscribeMobileSync,
+  type SyncConnectionStatus,
+} from "@/lib/realtime-sync";
 
 export const Route = createFileRoute("/m/$sessionId")({
   head: () => ({
@@ -23,48 +28,52 @@ export const Route = createFileRoute("/m/$sessionId")({
 function MobilePage() {
   const { sessionId } = Route.useParams();
   const [draft, setDraft] = useState("");
-  const [status, setStatus] = useState<"connecting" | "live" | "error">("connecting");
-  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const [status, setStatus] = useState<SyncConnectionStatus>("connecting");
+  const channelRef = useRef<RealtimeChannel | null>(null);
   const voiceBaseRef = useRef("");
   const sinhala = processConversion(draft, "unicode");
-  const sinhalaRef = useRef(sinhala);
-  sinhalaRef.current = sinhala;
+  const draftRef = useRef(draft);
+  draftRef.current = draft;
 
   useEffect(() => {
-    const ch = supabase.channel(`sintype:${sessionId}`, {
-      config: { broadcast: { self: false } },
+    let cancelled = false;
+    void subscribeMobileSync(sessionId, {
+      onStatus: (s) => {
+        if (!cancelled) setStatus(s);
+      },
+    }).then((ch) => {
+      if (!cancelled) channelRef.current = ch;
     });
-    ch.subscribe((s) => {
-      if (s === "SUBSCRIBED") setStatus("live");
-      else if (s === "CHANNEL_ERROR" || s === "TIMED_OUT") setStatus("error");
-    });
-    channelRef.current = ch;
     return () => {
-      ch.unsubscribe();
+      cancelled = true;
+      channelRef.current?.unsubscribe();
+      channelRef.current = null;
     };
   }, [sessionId]);
 
+  // Stream raw Singlish draft to desktop (converter expects Singlish input).
   useEffect(() => {
     if (status !== "live") return;
     const id = setTimeout(() => {
-      channelRef.current?.send({
-        type: "broadcast",
-        event: "set",
-        payload: { text: sinhalaRef.current },
-      });
+      broadcastSet(channelRef.current, draftRef.current);
     }, 80);
     return () => clearTimeout(id);
-  }, [sinhala, status]);
+  }, [draft, status]);
 
   const clearBoth = () => {
     setDraft("");
     voiceBaseRef.current = "";
-    channelRef.current?.send({
-      type: "broadcast",
-      event: "set",
-      payload: { text: "" },
-    });
+    broadcastSet(channelRef.current, "");
   };
+
+  const statusLabel =
+    status === "live"
+      ? "Live · streaming to desktop"
+      : status === "connecting"
+        ? "Connecting…"
+        : status === "unconfigured"
+          ? "Sync unavailable"
+          : "Connection error";
 
   return (
     <div className="flex flex-col h-[100dvh] bg-background">
@@ -78,11 +87,7 @@ function MobilePage() {
             Sintype.lk · Mobile
           </h1>
           <p className="text-[10px] text-muted-foreground uppercase tracking-widest truncate">
-            {status === "live"
-              ? "Live · streaming to desktop"
-              : status === "connecting"
-                ? "Connecting…"
-                : "Connection error"}
+            {statusLabel}
           </p>
         </div>
         <button
@@ -122,11 +127,12 @@ function MobilePage() {
               voiceBaseRef.current = draft;
             }}
             onTranscript={(raw, { final }) => {
-              const converted = processConversion(raw, "unicode");
+              const chunk = raw.trim();
+              if (!chunk) return;
               const merged =
                 voiceBaseRef.current +
-                (voiceBaseRef.current && converted ? " " : "") +
-                converted;
+                (voiceBaseRef.current ? " " : "") +
+                chunk;
               setDraft(merged);
               if (final) voiceBaseRef.current = merged;
             }}
