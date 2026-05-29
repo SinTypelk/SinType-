@@ -32,7 +32,8 @@ Netlify (primary) or Cloudflare Pages (static `dist/client`)
 - **Root directory**: `website` (if repo root is monorepo)
 - **Build command**: `npm run build`
 - **Deploy command**: `npx wrangler deploy` (or `npm run deploy:cf`)
-- `wrangler.toml` uses `[assets] directory = "./dist/client"` (static site, no `workers-site/`)
+- `wrangler.toml` uses `[assets] directory = "./dist/client"` with `not_found_handling = "single-page-application"` (do not add `public/_redirects` — it conflicts with Workers deploy)
+- Netlify SPA fallback: `netlify.toml` `[[redirects]]` (not `_redirects`)
 - Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in build environment variables
 
 #### Authentication error [code: 10000] on `wrangler pages deploy`
