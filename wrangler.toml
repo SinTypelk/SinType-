@@ -6,7 +6,7 @@
 #
 # Do NOT use `wrangler pages deploy` on Workers Builds unless CLOUDFLARE_API_TOKEN
 # includes Account → Cloudflare Pages → Edit.
-name = "sintype-website"
+name = "sintype"
 compatibility_date = "2024-01-01"
 
 [assets]
