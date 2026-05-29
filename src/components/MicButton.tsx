@@ -4,6 +4,7 @@ import {
   getSpeechRecognitionCtor,
   isIOSSafari,
   probeSpeechRecognition,
+  type SpeechAvailability,
   type SpeechRecognitionInstance,
   type SpeechRecognitionResultEvent,
 } from "@/lib/speech-recognition";
@@ -11,6 +12,8 @@ import {
 export type MicTranscriptOptions = {
   final: boolean;
 };
+
+type MicAvailability = SpeechAvailability | "checking";
 
 function unavailableTitle(reason: "insecure" | "unsupported"): string {
   if (reason === "insecure") {
@@ -28,8 +31,8 @@ export function MicButton({
   onListenStart?: () => void;
   lang?: string;
 }) {
+  const [availability, setAvailability] = useState<MicAvailability>("checking");
   const [active, setActive] = useState(false);
-  const [availability, setAvailability] = useState(() => probeSpeechRecognition());
   const recRef = useRef<SpeechRecognitionInstance | null>(null);
   const wantActiveRef = useRef(false);
   const committedRef = useRef("");
@@ -44,6 +47,7 @@ export function MicButton({
   }, [onListenStart]);
 
   const refreshAvailability = useCallback(() => {
+    if (typeof window === "undefined") return;
     setAvailability(probeSpeechRecognition());
   }, []);
 
@@ -131,16 +135,14 @@ export function MicButton({
   const startFromClick = async () => {
     refreshAvailability();
     const probe = probeSpeechRecognition();
-    if (!probe.ok) {
-      setAvailability(probe);
-      return;
-    }
+    setAvailability(probe);
+    if (!probe.ok) return;
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       stream.getTracks().forEach((t) => t.stop());
     } catch {
-      // Speech may still work; permission prompt might appear on rec.start()
+      // Permission may be granted on rec.start()
     }
 
     const rec = buildRec();
@@ -181,7 +183,7 @@ export function MicButton({
     [],
   );
 
-  if (!availability.ok) {
+  if (availability !== "checking" && !availability.ok) {
     return (
       <button
         type="button"
@@ -203,7 +205,7 @@ export function MicButton({
       aria-pressed={active}
       className={`shrink-0 p-3 rounded-full border border-border bg-card hover:bg-accent/30 transition-colors ${
         active ? "mic-active border-[var(--neon-pink)]/50" : ""
-      }`}
+      } ${availability === "checking" ? "opacity-80" : ""}`}
     >
       <Mic className={`w-5 h-5 ${active ? "text-[var(--neon-pink)]" : ""}`} />
     </button>

@@ -13,66 +13,73 @@ export type MobileSyncHandlers = {
   onStatus?: (status: SyncConnectionStatus) => void;
 };
 
+const MAX_SUBSCRIBE_ATTEMPTS = 4;
+
+function isChannelReady(ch: RealtimeChannel | null): boolean {
+  return ch?.state === "joined";
+}
+
 /** Subscribe to the mobile ↔ desktop broadcast channel. */
-export async function subscribeMobileSync(
+export function subscribeMobileSync(
   sessionId: string,
   handlers: MobileSyncHandlers,
-  accessToken?: string | null,
 ): Promise<RealtimeChannel | null> {
   if (!SUPABASE_CONFIGURED) {
     handlers.onStatus?.("unconfigured");
-    return null;
+    return Promise.resolve(null);
   }
   if (!sessionId.trim()) {
     handlers.onStatus?.("error");
-    return null;
+    return Promise.resolve(null);
   }
 
   handlers.onStatus?.("connecting");
 
-  try {
-    if (accessToken) {
-      await supabase.realtime.setAuth(accessToken);
-    } else {
-      await supabase.realtime.setAuth(null);
-    }
-  } catch (err) {
-    console.warn("[sync] setAuth failed:", err);
-  }
+  const subscribeOnce = (attempt: number): Promise<RealtimeChannel | null> =>
+    new Promise((resolve) => {
+      const ch = supabase.channel(syncChannelName(sessionId), {
+        config: { broadcast: { self: false } },
+      });
 
-  const ch = supabase.channel(syncChannelName(sessionId), {
-    config: { broadcast: { ack: true, self: false } },
-  });
+      if (handlers.onSet) {
+        ch.on("broadcast", { event: "set" }, (payload) => {
+          const text = (payload.payload as { text?: string })?.text ?? "";
+          handlers.onSet!(text);
+        });
+      }
+      if (handlers.onAppend) {
+        ch.on("broadcast", { event: "append" }, (payload) => {
+          const text = (payload.payload as { text?: string })?.text ?? "";
+          handlers.onAppend!(text);
+        });
+      }
 
-  if (handlers.onSet) {
-    ch.on("broadcast", { event: "set" }, (payload) => {
-      const text = (payload.payload as { text?: string })?.text ?? "";
-      handlers.onSet!(text);
+      ch.subscribe((status, err) => {
+        if (status === "SUBSCRIBED") {
+          handlers.onStatus?.("live");
+          resolve(ch);
+          return;
+        }
+        if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+          console.warn("[sync] subscribe failed:", status, err);
+          if (attempt < MAX_SUBSCRIBE_ATTEMPTS) {
+            void ch.unsubscribe();
+            window.setTimeout(() => {
+              void subscribeOnce(attempt + 1).then(resolve);
+            }, 400 * attempt);
+            return;
+          }
+          handlers.onStatus?.("error");
+          resolve(null);
+        }
+      });
     });
-  }
-  if (handlers.onAppend) {
-    ch.on("broadcast", { event: "append" }, (payload) => {
-      const text = (payload.payload as { text?: string })?.text ?? "";
-      handlers.onAppend!(text);
-    });
-  }
 
-  ch.subscribe((status, err) => {
-    if (status === "SUBSCRIBED") {
-      handlers.onStatus?.("live");
-      return;
-    }
-    if (status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED") {
-      if (err) console.warn("[sync] channel error:", err);
-      handlers.onStatus?.("error");
-    }
-  });
-
-  return ch;
+  return subscribeOnce(1);
 }
 
 export function broadcastSet(channel: RealtimeChannel | null, text: string): void {
-  if (!channel) return;
+  if (!channel || !isChannelReady(channel)) return;
   void channel.send({
     type: "broadcast",
     event: "set",

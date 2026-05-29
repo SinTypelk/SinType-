@@ -19,7 +19,7 @@ export function Converter() {
   const smartEngine = useRef(new SmartLearningEngine()).current;
 
   const { mode } = useApp();
-  const { user, session } = useAuth();
+  const { user } = useAuth();
   const [input, setInput] = useState("");
   const [syncStatus, setSyncStatus] = useState<SyncConnectionStatus>("connecting");
   const [kbOpen, setKbOpen] = useState(false);
@@ -66,19 +66,15 @@ export function Converter() {
     }
 
     let cancelled = false;
-    void subscribeMobileSync(
-      user.id,
-      {
-        onSet: (text) => setInput(text),
-        onAppend: (text) => {
-          if (text) setInput((prev) => (prev ? `${prev} ${text}` : text));
-        },
-        onStatus: (status) => {
-          if (!cancelled) setSyncStatus(status);
-        },
+    void subscribeMobileSync(user.id, {
+      onSet: (text) => setInput(text),
+      onAppend: (text) => {
+        if (text) setInput((prev) => (prev ? `${prev} ${text}` : text));
       },
-      session?.access_token ?? null,
-    ).then((ch) => {
+      onStatus: (status) => {
+        if (!cancelled) setSyncStatus(status);
+      },
+    }).then((ch) => {
       if (!cancelled) channelRef.current = ch;
     });
 
@@ -88,7 +84,7 @@ export function Converter() {
       channelRef.current = null;
       setSyncStatus("connecting");
     };
-  }, [user, session?.access_token]);
+  }, [user?.id]);
 
   const linked = syncStatus === "live";
 
@@ -126,10 +122,10 @@ export function Converter() {
           )}
           {user && syncStatus === "error" && (
             <span
-              className="text-xs px-3 py-2 rounded-md border border-destructive/40 text-destructive"
-              title="Check Supabase Realtime is enabled and VITE_SUPABASE_* env vars are set on the host"
+              className="text-xs px-3 py-2 rounded-md border border-destructive/40 text-destructive max-w-[14rem]"
+              title="In Supabase SQL Editor, run developer/sql/supabase-realtime-mobile-sync.sql. Enable Realtime in project settings."
             >
-              Sync offline
+              Sync offline — run Realtime SQL in Supabase
             </span>
           )}
           {user && syncStatus === "unconfigured" && (
