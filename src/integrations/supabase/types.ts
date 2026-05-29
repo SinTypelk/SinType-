@@ -119,6 +119,24 @@ export type Database = {
         }
         Relationships: []
       }
+      mobile_sync_state: {
+        Row: {
+          session_id: string
+          text_content: string
+          updated_at: string
+        }
+        Insert: {
+          session_id: string
+          text_content?: string
+          updated_at?: string
+        }
+        Update: {
+          session_id?: string
+          text_content?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       licenses: {
         Row: {
           created_at: string

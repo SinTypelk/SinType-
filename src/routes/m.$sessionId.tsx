@@ -1,14 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
-import type { RealtimeChannel } from "@supabase/supabase-js";
 import { useEffect, useRef, useState } from "react";
 import { Trash2 } from "lucide-react";
 import { processConversion } from "@/lib/sinhala";
 import { MicButton } from "@/components/MicButton";
 import { BrandLogo } from "@/components/BrandLogo";
+import { ClientOnly } from "@/components/ClientOnly";
 import {
-  broadcastSet,
+  pushSyncText,
   subscribeMobileSync,
   type SyncConnectionStatus,
+  type SyncSubscription,
 } from "@/lib/realtime-sync";
 
 export const Route = createFileRoute("/m/$sessionId")({
@@ -29,7 +30,7 @@ function MobilePage() {
   const { sessionId } = Route.useParams();
   const [draft, setDraft] = useState("");
   const [status, setStatus] = useState<SyncConnectionStatus>("connecting");
-  const channelRef = useRef<RealtimeChannel | null>(null);
+  const syncRef = useRef<SyncSubscription | null>(null);
   const voiceBaseRef = useRef("");
   const sinhala = processConversion(draft, "unicode");
   const draftRef = useRef(draft);
@@ -41,29 +42,28 @@ function MobilePage() {
       onStatus: (s) => {
         if (!cancelled) setStatus(s);
       },
-    }).then((ch) => {
-      if (!cancelled) channelRef.current = ch;
+    }).then((sub) => {
+      if (!cancelled) syncRef.current = sub;
     });
     return () => {
       cancelled = true;
-      channelRef.current?.unsubscribe();
-      channelRef.current = null;
+      syncRef.current?.unsubscribe();
+      syncRef.current = null;
     };
   }, [sessionId]);
 
-  // Stream raw Singlish draft to desktop (converter expects Singlish input).
   useEffect(() => {
     if (status !== "live") return;
     const id = setTimeout(() => {
-      broadcastSet(channelRef.current, draftRef.current);
+      void pushSyncText(sessionId, draftRef.current);
     }, 80);
     return () => clearTimeout(id);
-  }, [draft, status]);
+  }, [draft, status, sessionId]);
 
   const clearBoth = () => {
     setDraft("");
     voiceBaseRef.current = "";
-    broadcastSet(channelRef.current, "");
+    void pushSyncText(sessionId, "");
   };
 
   const statusLabel =
@@ -73,7 +73,7 @@ function MobilePage() {
         ? "Connecting…"
         : status === "unconfigured"
           ? "Sync unavailable"
-          : "Connection error";
+          : "Connection error — re-run SQL + enable table Realtime";
 
   return (
     <div className="flex flex-col h-[100dvh] bg-background">
@@ -122,21 +122,29 @@ function MobilePage() {
             rows={2}
             className="flex-1 min-h-[56px] max-h-40 px-3 py-3 rounded-2xl bg-secondary text-base outline-none resize-none"
           />
-          <MicButton
-            onListenStart={() => {
-              voiceBaseRef.current = draft;
-            }}
-            onTranscript={(raw, { final }) => {
-              const chunk = raw.trim();
-              if (!chunk) return;
-              const merged =
-                voiceBaseRef.current +
-                (voiceBaseRef.current ? " " : "") +
-                chunk;
-              setDraft(merged);
-              if (final) voiceBaseRef.current = merged;
-            }}
-          />
+          <ClientOnly
+            fallback={
+              <span className="shrink-0 p-3 rounded-full border border-border opacity-50">
+                <span className="sr-only">Loading microphone</span>
+              </span>
+            }
+          >
+            <MicButton
+              onListenStart={() => {
+                voiceBaseRef.current = draft;
+              }}
+              onTranscript={(raw, { final }) => {
+                const chunk = raw.trim();
+                if (!chunk) return;
+                const merged =
+                  voiceBaseRef.current +
+                  (voiceBaseRef.current ? " " : "") +
+                  chunk;
+                setDraft(merged);
+                if (final) voiceBaseRef.current = merged;
+              }}
+            />
+          </ClientOnly>
         </div>
         <p className="mt-2 text-[10px] text-muted-foreground text-center">
           Each keystroke and voice phrase syncs automatically — no send button needed.

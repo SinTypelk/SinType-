@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { RealtimeChannel } from "@supabase/supabase-js";
 import { Clipboard, Copy, Eraser, Keyboard as KeyboardIcon, Radio } from "lucide-react";
 import { VirtualKeyboard } from "./VirtualKeyboard";
 import { SmartLearningEngine } from "@/lib/smartEngine";
@@ -7,11 +6,13 @@ import { findSpellIssues, processConversion } from "@/lib/sinhala";
 import { useApp, pushHistory } from "@/lib/app-context";
 import { useAuth } from "@/lib/auth-context";
 import { MicButton } from "./MicButton";
+import { ClientOnly } from "./ClientOnly";
 import { HistoryPanel } from "./HistoryPanel";
 import { SUPABASE_CONFIGURED } from "@/integrations/supabase/client";
 import {
   subscribeMobileSync,
   type SyncConnectionStatus,
+  type SyncSubscription,
 } from "@/lib/realtime-sync";
 
 export function Converter() {
@@ -23,7 +24,7 @@ export function Converter() {
   const [input, setInput] = useState("");
   const [syncStatus, setSyncStatus] = useState<SyncConnectionStatus>("connecting");
   const [kbOpen, setKbOpen] = useState(false);
-  const channelRef = useRef<RealtimeChannel | null>(null);
+  const syncRef = useRef<SyncSubscription | null>(null);
   const voiceBaseRef = useRef("");
 
   const output = useMemo(() => processConversion(input, mode), [input, mode]);
@@ -74,14 +75,14 @@ export function Converter() {
       onStatus: (status) => {
         if (!cancelled) setSyncStatus(status);
       },
-    }).then((ch) => {
-      if (!cancelled) channelRef.current = ch;
+    }).then((sub) => {
+      if (!cancelled) syncRef.current = sub;
     });
 
     return () => {
       cancelled = true;
-      channelRef.current?.unsubscribe();
-      channelRef.current = null;
+      syncRef.current?.unsubscribe();
+      syncRef.current = null;
       setSyncStatus("connecting");
     };
   }, [user?.id]);
@@ -123,9 +124,9 @@ export function Converter() {
           {user && syncStatus === "error" && (
             <span
               className="text-xs px-3 py-2 rounded-md border border-destructive/40 text-destructive max-w-[14rem]"
-              title="In Supabase SQL Editor, run developer/sql/supabase-realtime-mobile-sync.sql. Enable Realtime in project settings."
+              title="Supabase SQL Editor: run supabase-realtime-mobile-sync.sql (creates mobile_sync_state + Realtime). Then hard-refresh."
             >
-              Sync offline — run Realtime SQL in Supabase
+              Sync offline — run updated SQL in Supabase
             </span>
           )}
           {user && syncStatus === "unconfigured" && (
@@ -149,22 +150,28 @@ export function Converter() {
               <button onClick={() => setInput("")} className="p-2 rounded-md border border-border hover:bg-accent/30" title="Clear">
                 <Eraser className="w-4 h-4" />
               </button>
-              <MicButton
-                onListenStart={() => {
-                  voiceBaseRef.current = input;
-                }}
-                onTranscript={(raw, { final }) => {
-                  const converted = processConversion(raw, mode);
-                  const merged =
-                    voiceBaseRef.current +
-                    (voiceBaseRef.current && converted ? " " : "") +
-                    converted;
-                  setInput(merged);
-                  if (final) {
-                    voiceBaseRef.current = merged;
-                  }
-                }}
-              />
+              <ClientOnly
+                fallback={
+                  <span className="p-2 rounded-md border border-border opacity-50 inline-block w-9 h-9" />
+                }
+              >
+                <MicButton
+                  onListenStart={() => {
+                    voiceBaseRef.current = input;
+                  }}
+                  onTranscript={(raw, { final }) => {
+                    const converted = processConversion(raw, mode);
+                    const merged =
+                      voiceBaseRef.current +
+                      (voiceBaseRef.current && converted ? " " : "") +
+                      converted;
+                    setInput(merged);
+                    if (final) {
+                      voiceBaseRef.current = merged;
+                    }
+                  }}
+                />
+              </ClientOnly>
             </div>
           </div>
           <textarea
