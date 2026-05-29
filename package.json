@@ -7,7 +7,7 @@
     "dev": "vite dev",
     "build": "vite build",
     "build:dev": "vite build --mode development",
-    "deploy:cf": "wrangler pages deploy",
+    "deploy:cf": "wrangler deploy",
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write ."

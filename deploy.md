@@ -28,13 +28,22 @@ Netlify (primary) or Cloudflare Pages (static `dist/client`)
 - **Build Command**: `npm run build`
 - **Publish Directory**: `dist/client`
 
-### Cloudflare Pages (Workers Builds / CI)
+### Cloudflare Workers Builds (recommended)
+- **Root directory**: `website` (if repo root is monorepo)
 - **Build command**: `npm run build`
-- **Deploy command**: `npm run deploy:cf` or `npx wrangler pages deploy`
-- **Do not use**: `npx wrangler deploy` (expects `workers-site/index.js`; build only outputs static assets)
-- `wrangler.toml` sets `pages_build_output_dir = "dist/client"`
-- Create the Pages project once if needed: `npx wrangler pages project create sintype-website`
-- Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in Cloudflare → Settings → Environment variables
+- **Deploy command**: `npx wrangler deploy` (or `npm run deploy:cf`)
+- `wrangler.toml` uses `[assets] directory = "./dist/client"` (static site, no `workers-site/`)
+- Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in build environment variables
+
+#### Authentication error [code: 10000] on `wrangler pages deploy`
+Workers Builds already authenticates `wrangler deploy`. If you use `wrangler pages deploy`, your `CLOUDFLARE_API_TOKEN` must include:
+- **Account** → **Cloudflare Pages** → **Edit**
+- **Account** → **Account Settings** → **Read**
+- **User** → **User Details** → **Read**
+
+Or **remove** a manually set `CLOUDFLARE_API_TOKEN` from Workers Builds env vars so CI uses the built-in deploy token.
+
+Prefer switching deploy command to `npx wrangler deploy` (matches `wrangler.toml` assets config).
 
 ## Environment Variables Checklist
 - [ ] VITE_SUPABASE_URL
