@@ -4,7 +4,7 @@
 SinType (TanStack Start)
 
 ## Deployment Platform
-Netlify
+Netlify (primary) or Cloudflare Pages (static `dist/client`)
 
 ## Cleanup Status
 ### Cloudflare / Wrangler removal
@@ -27,6 +27,14 @@ Netlify
 ## Build Configuration
 - **Build Command**: `npm run build`
 - **Publish Directory**: `dist/client`
+
+### Cloudflare Pages (Workers Builds / CI)
+- **Build command**: `npm run build`
+- **Deploy command**: `npm run deploy:cf` or `npx wrangler pages deploy`
+- **Do not use**: `npx wrangler deploy` (expects `workers-site/index.js`; build only outputs static assets)
+- `wrangler.toml` sets `pages_build_output_dir = "dist/client"`
+- Create the Pages project once if needed: `npx wrangler pages project create sintype-website`
+- Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in Cloudflare → Settings → Environment variables
 
 ## Environment Variables Checklist
 - [ ] VITE_SUPABASE_URL

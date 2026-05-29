@@ -1,7 +1,10 @@
-# Cloudflare Pages — connect repo root to /website or set root directory to website in dashboard
+# Cloudflare Pages — static output from TanStack Start (prerendered routes).
+#
+# Build:  npm run build
+# Deploy: npm run deploy:cf
+#         (or: npx wrangler pages deploy)
+#
+# Do NOT use `wrangler deploy` — that targets a Worker entry (workers-site/index.js).
 name = "sintype-website"
 compatibility_date = "2024-01-01"
-
-[site]
-# After `npm run build`, deploy the Vite client output:
-bucket = "./dist/client"
+pages_build_output_dir = "dist/client"
