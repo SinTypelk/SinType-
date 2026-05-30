@@ -56,17 +56,34 @@ type LicenseRow = {
   is_active: boolean | null;
 };
 
+function parseExpiryDateIso(expiryDate: string): string | null {
+  const trimmed = expiryDate.trim();
+  if (!trimmed) return null;
+  const end = new Date(`${trimmed}T23:59:59.999Z`);
+  if (Number.isNaN(end.getTime())) return null;
+  return end.toISOString();
+}
+
+/** Prefer Supabase `expiry_date` when set (admin edits), then `expires_at`. */
 function resolveExpiresAtIso(row: LicenseRow): string | null {
+  if (row.expiry_date) {
+    const fromDate = parseExpiryDateIso(row.expiry_date);
+    if (fromDate) return fromDate;
+  }
   if (row.expires_at) {
     return row.expires_at;
   }
   if (row.created_at) {
     return computeExpiresAtFromCreated(new Date(row.created_at)).toISOString();
   }
-  if (row.expiry_date) {
-    return new Date(`${row.expiry_date}T23:59:59.999Z`).toISOString();
-  }
   return null;
+}
+
+export function daysRemainingForLicense(license: UserLicense | null): number {
+  if (!license) return 0;
+  const endMs = new Date(license.expires_at).getTime();
+  if (Number.isNaN(endMs)) return 0;
+  return Math.max(0, Math.ceil((endMs - Date.now()) / (1000 * 60 * 60 * 24)));
 }
 
 function isLicenseRowActive(row: LicenseRow): boolean {

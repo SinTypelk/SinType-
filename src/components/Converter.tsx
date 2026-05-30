@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Clipboard, Copy, Eraser, Keyboard as KeyboardIcon, Radio } from "lucide-react";
+import {
+  Check,
+  Clipboard,
+  Copy,
+  Eraser,
+  Keyboard as KeyboardIcon,
+  Radio,
+} from "lucide-react";
 import { VirtualKeyboard } from "./VirtualKeyboard";
 import { SmartLearningEngine } from "@/lib/smartEngine";
 import { findSpellIssues, processConversion } from "@/lib/sinhala";
@@ -26,6 +33,7 @@ export function Converter() {
   const [kbOpen, setKbOpen] = useState(false);
   const syncRef = useRef<SyncSubscription | null>(null);
   const voiceBaseRef = useRef("");
+  const [outputCopied, setOutputCopied] = useState(false);
 
   const output = useMemo(() => processConversion(input, mode), [input, mode]);
   const unicodePreview = useMemo(() => processConversion(input, "unicode"), [input]);
@@ -199,10 +207,27 @@ export function Converter() {
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-display text-sm tracking-widest uppercase text-muted-foreground">Live Output</h2>
             <button
-              onClick={() => navigator.clipboard.writeText(output)}
-              className="flex items-center gap-2 text-sm px-3 py-2 rounded-md border border-border hover:bg-accent/30"
+              type="button"
+              onClick={async () => {
+                if (!output) return;
+                try {
+                  await navigator.clipboard.writeText(output);
+                  setOutputCopied(true);
+                  window.setTimeout(() => setOutputCopied(false), 2000);
+                } catch {
+                  /* noop */
+                }
+              }}
+              disabled={!input.trim()}
+              aria-label={outputCopied ? "Copied to clipboard" : "Copy output to clipboard"}
+              className="flex items-center gap-2 text-sm px-3 py-2 rounded-md border border-border hover:bg-accent/30 transition-transform active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
             >
-              <Copy className="w-4 h-4" /> Copy
+              {outputCopied ? (
+                <Check className="w-4 h-4 text-[var(--neon-cyan)]" aria-hidden />
+              ) : (
+                <Copy className="w-4 h-4" aria-hidden />
+              )}
+              {outputCopied ? "Copied" : "Copy"}
             </button>
           </div>
           <div className={`w-full h-64 overflow-y-auto text-xl leading-relaxed whitespace-pre-wrap break-words ${mode === "legacy" ? "font-fm-legacy" : ""}`}>

@@ -72,9 +72,9 @@ function FeedbackModal({ onClose }: { onClose: () => void }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[60] grid place-items-center p-4"
+      className="fixed inset-0 z-[60] grid place-items-center p-4 bg-black/50 supports-[(-webkit-backdrop-filter:blur(0))]:bg-black/60"
       style={{
-        background: "color-mix(in oklab, black 60%, transparent)",
+        WebkitBackdropFilter: "blur(8px)",
         backdropFilter: "blur(8px)",
       }}
       onClick={onClose}
@@ -85,16 +85,17 @@ function FeedbackModal({ onClose }: { onClose: () => void }) {
         exit={{ scale: 0.95, y: 10, opacity: 0 }}
         transition={{ type: "spring", stiffness: 320, damping: 28 }}
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-md rounded-2xl border border-white/10 p-6"
-        style={{
-          background: "color-mix(in oklab, var(--card) 90%, transparent)",
-          backdropFilter: "blur(20px)",
-        }}
+        className="glass-safe w-full max-w-md rounded-2xl border border-white/10 p-6 shadow-xl"
       >
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-display text-lg">Send feedback</h3>
-          <button type="button" onClick={onClose} className="p-1.5 rounded-md hover:bg-white/5">
-            <X className="w-4 h-4" />
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1.5 rounded-md hover:bg-white/5"
+            aria-label="Close feedback form"
+          >
+            <X className="w-4 h-4" aria-hidden />
           </button>
         </div>
 

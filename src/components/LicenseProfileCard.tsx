@@ -1,5 +1,10 @@
+import { useEffect, useState } from "react";
 import { Mail, KeyRound, CalendarClock, ShieldCheck } from "lucide-react";
-import { LICENSE_DAYS, type UserLicense } from "@/lib/license-service";
+import {
+  daysRemainingForLicense,
+  LICENSE_DAYS,
+  type UserLicense,
+} from "@/lib/license-service";
 
 type LicenseProfileCardProps = {
   email: string;
@@ -18,11 +23,6 @@ function formatDate(iso: string): string {
   }
 }
 
-function daysLeftFromExpiry(expiresAt: string | null): number {
-  if (!expiresAt) return 0;
-  const ms = new Date(expiresAt).getTime() - Date.now();
-  return Math.max(0, Math.ceil(ms / (1000 * 60 * 60 * 24)));
-}
 
 function DaysRing({
   daysLeft,
@@ -87,9 +87,15 @@ export function LicenseProfileCard({
   license,
   loading = false,
 }: LicenseProfileCardProps) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTick((n) => n + 1), 60_000);
+    return () => clearInterval(id);
+  }, []);
+
   const expiryIso = license?.expires_at ?? null;
   const isExpired = expiryIso ? new Date(expiryIso).getTime() <= Date.now() : false;
-  const daysLeft = daysLeftFromExpiry(expiryIso);
+  const daysLeft = daysRemainingForLicense(license);
 
   return (
     <div

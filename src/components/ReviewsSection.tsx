@@ -213,9 +213,10 @@ export function ReviewsSection() {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.15 }}
-        className="rounded-3xl border border-white/10 p-5 flex flex-col flex-1 min-h-0"
+        className="rounded-3xl border border-white/10 p-5 flex flex-col w-full h-full min-h-[22rem]"
         style={{
           background: "color-mix(in oklab, var(--card) 80%, transparent)",
+          WebkitBackdropFilter: "blur(20px)",
           backdropFilter: "blur(20px)",
         }}
       >

@@ -292,8 +292,32 @@
 
 @utility glass-panel {
   background: color-mix(in oklab, var(--card) 80%, transparent);
-  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  backdrop-filter: blur(12px) saturate(150%);
   border: 1px solid var(--border);
+}
+
+/* iOS Safari–safe glass (feedback modal, etc.) */
+.glass-safe {
+  background: color-mix(in oklab, var(--card) 92%, transparent);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  backdrop-filter: blur(16px) saturate(150%);
+}
+
+@supports not (
+  (-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))
+) {
+  .glass-safe {
+    background: color-mix(in oklab, var(--card) 98%, transparent);
+  }
+}
+
+@media (max-width: 640px) {
+  .glass-safe {
+    background: color-mix(in oklab, var(--card) 94%, transparent);
+    -webkit-backdrop-filter: blur(12px) saturate(140%);
+    backdrop-filter: blur(12px) saturate(140%);
+  }
 }
 
 @utility text-gradient {

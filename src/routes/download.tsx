@@ -52,12 +52,11 @@ function DownloadPage() {
         </p>
       </div>
 
-      <div className="grid lg:grid-cols-[1.4fr_1fr] gap-6 items-start">
-        <DownloadCard />
-        <div className="flex flex-col gap-6">
-          <LiveStats />
-          <ReviewsSection />
-        </div>
+      <DownloadCard />
+
+      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch w-full">
+        <LiveStats />
+        <ReviewsSection />
       </div>
 
       <div className="mt-8 grid sm:grid-cols-3 gap-4">
@@ -268,9 +267,10 @@ function LiveStats() {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.1 }}
-      className="rounded-3xl border border-white/10 p-5 flex flex-col self-start h-fit"
+      className="rounded-3xl border border-white/10 p-5 flex flex-col w-full h-full min-h-[22rem]"
       style={{
         background: "color-mix(in oklab, var(--card) 80%, transparent)",
+        WebkitBackdropFilter: "blur(20px)",
         backdropFilter: "blur(20px)",
       }}
     >

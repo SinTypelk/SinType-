@@ -7,7 +7,6 @@ import {
   fetchActiveLicenseForEmail,
   getOrCreateLicense,
   LICENSE_DAYS,
-  profileToUserLicense,
   userLicenseToDisplay,
   type UserLicense,
 } from "@/lib/license-service";
@@ -37,15 +36,10 @@ function LicenseHub() {
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const loadLicense = useCallback(
-    async (email: string, fromProfile?: typeof profile) => {
+  const loadLicense = useCallback(async (email: string) => {
       setProfileLoading(true);
       setError(null);
       try {
-        if (fromProfile?.license_key && fromProfile.expires_at) {
-          setLicense(profileToUserLicense(fromProfile));
-          return;
-        }
         const active = await fetchActiveLicenseForEmail(email);
         setLicense(active);
       } catch (e: unknown) {
@@ -67,8 +61,16 @@ function LicenseHub() {
       setProfileLoading(false);
       return;
     }
-    loadLicense(user.email, profile ?? undefined);
-  }, [user?.email, authLoading, authProfileLoading, profile, loadLicense]);
+    loadLicense(user.email);
+  }, [user?.email, authLoading, authProfileLoading, loadLicense]);
+
+  useEffect(() => {
+    if (!user?.email || authLoading) return;
+    const id = setInterval(() => {
+      void loadLicense(user.email!);
+    }, 30_000);
+    return () => clearInterval(id);
+  }, [user?.email, authLoading, loadLicense]);
 
   const generate = async () => {
     if (!user) {
@@ -290,15 +292,18 @@ function KeyCard({
   display: ReturnType<typeof userLicenseToDisplay>;
 }) {
   const [copied, setCopied] = useState(false);
-  const [, force] = useState(0);
+  const [tick, setTick] = useState(0);
   useEffect(() => {
-    const id = setInterval(() => force((n) => n + 1), 60_000);
+    const id = setInterval(() => setTick((n) => n + 1), 60_000);
     return () => clearInterval(id);
   }, []);
 
-  const totalMs = display.expires_at - display.created_at;
-  const leftMs = Math.max(0, display.expires_at - Date.now());
+  const expiresMs = display.expires_at;
+  const createdMs = display.created_at;
+  const leftMs = Math.max(0, expiresMs - Date.now());
   const daysLeft = Math.max(0, Math.ceil(leftMs / (1000 * 60 * 60 * 24)));
+  void tick;
+  const totalMs = expiresMs - createdMs;
   const progress = totalMs > 0 ? leftMs / totalMs : 0;
 
   const r = 56;
