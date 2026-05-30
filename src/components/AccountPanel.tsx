@@ -90,6 +90,7 @@ export function AccountPanel({ compact = false }: AccountPanelProps) {
           target="_blank"
           rel="noopener noreferrer"
           title="Open mobile keyboard page"
+          aria-label="Open mobile keyboard page on your phone"
           className="group shrink-0 rounded-xl border border-border/60 bg-background/80 p-2 transition hover:border-[var(--neon-cyan)]/50 hover:shadow-[0_0_24px_color-mix(in_oklab,var(--neon-cyan)_25%,transparent)]"
         >
           <canvas ref={canvasRef} className="block rounded-lg" />

@@ -144,11 +144,22 @@ export function Converter() {
             <h2 className="font-display text-sm tracking-widest uppercase text-muted-foreground">Singlish Input</h2>
             <div className="flex items-center gap-2">
               <button
+                type="button"
                 onClick={async () => { try { setInput(input + (await navigator.clipboard.readText())); } catch { /* noop */ } }}
-                className="p-2 rounded-md border border-border hover:bg-accent/30" title="Paste"
-              ><Clipboard className="w-4 h-4" /></button>
-              <button onClick={() => setInput("")} className="p-2 rounded-md border border-border hover:bg-accent/30" title="Clear">
-                <Eraser className="w-4 h-4" />
+                className="p-2 rounded-md border border-border hover:bg-accent/30"
+                title="Paste"
+                aria-label="Paste from clipboard"
+              >
+                <Clipboard className="w-4 h-4" aria-hidden />
+              </button>
+              <button
+                type="button"
+                onClick={() => setInput("")}
+                className="p-2 rounded-md border border-border hover:bg-accent/30"
+                title="Clear"
+                aria-label="Clear input"
+              >
+                <Eraser className="w-4 h-4" aria-hidden />
               </button>
               <ClientOnly
                 fallback={
@@ -230,6 +241,7 @@ function ModeToggle() {
   return (
     <div
       role="switch"
+      aria-label="Toggle Unicode or Legacy font mode"
       aria-checked={mode === "legacy"}
       tabIndex={0}
       onClick={() => setMode(mode === "unicode" ? "legacy" : "unicode")}

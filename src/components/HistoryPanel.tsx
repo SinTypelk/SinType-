@@ -29,7 +29,14 @@ export function HistoryPanel({ onRestore }: { onRestore: (text: string) => void 
           >
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-display text-lg neon-text">Recent Conversions</h3>
-              <button onClick={() => setOpen(false)} className="p-1 rounded hover:bg-accent/30"><X className="w-4 h-4" /></button>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="p-1 rounded hover:bg-accent/30"
+                aria-label="Close history panel"
+              >
+                <X className="w-4 h-4" aria-hidden />
+              </button>
             </div>
             {items.length === 0 ? (
               <p className="text-sm text-muted-foreground">No history yet. Start typing to build your record.</p>

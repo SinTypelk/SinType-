@@ -14,7 +14,7 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-40 backdrop-blur-xl bg-background/70 border-b border-border">
       <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-3 gap-4">
-        <Link to="/" className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2" aria-label="SinType home">
           <BrandLogo
             className="w-7 h-7"
             alt="SinType logo — Singlish to Sinhala converter home"
@@ -35,6 +35,7 @@ export function Navbar() {
           <label className="hidden sm:flex items-center gap-2 text-xs sm:text-sm select-none">
             <div
               role="switch"
+              aria-label="Toggle Unicode or Legacy font mode"
               aria-checked={mode === "legacy"}
               tabIndex={0}
               onClick={() => setMode(mode === "unicode" ? "legacy" : "unicode")}
@@ -63,16 +64,25 @@ export function Navbar() {
           </button>
 
           {user ? (
-            <button onClick={signOut}
+            <button
+              type="button"
+              onClick={signOut}
               className="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded-md border border-border hover:bg-accent/30"
-              title={user.email ?? "Sign out"}>
-              <LogOut className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Sign out</span>
+              title={user.email ?? "Sign out"}
+              aria-label="Sign out"
+            >
+              <LogOut className="w-3.5 h-3.5" aria-hidden />{" "}
+              <span className="hidden sm:inline">Sign out</span>
             </button>
           ) : (
-            <Link to="/login"
+            <Link
+              to="/login"
               className="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded-md font-semibold text-primary-foreground"
-              style={{ background: "linear-gradient(135deg, var(--neon-cyan), var(--neon-purple))" }}>
-              <LogIn className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Sign in</span>
+              style={{ background: "linear-gradient(135deg, var(--neon-cyan), var(--neon-purple))" }}
+              aria-label="Sign in"
+            >
+              <LogIn className="w-3.5 h-3.5" aria-hidden />{" "}
+              <span className="hidden sm:inline">Sign in</span>
             </Link>
           )}
         </div>

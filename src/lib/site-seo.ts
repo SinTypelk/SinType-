@@ -21,6 +21,18 @@ export const DEFAULT_KEYWORDS =
 export const GOOGLE_SITE_VERIFICATION =
   "JOLo4p9bjV50xipNcwWsbHgbjzXMV-NuKyZSr14stv8";
 
+/** Public marketing routes for sitemap.xml (no /admin, /m/). */
+export const SITEMAP_PATHS = [
+  "/",
+  "/download",
+  "/faq",
+  "/about",
+  "/contact",
+  "/privacy",
+  "/terms",
+  "/login",
+] as const;
+
 /** Social preview — place a 1200×630 PNG at website/public/og-image.png */
 export const OG_IMAGE_PATH = "/og-image.png";
 export const OG_IMAGE_URL = `${SITE_URL}${OG_IMAGE_PATH}`;

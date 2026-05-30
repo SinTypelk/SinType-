@@ -42,10 +42,16 @@ export function EdgeBar() {
         onOpenChange={setLoginOpen}
         redirectTo={loginRedirect}
       />
-      <Link to="/" className="p-1.5 rounded-2xl" title="SinType home">
+      <Link
+        to="/"
+        className="p-1.5 rounded-2xl"
+        title="SinType home"
+        aria-label="SinType home"
+      >
         <BrandLogo
           className="w-8 h-8"
-          alt="SinType Desktop App toolbar logo — home"
+          alt=""
+          aria-hidden
         />
       </Link>
       <div className="h-px w-8 bg-white/10 my-1" />
@@ -61,6 +67,7 @@ export function EdgeBar() {
                 key={it.to}
                 to={it.to}
                 className="group relative"
+                aria-label={locked ? `${it.label} (sign in required)` : it.label}
                 onClick={(e) => {
                   if (!locked) return;
                   e.preventDefault();
@@ -89,6 +96,7 @@ export function EdgeBar() {
                   )}
                   <Icon
                     className={`relative w-5 h-5 transition ${active ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"}`}
+                    aria-hidden
                   />
                 </motion.div>
                 <span className="pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 px-2 py-1 rounded-md text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition border border-border bg-card/90 backdrop-blur">
@@ -130,11 +138,12 @@ export function EdgeBar() {
           onClick={signOut}
           className="w-11 h-11 rounded-2xl flex items-center justify-center text-muted-foreground hover:text-foreground"
           title={user.email ?? "Sign out"}
+          aria-label="Sign out"
         >
-          <LogOut className="w-5 h-5" />
+          <LogOut className="w-5 h-5" aria-hidden />
         </motion.button>
       ) : (
-        <Link to="/login">
+        <Link to="/login" aria-label="Sign in">
           <motion.div
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.92 }}
@@ -142,7 +151,7 @@ export function EdgeBar() {
             className="w-11 h-11 rounded-2xl flex items-center justify-center text-primary-foreground"
             style={{ background: "linear-gradient(135deg, var(--neon-cyan), var(--neon-purple))" }}
           >
-            <LogIn className="w-5 h-5" />
+            <LogIn className="w-5 h-5" aria-hidden />
           </motion.div>
         </Link>
       )}
@@ -180,6 +189,7 @@ export function EdgeDock() {
               <Link
                 key={it.to}
                 to={it.to}
+                aria-label={locked ? `${it.label} (sign in required)` : it.label}
                 onClick={(e) => {
                   if (!locked) return;
                   e.preventDefault();
@@ -202,7 +212,10 @@ export function EdgeDock() {
                       }}
                     />
                   )}
-                  <Icon className={`relative w-4.5 h-4.5 ${active ? "text-foreground" : "text-muted-foreground"}`} />
+                  <Icon
+                    className={`relative w-4.5 h-4.5 ${active ? "text-foreground" : "text-muted-foreground"}`}
+                    aria-hidden
+                  />
                 </motion.div>
               </Link>
             );
