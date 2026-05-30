@@ -17,6 +17,10 @@ export const DEFAULT_KEYWORDS =
   "Singlish to Sinhala, Sinhala Unicode, FM Abhaya converter, professional Sinhala typing, " +
   "Sinhala transliteration, Legacy FM font, SinType desktop, Windows Sinhala typing";
 
+/** Google Search Console — https://search.google.com/search-console */
+export const GOOGLE_SITE_VERIFICATION =
+  "JOLo4p9bjV50xipNcwWsbHgbjzXMV-NuKyZSr14stv8";
+
 /** Social preview — place a 1200×630 PNG at website/public/og-image.png */
 export const OG_IMAGE_PATH = "/og-image.png";
 export const OG_IMAGE_URL = `${SITE_URL}${OG_IMAGE_PATH}`;

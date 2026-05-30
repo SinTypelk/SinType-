@@ -16,6 +16,7 @@ import { EdgeBar, EdgeDock } from "@/components/EdgeBar";
 import { FeedbackFooter } from "@/components/FeedbackFooter";
 import {
   DEFAULT_KEYWORDS,
+  GOOGLE_SITE_VERIFICATION,
   HOME_DESCRIPTION,
   HOME_TITLE,
   openGraphMeta,
@@ -62,6 +63,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "author", content: "SinType.lk" },
       { name: "keywords", content: DEFAULT_KEYWORDS },
       { name: "robots", content: "index, follow" },
+      { name: "google-site-verification", content: GOOGLE_SITE_VERIFICATION },
       ...openGraphMeta({
         title: HOME_TITLE,
         description: HOME_DESCRIPTION,
