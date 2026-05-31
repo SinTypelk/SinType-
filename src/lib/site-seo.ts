@@ -19,7 +19,7 @@ export const DEFAULT_KEYWORDS =
 
 /** Google Search Console — https://search.google.com/search-console */
 export const GOOGLE_SITE_VERIFICATION =
-  "JOLo4p9bjV50xipNcwWsbHgbjzXMV-NuKyZSr14stv8";
+  "4rVw_BDYRnCZ3pcw3docYkAHyOBFzjFKdE3zpopuR70";
 
 /** Public marketing routes for sitemap.xml (no /admin, /m/). */
 export const SITEMAP_PATHS = [
