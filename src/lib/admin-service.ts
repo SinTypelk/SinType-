@@ -265,3 +265,42 @@ export async function fetchRecentAppUpdates(limit = 10): Promise<AppUpdateRecord
   if (error) throw new Error(error.message);
   return (data ?? []) as AppUpdateRecord[];
 }
+
+export async function updateAppUpdate(
+  id: string,
+  patch: {
+    version_number?: string;
+    download_url?: string;
+    release_notes?: string[];
+    is_critical?: boolean;
+  },
+): Promise<AppUpdateRecord> {
+  const body: Record<string, unknown> = {};
+  if (patch.version_number !== undefined) {
+    body.version_number = patch.version_number.trim();
+  }
+  if (patch.download_url !== undefined) {
+    body.download_url = patch.download_url.trim();
+  }
+  if (patch.release_notes !== undefined) {
+    body.release_notes = serializeReleaseNotes(patch.release_notes);
+  }
+  if (patch.is_critical !== undefined) {
+    body.is_critical = patch.is_critical;
+  }
+
+  const { data, error } = await supabase
+    .from("app_updates")
+    .update(body)
+    .eq("id", id)
+    .select("id, version_number, download_url, release_notes, is_critical, created_at")
+    .single();
+
+  if (error) throw new Error(error.message);
+  return data as AppUpdateRecord;
+}
+
+export async function deleteAppUpdate(id: string): Promise<void> {
+  const { error } = await supabase.from("app_updates").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+}

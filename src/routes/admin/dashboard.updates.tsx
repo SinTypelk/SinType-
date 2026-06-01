@@ -1,6 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
-import { Rocket, AlertTriangle, Plus, Trash2, Download, Sparkles, Loader2 } from "lucide-react";
+import {
+  Rocket,
+  AlertTriangle,
+  Plus,
+  Trash2,
+  Download,
+  Sparkles,
+  Loader2,
+  Pencil,
+  Save,
+  X,
+} from "lucide-react";
 import {
   Card,
   CardContent,
@@ -16,9 +27,22 @@ import { parseReleaseNotes } from "@/lib/app-updates-service";
 import {
   fetchRecentAppUpdates,
   publishAppUpdate,
+  updateAppUpdate,
+  deleteAppUpdate,
   type AppUpdateRecord,
 } from "@/lib/admin-service";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/admin/dashboard/updates")({
   component: UpdatesPage,
@@ -43,7 +67,7 @@ function UpdatesPage() {
   const loadReleases = useCallback(async () => {
     setLoadingReleases(true);
     try {
-      setReleases(await fetchRecentAppUpdates(10));
+      setReleases(await fetchRecentAppUpdates(50));
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to load releases");
     } finally {
@@ -281,37 +305,172 @@ function UpdatesPage() {
               ) : releases.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No releases published yet.</p>
               ) : (
-                <ol className="relative space-y-4 border-l border-border/60 pl-5">
-                  {releases.slice(0, 5).map((r) => {
-                    const bullets = parseReleaseNotes(r.release_notes);
-                    return (
-                      <li key={r.id} className="relative">
-                        <span className="absolute -left-[26px] mt-1.5 flex h-3 w-3 rounded-full bg-primary shadow-[var(--shadow-glow)]" />
-                        <div className="flex items-center gap-2">
-                          <p className="font-mono text-sm font-semibold">v{r.version_number}</p>
-                          {r.is_critical && (
-                            <span className="inline-flex items-center gap-1 rounded-full border border-destructive/40 bg-destructive/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-destructive">
-                              <AlertTriangle className="h-3 w-3" /> Critical
-                            </span>
-                          )}
-                        </div>
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          {new Date(r.created_at).toLocaleDateString(undefined, {
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric",
-                          })}{" "}
-                          · {bullets.length} note{bullets.length === 1 ? "" : "s"}
-                        </p>
-                      </li>
-                    );
-                  })}
-                </ol>
+                <ul className="space-y-3">
+                  {releases.map((r) => (
+                    <ReleaseManageRow key={r.id} release={r} onChanged={loadReleases} />
+                  ))}
+                </ul>
               )}
             </CardContent>
           </Card>
         </div>
       </div>
     </div>
+  );
+}
+
+function ReleaseManageRow({
+  release,
+  onChanged,
+}: {
+  release: AppUpdateRecord;
+  onChanged: () => Promise<void>;
+}) {
+  const bullets = parseReleaseNotes(release.release_notes);
+  const [editing, setEditing] = useState(false);
+  const [version, setVersion] = useState(release.version_number);
+  const [url, setUrl] = useState(release.download_url);
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const startEdit = () => {
+    setVersion(release.version_number);
+    setUrl(release.download_url);
+    setEditing(true);
+  };
+
+  const cancelEdit = () => {
+    setVersion(release.version_number);
+    setUrl(release.download_url);
+    setEditing(false);
+  };
+
+  const onSave = async () => {
+    if (!version.trim() || !url.trim()) {
+      toast.error("Version and download URL are required.");
+      return;
+    }
+    setSaving(true);
+    try {
+      await updateAppUpdate(release.id, {
+        version_number: version,
+        download_url: url,
+      });
+      toast.success(`Updated v${version.trim()}`);
+      setEditing(false);
+      await onChanged();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Update failed");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const onDelete = async () => {
+    setDeleting(true);
+    try {
+      await deleteAppUpdate(release.id);
+      toast.success(`Deleted v${release.version_number}`);
+      await onChanged();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Delete failed");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  return (
+    <li className="rounded-lg border border-border/60 bg-background/40 p-3">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div>
+          <div className="flex items-center gap-2">
+            <p className="font-mono text-sm font-semibold">v{release.version_number}</p>
+            {release.is_critical && (
+              <span className="inline-flex items-center gap-1 rounded-full border border-destructive/40 bg-destructive/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-destructive">
+                <AlertTriangle className="h-3 w-3" /> Critical
+              </span>
+            )}
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {new Date(release.created_at).toLocaleDateString(undefined, {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            })}{" "}
+            · {bullets.length} note{bullets.length === 1 ? "" : "s"}
+          </p>
+        </div>
+        <div className="flex items-center gap-1">
+          {!editing && (
+            <Button type="button" variant="ghost" size="sm" onClick={startEdit}>
+              <Pencil className="mr-1 h-3.5 w-3.5" /> Edit
+            </Button>
+          )}
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="text-destructive hover:text-destructive"
+                disabled={deleting}
+              >
+                <Trash2 className="mr-1 h-3.5 w-3.5" /> Delete
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete release?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Remove v{release.version_number} from the download page. This cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={onDelete}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      </div>
+
+      {editing ? (
+        <div className="mt-3 space-y-2">
+          <div className="grid gap-2 sm:grid-cols-2">
+            <Input
+              value={version}
+              onChange={(e) => setVersion(e.target.value)}
+              placeholder="Version"
+              className="font-mono text-sm"
+            />
+            <Input
+              type="url"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="Download URL"
+              className="text-sm"
+            />
+          </div>
+          <div className="flex gap-2">
+            <Button type="button" size="sm" onClick={onSave} disabled={saving}>
+              <Save className="mr-1 h-3.5 w-3.5" />
+              {saving ? "Saving…" : "Save"}
+            </Button>
+            <Button type="button" size="sm" variant="outline" onClick={cancelEdit}>
+              <X className="mr-1 h-3.5 w-3.5" /> Cancel
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <p className="mt-2 truncate text-xs text-muted-foreground" title={release.download_url}>
+          {release.download_url}
+        </p>
+      )}
+    </li>
   );
 }

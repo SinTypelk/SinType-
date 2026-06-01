@@ -10,15 +10,20 @@ export type AppUpdateRow = {
 };
 
 export async function fetchLatestAppUpdate(): Promise<AppUpdateRow | null> {
+  const rows = await fetchRecentAppUpdates(1);
+  return rows[0] ?? null;
+}
+
+/** All published releases, newest first (for download page + admin). */
+export async function fetchRecentAppUpdates(limit = 20): Promise<AppUpdateRow[]> {
   const { data, error } = await supabase
     .from("app_updates")
     .select("id, version_number, download_url, release_notes, is_critical, created_at")
     .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+    .limit(limit);
 
   if (error) throw new Error(error.message);
-  return (data as AppUpdateRow | null) ?? null;
+  return (data as AppUpdateRow[]) ?? [];
 }
 
 export function parseVersionTuple(version: string): number[] {

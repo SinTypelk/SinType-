@@ -19,10 +19,12 @@ import { LoginModal } from "@/components/LoginModal";
 import { AppUpdateBanner } from "@/components/AppUpdateBanner";
 import { ReviewsSection } from "@/components/ReviewsSection";
 import {
-  fetchLatestAppUpdate,
+  fetchRecentAppUpdates,
   parseReleaseNotes,
   type AppUpdateRow,
 } from "@/lib/app-updates-service";
+
+const SITE_CURRENT_VERSION = "1.0.1";
 
 export const Route = createFileRoute("/download")({
   head: () => ({
@@ -41,7 +43,7 @@ export const Route = createFileRoute("/download")({
 function DownloadPage() {
   return (
     <section className="max-w-6xl mx-auto px-6 pt-16 pb-24">
-      <AppUpdateBanner currentVersion="1.0.0" />
+      <AppUpdateBanner currentVersion={SITE_CURRENT_VERSION} />
 
       <div className="mb-10">
         <p className="text-[11px] uppercase tracking-[0.35em] text-muted-foreground">Desktop</p>
@@ -90,15 +92,17 @@ const FALLBACK_RELEASE_NOTES = [
 function DownloadCard() {
   const { user } = useAuth();
   const [loginOpen, setLoginOpen] = useState(false);
-  const [latestUpdate, setLatestUpdate] = useState<AppUpdateRow | null>(null);
+  const [releases, setReleases] = useState<AppUpdateRow[]>([]);
 
   useEffect(() => {
-    fetchLatestAppUpdate()
-      .then(setLatestUpdate)
-      .catch(() => setLatestUpdate(null));
+    fetchRecentAppUpdates(24)
+      .then(setReleases)
+      .catch(() => setReleases([]));
   }, []);
 
-  const releaseVersion = latestUpdate?.version_number ?? "1.0";
+  const latestUpdate = releases[0] ?? null;
+  const olderReleases = releases.slice(1);
+  const releaseVersion = latestUpdate?.version_number ?? SITE_CURRENT_VERSION;
   const releaseBullets = latestUpdate
     ? parseReleaseNotes(latestUpdate.release_notes)
     : FALLBACK_RELEASE_NOTES;
@@ -232,8 +236,47 @@ function DownloadCard() {
             ))}
           </ul>
         </div>
+
+        {olderReleases.length > 0 && (
+          <PreviousReleases releases={olderReleases} />
+        )}
       </motion.div>
     </>
+  );
+}
+
+function PreviousReleases({ releases }: { releases: AppUpdateRow[] }) {
+  return (
+    <div
+      className="mt-8 pt-6 border-t border-white/10"
+      aria-label="Previous desktop releases"
+    >
+      <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-1">
+        Previous releases
+      </p>
+      <p className="text-xs text-muted-foreground mb-4">
+        Older builds stay available if you need a specific version.
+      </p>
+      <ul className="flex flex-wrap gap-2">
+        {releases.map((r) => (
+          <li key={r.id}>
+            <a
+              href={r.download_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-background/40 px-3.5 py-2 text-xs font-semibold text-foreground/90 transition-colors hover:border-[var(--neon-cyan)]/50 hover:bg-[var(--neon-cyan)]/10"
+              title={r.download_url}
+            >
+              <Download className="w-3.5 h-3.5 text-[var(--neon-cyan)]" />
+              <span className="font-mono">v{r.version_number}</span>
+              <span className="text-[10px] font-normal uppercase tracking-wider text-muted-foreground">
+                Download
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
