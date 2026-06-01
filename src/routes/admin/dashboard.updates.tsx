@@ -154,9 +154,13 @@ function UpdatesPage() {
                     type="url"
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
-                    placeholder="https://…"
+                    placeholder="https://github.com/…/releases/download/v1.0.1/SinType_Setup.exe"
                     required
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Direct link to the <strong>.exe</strong> file (not the GitHub releases page).
+                    Prefer <code className="text-[10px]">SinType_Setup.exe</code> for updates.
+                  </p>
                 </div>
               </div>
 
