@@ -22,7 +22,7 @@ import {
   HOME_TITLE,
   openGraphMeta,
   SITE_URL,
-  softwareApplicationJsonLd,
+  rootJsonLdGraph,
 } from "@/lib/site-seo";
 
 function NotFoundComponent() {
@@ -88,9 +88,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: React.ReactNode }) {
-  const jsonLd = softwareApplicationJsonLd();
+  const jsonLd = rootJsonLdGraph();
   return (
-    <html lang="en" className="dark">
+    <html lang="en-LK" className="dark">
       <head>
         <HeadContent />
         <link

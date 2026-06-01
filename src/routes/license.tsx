@@ -13,18 +13,17 @@ import {
 import { LoginModal } from "@/components/LoginModal";
 import { LicenseProfileCard } from "@/components/LicenseProfileCard";
 import { OptionalShareCard } from "@/components/OptionalShareCard";
+import { pageHead } from "@/lib/site-seo";
 
 export const Route = createFileRoute("/license")({
-  head: () => ({
-    meta: [
-      { title: "Get a 30-day Activation Key — SinType.lk" },
-      {
-        name: "description",
-        content:
-          "Sign in and get a free 30-day activation key for the SinType Windows desktop app.",
-      },
-    ],
-  }),
+  head: () =>
+    pageHead({
+      title: "Free SinType Activation Key | 30-Day License — SinType.lk",
+      description:
+        "Sign in and generate a free 30-day activation key for SinType Desktop. Sinhala Unicode and FM legacy typing on Windows.",
+      path: "/license",
+      keywords: "sintype license, sinhala typing activation key, sintype desktop key",
+    }),
   component: LicenseHub,
 });
 

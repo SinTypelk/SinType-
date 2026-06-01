@@ -29,13 +29,13 @@ export function HeroDownloadCta() {
         SinType.lk
       </p>
       <h1 className="font-display text-3xl sm:text-5xl lg:text-[3.25rem] font-extrabold tracking-tight leading-tight text-foreground min-h-[5.5rem] sm:min-h-[7rem] lg:min-h-[7.5rem]">
-        Professional Sinhala Typing.{" "}
-        <span className="neon-text">Sinhala Unicode &amp; FM Abhaya Converter.</span>
+        Sinhala Unicode Converter —{" "}
+        <span className="neon-text">Singlish to Sinhala Online</span>
       </h1>
       <p className="mt-4 max-w-2xl mx-auto text-muted-foreground text-sm sm:text-base leading-relaxed">
-        Lightning-fast Singlish transliteration with a professional, glassmorphic design.
-        Convert to Sinhala Unicode or Legacy FM fonts online — or install the offline
-        Windows desktop app for system-wide typing in any program.
+        Free <strong className="text-foreground font-medium">Singlish to Sinhala</strong> typing with
+        Unicode and Legacy FM Abhaya output. Real-time phonetic conversion in your browser — plus an
+        offline Windows app for system-wide Sinhala typing.
       </p>
       <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
         <Link

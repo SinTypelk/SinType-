@@ -31,6 +31,12 @@ export function SiteFooter() {
               <Link to="/" className={linkClass}>
                 Web converter
               </Link>
+              <Link to="/singlish-to-sinhala" className={linkClass}>
+                Singlish to Sinhala
+              </Link>
+              <Link to="/sinhala-unicode-converter" className={linkClass}>
+                Sinhala Unicode converter
+              </Link>
               <Link to="/download" className={linkClass}>
                 Download desktop app
               </Link>

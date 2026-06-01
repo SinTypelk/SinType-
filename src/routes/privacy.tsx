@@ -1,18 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { LegalPageLayout, LegalSection } from "@/components/layout/LegalPageLayout";
+import { pageHead } from "@/lib/site-seo";
 
 export const Route = createFileRoute("/privacy")({
-  head: () => ({
-    meta: [
-      { title: "Privacy Policy · SinType.lk" },
-      {
-        name: "description",
-        content:
-          "How SinType.lk and the SinType Windows app collect, store, and use your data — including typing, licenses, mobile sync, and support messages.",
-      },
-    ],
-    links: [{ rel: "canonical", href: "/privacy" }],
-  }),
+  head: () =>
+    pageHead({
+      title: "Privacy Policy · SinType.lk",
+      description:
+        "How SinType.lk and the SinType Windows app collect, store, and use your data — typing, licenses, mobile sync, and support.",
+      path: "/privacy",
+    }),
   component: PrivacyPage,
 });
 

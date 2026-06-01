@@ -1,18 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SupportFeedbackForm } from "@/components/SupportFeedbackForm";
+import { pageHead } from "@/lib/site-seo";
 
 export const Route = createFileRoute("/feedback")({
-  head: () => ({
-    meta: [
-      { title: "Send Feedback · SinType.lk" },
-      {
-        name: "description",
-        content:
-          "Report bugs or request features for SinType web converter and Windows desktop app.",
-      },
-    ],
-    links: [{ rel: "canonical", href: "/feedback" }],
-  }),
+  head: () =>
+    pageHead({
+      title: "Send Feedback · SinType.lk",
+      description:
+        "Report bugs or request features for SinType web converter and Windows desktop app.",
+      path: "/feedback",
+      noindex: true,
+    }),
   component: FeedbackPage,
 });
 

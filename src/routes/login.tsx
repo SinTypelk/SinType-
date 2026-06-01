@@ -4,6 +4,7 @@ import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
 import { LogIn } from "lucide-react";
 import { BrandLogo } from "@/components/BrandLogo";
+import { pageHead } from "@/lib/site-seo";
 
 type LoginSearch = { redirect?: string };
 
@@ -11,16 +12,14 @@ export const Route = createFileRoute("/login")({
   validateSearch: (search: Record<string, unknown>): LoginSearch => ({
     redirect: typeof search.redirect === "string" ? search.redirect : undefined,
   }),
-  head: () => ({
-    meta: [
-      { title: "Sign in · Sintype.lk" },
-      {
-        name: "description",
-        content:
-          "Sign in to Sintype.lk to generate activation keys and sync your phone with your desktop.",
-      },
-    ],
-  }),
+  head: () =>
+    pageHead({
+      title: "Sign in · SinType.lk",
+      description:
+        "Sign in to SinType.lk to generate activation keys and sync your phone with the desktop converter.",
+      path: "/login",
+      noindex: true,
+    }),
   component: LoginPage,
 });
 

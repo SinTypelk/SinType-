@@ -1,14 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Mail, Github } from "lucide-react";
+import { pageHead } from "@/lib/site-seo";
 
 export const Route = createFileRoute("/contact")({
-  head: () => ({
-    meta: [
-      { title: "Contact · Sintype.lk" },
-      { name: "description", content: "Get in touch with the Sintype.lk team for feedback, partnerships, or support." },
-    ],
-    links: [{ rel: "canonical", href: "/contact" }],
-  }),
+  head: () =>
+    pageHead({
+      title: "Contact SinType.lk | Support & Partnerships",
+      description:
+        "Contact the SinType team for Sinhala typing support, bug reports, partnerships, or media inquiries.",
+      path: "/contact",
+    }),
   component: () => (
     <article className="max-w-3xl mx-auto px-4 py-12">
       <h1 className="font-display text-4xl neon-text mb-6">Contact</h1>

@@ -23,20 +23,20 @@ import {
   parseReleaseNotes,
   type AppUpdateRow,
 } from "@/lib/app-updates-service";
+import { KEYWORDS_DOWNLOAD } from "@/lib/seo-keywords";
+import { pageHead } from "@/lib/site-seo";
 
 const SITE_CURRENT_VERSION = "1.0.1";
 
 export const Route = createFileRoute("/download")({
-  head: () => ({
-    meta: [
-      { title: "SinType Desktop for Windows — Download" },
-      {
-        name: "description",
-        content:
-          "Download the SinType desktop app for Windows. Type Singlish anywhere, system-wide.",
-      },
-    ],
-  }),
+  head: () =>
+    pageHead({
+      title: "Download SinType Desktop | Windows Sinhala Typing App — SinType.lk",
+      description:
+        "Download SinType for Windows 10/11. Offline Singlish to Sinhala Unicode and FM Abhaya typing system-wide with hotkeys. Free activation key.",
+      path: "/download",
+      keywords: KEYWORDS_DOWNLOAD,
+    }),
   component: DownloadPage,
 });
 
@@ -47,10 +47,12 @@ function DownloadPage() {
 
       <div className="mb-10">
         <p className="text-[11px] uppercase tracking-[0.35em] text-muted-foreground">Desktop</p>
-        <h1 className="font-display text-4xl sm:text-5xl font-bold mt-2">SinType for Windows</h1>
+        <h1 className="font-display text-4xl sm:text-5xl font-bold mt-2">
+          Download SinType — Windows Sinhala typing app
+        </h1>
         <p className="mt-3 text-muted-foreground max-w-xl">
-          A native, system-wide Singlish input engine for Windows. Type Sinhala in any app — chat,
-          docs, browser — with the same engine you love on the web.
+          System-wide Singlish to Sinhala Unicode and Legacy FM Abhaya engine for Windows. Type in
+          Photoshop, Word, WhatsApp, and any app — offline, with global hotkeys.
         </p>
       </div>
 

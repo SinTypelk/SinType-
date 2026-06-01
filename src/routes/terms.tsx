@@ -1,18 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { LegalPageLayout, LegalSection } from "@/components/layout/LegalPageLayout";
+import { pageHead } from "@/lib/site-seo";
 
 export const Route = createFileRoute("/terms")({
-  head: () => ({
-    meta: [
-      { title: "Terms of Service · SinType.lk" },
-      {
-        name: "description",
-        content:
-          "Terms governing use of SinType.lk web converter, Windows desktop app, licenses, and support services.",
-      },
-    ],
-    links: [{ rel: "canonical", href: "/terms" }],
-  }),
+  head: () =>
+    pageHead({
+      title: "Terms of Service · SinType.lk",
+      description:
+        "Terms governing use of SinType.lk web converter, Windows desktop app, licenses, and support services.",
+      path: "/terms",
+    }),
   component: TermsPage,
 });
 

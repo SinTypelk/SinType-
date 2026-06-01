@@ -11,6 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SinhalaUnicodeConverterRouteImport } from './routes/sinhala-unicode-converter'
+import { Route as SinglishToSinhalaRouteImport } from './routes/singlish-to-sinhala'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as LoginRouteImport } from './routes/login'
@@ -40,6 +42,16 @@ const TermsRoute = TermsRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SinhalaUnicodeConverterRoute = SinhalaUnicodeConverterRouteImport.update({
+  id: '/sinhala-unicode-converter',
+  path: '/sinhala-unicode-converter',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SinglishToSinhalaRoute = SinglishToSinhalaRouteImport.update({
+  id: '/singlish-to-sinhala',
+  path: '/singlish-to-sinhala',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -156,6 +168,8 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/messages': typeof MessagesRoute
   '/privacy': typeof PrivacyRoute
+  '/singlish-to-sinhala': typeof SinglishToSinhalaRoute
+  '/sinhala-unicode-converter': typeof SinhalaUnicodeConverterRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/admin/dashboard': typeof AdminDashboardRouteWithChildren
@@ -179,6 +193,8 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/messages': typeof MessagesRoute
   '/privacy': typeof PrivacyRoute
+  '/singlish-to-sinhala': typeof SinglishToSinhalaRoute
+  '/sinhala-unicode-converter': typeof SinhalaUnicodeConverterRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/m/$sessionId': typeof MSessionIdRoute
@@ -203,6 +219,8 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/messages': typeof MessagesRoute
   '/privacy': typeof PrivacyRoute
+  '/singlish-to-sinhala': typeof SinglishToSinhalaRoute
+  '/sinhala-unicode-converter': typeof SinhalaUnicodeConverterRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/admin/dashboard': typeof AdminDashboardRouteWithChildren
@@ -229,6 +247,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/messages'
     | '/privacy'
+    | '/singlish-to-sinhala'
+    | '/sinhala-unicode-converter'
     | '/sitemap.xml'
     | '/terms'
     | '/admin/dashboard'
@@ -252,6 +272,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/messages'
     | '/privacy'
+    | '/singlish-to-sinhala'
+    | '/sinhala-unicode-converter'
     | '/sitemap.xml'
     | '/terms'
     | '/m/$sessionId'
@@ -275,6 +297,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/messages'
     | '/privacy'
+    | '/singlish-to-sinhala'
+    | '/sinhala-unicode-converter'
     | '/sitemap.xml'
     | '/terms'
     | '/admin/dashboard'
@@ -300,6 +324,8 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   MessagesRoute: typeof MessagesRoute
   PrivacyRoute: typeof PrivacyRoute
+  SinglishToSinhalaRoute: typeof SinglishToSinhalaRoute
+  SinhalaUnicodeConverterRoute: typeof SinhalaUnicodeConverterRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   MSessionIdRoute: typeof MSessionIdRoute
@@ -320,6 +346,20 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sinhala-unicode-converter': {
+      id: '/sinhala-unicode-converter'
+      path: '/sinhala-unicode-converter'
+      fullPath: '/sinhala-unicode-converter'
+      preLoaderRoute: typeof SinhalaUnicodeConverterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/singlish-to-sinhala': {
+      id: '/singlish-to-sinhala'
+      path: '/singlish-to-sinhala'
+      fullPath: '/singlish-to-sinhala'
+      preLoaderRoute: typeof SinglishToSinhalaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -509,6 +549,8 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   MessagesRoute: MessagesRoute,
   PrivacyRoute: PrivacyRoute,
+  SinglishToSinhalaRoute: SinglishToSinhalaRoute,
+  SinhalaUnicodeConverterRoute: SinhalaUnicodeConverterRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   MSessionIdRoute: MSessionIdRoute,

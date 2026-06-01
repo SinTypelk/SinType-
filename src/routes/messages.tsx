@@ -1,18 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SupportMessagesPanel } from "@/components/SupportMessagesPanel";
+import { pageHead } from "@/lib/site-seo";
 
 export const Route = createFileRoute("/messages")({
-  head: () => ({
-    meta: [
-      { title: "Messages & Updates · SinType.lk" },
-      {
-        name: "description",
-        content:
-          "Official announcements, product updates, and personal messages from the SinType team.",
-      },
-    ],
-    links: [{ rel: "canonical", href: "/messages" }],
-  }),
+  head: () =>
+    pageHead({
+      title: "Messages & Updates · SinType.lk",
+      description:
+        "Official announcements, product updates, and personal messages from the SinType team.",
+      path: "/messages",
+      noindex: true,
+    }),
   component: MessagesPage,
 });
 
