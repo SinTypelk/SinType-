@@ -318,7 +318,7 @@ function KeyCard({
 
   return (
     <div
-      className="rounded-3xl border border-white/10 p-8 grid lg:grid-cols-[auto_1fr] gap-8 items-start lg:items-center"
+      className="rounded-3xl border border-white/10 p-6 sm:p-8 grid lg:grid-cols-[auto_1fr] gap-8 items-start lg:items-center overflow-hidden w-full min-w-0"
       style={{
         background: "color-mix(in oklab, var(--card) 85%, transparent)",
         backdropFilter: "blur(20px)",
@@ -361,19 +361,19 @@ function KeyCard({
         </div>
       </div>
 
-      <div>
+      <div className="min-w-0 w-full">
         <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
           <KeyRound className="w-3 h-3 text-[var(--neon-cyan)]" /> Your activation key
         </div>
-        <div className="mt-3 flex items-center gap-2 rounded-xl border border-border bg-background/60 p-1 pl-4">
-          <code className="flex-1 font-mono text-base sm:text-lg tracking-[0.18em] truncate">
+        <div className="mt-3 w-full min-w-0 overflow-hidden rounded-xl border border-border bg-background/90 p-2 sm:p-1 sm:pl-4 flex flex-col sm:flex-row sm:items-center gap-2">
+          <code className="w-full min-w-0 font-mono text-sm sm:text-lg tracking-wide sm:tracking-[0.14em] truncate px-1 sm:px-0 text-center sm:text-left">
             {display.key}
           </code>
           <motion.button
             type="button"
             whileTap={{ scale: 0.94 }}
             onClick={copy}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-lg text-primary-foreground text-sm font-semibold"
+            className="w-full sm:w-auto shrink-0 inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-lg text-primary-foreground text-sm font-semibold"
             style={{
               background: "linear-gradient(135deg, var(--neon-cyan), var(--neon-purple))",
             }}

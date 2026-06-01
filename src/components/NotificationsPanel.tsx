@@ -69,25 +69,22 @@ export function NotificationsPanel() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] grid place-items-center p-4"
+            className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-3 pb-20 sm:p-4 sm:pb-4"
             style={{
-              background: "color-mix(in oklab, black 60%, transparent)",
-              backdropFilter: "blur(8px)",
+              background: "rgba(0, 0, 0, 0.82)",
+              backdropFilter: "blur(12px)",
+              WebkitBackdropFilter: "blur(12px)",
             }}
             onClick={closePanel}
           >
             <motion.div
-              initial={{ scale: 0.95, y: 8, opacity: 0 }}
+              initial={{ scale: 0.98, y: 16, opacity: 0 }}
               animate={{ scale: 1, y: 0, opacity: 1 }}
-              exit={{ scale: 0.95, y: 8, opacity: 0 }}
+              exit={{ scale: 0.98, y: 16, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-lg max-h-[80vh] overflow-hidden rounded-2xl border border-white/10 flex flex-col"
-              style={{
-                background: "color-mix(in oklab, var(--card) 92%, transparent)",
-                backdropFilter: "blur(20px)",
-              }}
+              className="w-full max-w-lg max-h-[min(80vh,520px)] overflow-hidden rounded-2xl border border-border shadow-2xl flex flex-col bg-card text-card-foreground isolate"
             >
-              <div className="flex items-center justify-between p-4 border-b border-white/10">
+              <div className="flex items-center justify-between p-4 border-b border-border bg-card">
                 <h3 className="font-display text-lg">Notifications</h3>
                 <button
                   type="button"
@@ -98,7 +95,7 @@ export function NotificationsPanel() {
                 </button>
               </div>
 
-              <div className="overflow-y-auto p-4 space-y-3 flex-1">
+              <div className="overflow-y-auto p-4 space-y-3 flex-1 bg-card">
                 {loading && (
                   <p className="text-sm text-muted-foreground flex items-center gap-2">
                     <Loader2 className="w-4 h-4 animate-spin" /> Loading…
@@ -111,7 +108,7 @@ export function NotificationsPanel() {
                 {rows.map((row) => (
                   <article
                     key={row.id}
-                    className="rounded-xl border border-white/10 bg-background/40 p-4"
+                    className="rounded-xl border border-border bg-muted/90 p-4 shadow-sm"
                   >
                     <div className="flex items-center justify-between gap-2">
                       <h4 className="font-semibold text-sm text-[var(--neon-cyan)]">

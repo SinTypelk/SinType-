@@ -23,7 +23,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { parseReleaseNotes } from "@/lib/app-updates-service";
+import { formatDownloadUrlLabel, parseReleaseNotes } from "@/lib/app-updates-service";
 import {
   fetchRecentAppUpdates,
   publishAppUpdate,
@@ -467,9 +467,16 @@ function ReleaseManageRow({
           </div>
         </div>
       ) : (
-        <p className="mt-2 truncate text-xs text-muted-foreground" title={release.download_url}>
-          {release.download_url}
-        </p>
+        <a
+          href={release.download_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-2 inline-flex max-w-full items-center gap-1.5 truncate text-xs text-primary hover:underline"
+          title={release.download_url}
+        >
+          <Download className="h-3.5 w-3.5 shrink-0" />
+          <span className="truncate">{formatDownloadUrlLabel(release.download_url)}</span>
+        </a>
       )}
     </li>
   );

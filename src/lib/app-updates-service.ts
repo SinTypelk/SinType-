@@ -55,6 +55,23 @@ export function serializeReleaseNotes(bullets: string[]): string {
   return JSON.stringify(cleaned);
 }
 
+/** Short label for admin lists (avoids huge GitHub asset URLs). */
+export function formatDownloadUrlLabel(url: string): string {
+  const trimmed = url.trim();
+  if (!trimmed) return "—";
+  try {
+    const u = new URL(trimmed);
+    if (u.hostname.includes("github") || u.hostname.includes("githubusercontent")) {
+      return "GitHub release download";
+    }
+    const path =
+      u.pathname.length > 36 ? `${u.pathname.slice(0, 33)}…` : u.pathname || "/";
+    return `${u.hostname}${path}`;
+  } catch {
+    return trimmed.length > 52 ? `${trimmed.slice(0, 49)}…` : trimmed;
+  }
+}
+
 export function isRemoteVersionNewer(remote: string, current: string): boolean {
   const a = parseVersionTuple(remote);
   const b = parseVersionTuple(current);
