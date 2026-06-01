@@ -12,8 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LicenseRouteImport } from './routes/license'
+import { Route as FeedbackRouteImport } from './routes/feedback'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as DownloadRouteImport } from './routes/download'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -45,6 +47,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
   path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MessagesRoute = MessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -53,6 +60,11 @@ const LoginRoute = LoginRouteImport.update({
 const LicenseRoute = LicenseRouteImport.update({
   id: '/license',
   path: '/license',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeedbackRoute = FeedbackRouteImport.update({
+  id: '/feedback',
+  path: '/feedback',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FaqRoute = FaqRouteImport.update({
@@ -139,8 +151,10 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/download': typeof DownloadRoute
   '/faq': typeof FaqRoute
+  '/feedback': typeof FeedbackRoute
   '/license': typeof LicenseRoute
   '/login': typeof LoginRoute
+  '/messages': typeof MessagesRoute
   '/privacy': typeof PrivacyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
@@ -160,8 +174,10 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/download': typeof DownloadRoute
   '/faq': typeof FaqRoute
+  '/feedback': typeof FeedbackRoute
   '/license': typeof LicenseRoute
   '/login': typeof LoginRoute
+  '/messages': typeof MessagesRoute
   '/privacy': typeof PrivacyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
@@ -182,8 +198,10 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/download': typeof DownloadRoute
   '/faq': typeof FaqRoute
+  '/feedback': typeof FeedbackRoute
   '/license': typeof LicenseRoute
   '/login': typeof LoginRoute
+  '/messages': typeof MessagesRoute
   '/privacy': typeof PrivacyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
@@ -206,8 +224,10 @@ export interface FileRouteTypes {
     | '/contact'
     | '/download'
     | '/faq'
+    | '/feedback'
     | '/license'
     | '/login'
+    | '/messages'
     | '/privacy'
     | '/sitemap.xml'
     | '/terms'
@@ -227,8 +247,10 @@ export interface FileRouteTypes {
     | '/contact'
     | '/download'
     | '/faq'
+    | '/feedback'
     | '/license'
     | '/login'
+    | '/messages'
     | '/privacy'
     | '/sitemap.xml'
     | '/terms'
@@ -248,8 +270,10 @@ export interface FileRouteTypes {
     | '/contact'
     | '/download'
     | '/faq'
+    | '/feedback'
     | '/license'
     | '/login'
+    | '/messages'
     | '/privacy'
     | '/sitemap.xml'
     | '/terms'
@@ -271,8 +295,10 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   DownloadRoute: typeof DownloadRoute
   FaqRoute: typeof FaqRoute
+  FeedbackRoute: typeof FeedbackRoute
   LicenseRoute: typeof LicenseRoute
   LoginRoute: typeof LoginRoute
+  MessagesRoute: typeof MessagesRoute
   PrivacyRoute: typeof PrivacyRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
@@ -303,6 +329,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/messages': {
+      id: '/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof MessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -315,6 +348,13 @@ declare module '@tanstack/react-router' {
       path: '/license'
       fullPath: '/license'
       preLoaderRoute: typeof LicenseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/feedback': {
+      id: '/feedback'
+      path: '/feedback'
+      fullPath: '/feedback'
+      preLoaderRoute: typeof FeedbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/faq': {
@@ -464,8 +504,10 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   DownloadRoute: DownloadRoute,
   FaqRoute: FaqRoute,
+  FeedbackRoute: FeedbackRoute,
   LicenseRoute: LicenseRoute,
   LoginRoute: LoginRoute,
+  MessagesRoute: MessagesRoute,
   PrivacyRoute: PrivacyRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,

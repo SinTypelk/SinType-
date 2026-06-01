@@ -43,8 +43,37 @@
   --color-neon-cyan: var(--neon-cyan);
   --color-neon-purple: var(--neon-purple);
   --color-neon-pink: var(--neon-pink);
-  --font-display: "Orbitron", "Space Grotesk", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-display: "Orbitron", system-ui, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "Cascadia Code", "Segoe UI Mono", monospace;
+}
+
+/* GPU-friendly nav chrome (replaces framer-motion layout animations) */
+.edge-nav-active {
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--neon-cyan) 35%, transparent),
+    color-mix(in oklab, var(--neon-purple) 35%, transparent)
+  );
+  box-shadow:
+    0 0 18px color-mix(in oklab, var(--neon-cyan) 45%, transparent),
+    inset 0 0 0 1px color-mix(in oklab, var(--neon-cyan) 40%, transparent);
+  transform: translateZ(0);
+}
+
+.edge-theme-icon {
+  display: inline-flex;
+  animation: edge-theme-fade 0.2s ease-out;
+}
+
+@keyframes edge-theme-fade {
+  from {
+    opacity: 0;
+    transform: rotate(-12deg);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(0);
+  }
 }
 
 :root {

@@ -1,7 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Home, Download, KeyRound, HelpCircle, Info, LogIn, LogOut, Moon, Sun } from "lucide-react";
 import { BrandLogo } from "@/components/BrandLogo";
-import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { useApp } from "@/lib/app-context";
 import { useAuth } from "@/lib/auth-context";
 import { useState } from "react";
@@ -14,6 +13,12 @@ const items = [
   { to: "/faq", label: "FAQ", icon: HelpCircle },
   { to: "/about", label: "About", icon: Info },
 ] as const;
+
+const navBtnClass =
+  "relative w-11 h-11 rounded-2xl flex items-center justify-center transition-transform duration-150 hover:scale-105 active:scale-95";
+
+const activePillClass =
+  "absolute inset-0 rounded-2xl pointer-events-none edge-nav-active";
 
 export function EdgeBar() {
   const { theme, setTheme } = useApp();
@@ -48,111 +53,74 @@ export function EdgeBar() {
         title="SinType home"
         aria-label="SinType home"
       >
-        <BrandLogo
-          className="w-8 h-8"
-          alt=""
-          aria-hidden
-        />
+        <BrandLogo className="w-8 h-8" alt="" aria-hidden />
       </Link>
       <div className="h-px w-8 bg-white/10 my-1" />
 
-      <LayoutGroup id="edgebar">
-        <nav className="flex flex-col gap-1 relative">
-          {items.map((it) => {
-            const active = isActive(it.to, "exact" in it ? it.exact : false);
-            const Icon = it.icon;
-            const locked = requiresAuth(it.to) && !user;
-            return (
-              <Link
-                key={it.to}
-                to={it.to}
-                className="group relative"
-                aria-label={locked ? `${it.label} (sign in required)` : it.label}
-                onClick={(e) => {
-                  if (!locked) return;
-                  e.preventDefault();
-                  setLoginRedirect(it.to);
-                  setLoginOpen(true);
-                }}
-              >
-                <motion.div
-                  whileHover={{ scale: 1.08 }}
-                  whileTap={{ scale: 0.92 }}
-                  transition={{ type: "spring", stiffness: 380, damping: 22 }}
-                  className="relative w-11 h-11 rounded-2xl flex items-center justify-center"
-                >
-                  {active && (
-                    <motion.span
-                      layoutId="edgebar-active"
-                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                      className="absolute inset-0 rounded-2xl"
-                      style={{
-                        background:
-                          "linear-gradient(135deg, color-mix(in oklab, var(--neon-cyan) 35%, transparent), color-mix(in oklab, var(--neon-purple) 35%, transparent))",
-                        boxShadow:
-                          "0 0 18px color-mix(in oklab, var(--neon-cyan) 45%, transparent), inset 0 0 0 1px color-mix(in oklab, var(--neon-cyan) 40%, transparent)",
-                      }}
-                    />
-                  )}
-                  <Icon
-                    className={`relative w-5 h-5 transition ${active ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"}`}
-                    aria-hidden
-                  />
-                </motion.div>
-                <span className="pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 px-2 py-1 rounded-md text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition border border-border bg-card/90 backdrop-blur">
-                  {locked ? `${it.label} (sign in)` : it.label}
-                </span>
-              </Link>
-            );
-          })}
-        </nav>
-      </LayoutGroup>
+      <nav className="flex flex-col gap-1 relative">
+        {items.map((it) => {
+          const active = isActive(it.to, "exact" in it ? it.exact : false);
+          const Icon = it.icon;
+          const locked = requiresAuth(it.to) && !user;
+          return (
+            <Link
+              key={it.to}
+              to={it.to}
+              className="group relative"
+              aria-label={locked ? `${it.label} (sign in required)` : it.label}
+              onClick={(e) => {
+                if (!locked) return;
+                e.preventDefault();
+                setLoginRedirect(it.to);
+                setLoginOpen(true);
+              }}
+            >
+              <div className={navBtnClass}>
+                {active && <span className={activePillClass} aria-hidden />}
+                <Icon
+                  className={`relative w-5 h-5 transition-colors ${active ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"}`}
+                  aria-hidden
+                />
+              </div>
+              <span className="pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 px-2 py-1 rounded-md text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition border border-border bg-card/90 backdrop-blur">
+                {locked ? `${it.label} (sign in)` : it.label}
+              </span>
+            </Link>
+          );
+        })}
+      </nav>
 
       <div className="h-px w-8 bg-white/10 my-1" />
 
-      <motion.button
-        whileHover={{ scale: 1.08 }}
-        whileTap={{ scale: 0.92 }}
-        transition={{ type: "spring", stiffness: 380, damping: 22 }}
+      <button
+        type="button"
         onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-        className="w-11 h-11 rounded-2xl flex items-center justify-center text-muted-foreground hover:text-foreground"
+        className={`${navBtnClass} text-muted-foreground hover:text-foreground`}
         aria-label="Toggle theme"
       >
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.span
-            key={theme}
-            initial={{ rotate: -90, opacity: 0 }}
-            animate={{ rotate: 0, opacity: 1 }}
-            exit={{ rotate: 90, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-          </motion.span>
-        </AnimatePresence>
-      </motion.button>
+        <span key={theme} className="edge-theme-icon">
+          {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+        </span>
+      </button>
 
       {user ? (
-        <motion.button
-          whileHover={{ scale: 1.08 }}
-          whileTap={{ scale: 0.92 }}
+        <button
+          type="button"
           onClick={signOut}
-          className="w-11 h-11 rounded-2xl flex items-center justify-center text-muted-foreground hover:text-foreground"
+          className={`${navBtnClass} text-muted-foreground hover:text-foreground`}
           title={user.email ?? "Sign out"}
           aria-label="Sign out"
         >
           <LogOut className="w-5 h-5" aria-hidden />
-        </motion.button>
+        </button>
       ) : (
         <Link to="/login" aria-label="Sign in">
-          <motion.div
-            whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.92 }}
-            transition={{ type: "spring", stiffness: 380, damping: 22 }}
-            className="w-11 h-11 rounded-2xl flex items-center justify-center text-primary-foreground"
+          <div
+            className={`${navBtnClass} text-primary-foreground`}
             style={{ background: "linear-gradient(135deg, var(--neon-cyan), var(--neon-purple))" }}
           >
             <LogIn className="w-5 h-5" aria-hidden />
-          </motion.div>
+          </div>
         </Link>
       )}
     </aside>
@@ -169,59 +137,53 @@ export function EdgeDock() {
   const isActive = (to: string, exact?: boolean) =>
     exact ? path === to : path === to || path.startsWith(to + "/");
   const requiresAuth = (to: string) => to === "/download" || to === "/license";
+
+  const dockBtnClass =
+    "relative w-10 h-10 rounded-full flex items-center justify-center transition-transform duration-150 active:scale-90";
+
   return (
     <div className="sm:hidden fixed bottom-3 left-1/2 -translate-x-1/2 z-50">
       <LoginModal open={loginOpen} onOpenChange={setLoginOpen} redirectTo={loginRedirect} />
-      <LayoutGroup id="edgedock">
-        <div
-          className="flex items-center gap-1 p-1.5 rounded-full border border-white/10 shadow-2xl"
-          style={{
-            background: "color-mix(in oklab, var(--card) 60%, transparent)",
-            backdropFilter: "blur(20px) saturate(160%)",
-            WebkitBackdropFilter: "blur(20px) saturate(160%)",
-          }}
-        >
-          {items.map((it) => {
-            const active = isActive(it.to, "exact" in it ? it.exact : false);
-            const Icon = it.icon;
-            const locked = requiresAuth(it.to) && !user;
-            return (
-              <Link
-                key={it.to}
-                to={it.to}
-                aria-label={locked ? `${it.label} (sign in required)` : it.label}
-                onClick={(e) => {
-                  if (!locked) return;
-                  e.preventDefault();
-                  setLoginRedirect(it.to);
-                  setLoginOpen(true);
-                }}
-              >
-                <motion.div
-                  whileTap={{ scale: 0.9 }}
-                  className="relative w-10 h-10 rounded-full flex items-center justify-center"
-                >
-                  {active && (
-                    <motion.span
-                      layoutId="edgedock-active"
-                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                      className="absolute inset-0 rounded-full"
-                      style={{
-                        background:
-                          "linear-gradient(135deg, color-mix(in oklab, var(--neon-cyan) 35%, transparent), color-mix(in oklab, var(--neon-purple) 35%, transparent))",
-                      }}
-                    />
-                  )}
-                  <Icon
-                    className={`relative w-4.5 h-4.5 ${active ? "text-foreground" : "text-muted-foreground"}`}
+      <div
+        className="flex items-center gap-1 p-1.5 rounded-full border border-white/10 shadow-2xl"
+        style={{
+          background: "color-mix(in oklab, var(--card) 60%, transparent)",
+          backdropFilter: "blur(20px) saturate(160%)",
+          WebkitBackdropFilter: "blur(20px) saturate(160%)",
+        }}
+      >
+        {items.map((it) => {
+          const active = isActive(it.to, "exact" in it ? it.exact : false);
+          const Icon = it.icon;
+          const locked = requiresAuth(it.to) && !user;
+          return (
+            <Link
+              key={it.to}
+              to={it.to}
+              aria-label={locked ? `${it.label} (sign in required)` : it.label}
+              onClick={(e) => {
+                if (!locked) return;
+                e.preventDefault();
+                setLoginRedirect(it.to);
+                setLoginOpen(true);
+              }}
+            >
+              <div className={dockBtnClass}>
+                {active && (
+                  <span
+                    className="absolute inset-0 rounded-full pointer-events-none edge-nav-active"
                     aria-hidden
                   />
-                </motion.div>
-              </Link>
-            );
-          })}
-        </div>
-      </LayoutGroup>
+                )}
+                <Icon
+                  className={`relative w-4.5 h-4.5 ${active ? "text-foreground" : "text-muted-foreground"}`}
+                  aria-hidden
+                />
+              </div>
+            </Link>
+          );
+        })}
+      </div>
     </div>
   );
 }

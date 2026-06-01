@@ -28,7 +28,7 @@ export function HeroDownloadCta() {
       <p className="text-[10px] sm:text-xs uppercase tracking-[0.35em] text-[var(--neon-cyan)] font-semibold mb-3">
         SinType.lk
       </p>
-      <h1 className="font-display text-3xl sm:text-5xl lg:text-[3.25rem] font-extrabold tracking-tight leading-tight text-foreground">
+      <h1 className="font-display text-3xl sm:text-5xl lg:text-[3.25rem] font-extrabold tracking-tight leading-tight text-foreground min-h-[5.5rem] sm:min-h-[7rem] lg:min-h-[7.5rem]">
         Professional Sinhala Typing.{" "}
         <span className="neon-text">Sinhala Unicode &amp; FM Abhaya Converter.</span>
       </h1>

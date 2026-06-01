@@ -13,6 +13,8 @@ export function BrandLogo({
       className={`${className} object-contain logo-glow`}
       width={32}
       height={32}
+      decoding="async"
+      loading="lazy"
     />
   );
 }

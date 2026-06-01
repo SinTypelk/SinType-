@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import {
   Check,
   Clipboard,
@@ -7,7 +7,9 @@ import {
   Keyboard as KeyboardIcon,
   Radio,
 } from "lucide-react";
-import { VirtualKeyboard } from "./VirtualKeyboard";
+const VirtualKeyboard = lazy(() =>
+  import("./VirtualKeyboard").then((m) => ({ default: m.VirtualKeyboard })),
+);
 import { SmartLearningEngine } from "@/lib/smartEngine";
 import { findSpellIssues, processConversion } from "@/lib/sinhala";
 import { useApp, pushHistory } from "@/lib/app-context";
@@ -252,11 +254,15 @@ export function Converter() {
         </button>
       </div>
 
-      <VirtualKeyboard
-        open={kbOpen}
-        onClose={() => setKbOpen(false)}
-        onInsert={(ch) => setInput((prev) => prev + ch)}
-      />
+      {kbOpen && (
+        <Suspense fallback={null}>
+          <VirtualKeyboard
+            open={kbOpen}
+            onClose={() => setKbOpen(false)}
+            onInsert={(ch) => setInput((prev) => prev + ch)}
+          />
+        </Suspense>
+      )}
     </section>
   );
 }
@@ -274,9 +280,9 @@ function ModeToggle() {
       className="relative cursor-pointer rounded-full border border-border bg-secondary px-1 py-1 flex items-center w-[150px]"
     >
       <span
-        className="absolute top-1 bottom-1 w-[71px] rounded-full transition-all"
+        className="absolute top-1 bottom-1 left-1 w-[71px] rounded-full transition-transform duration-200 will-change-transform"
         style={{
-          left: mode === "unicode" ? 4 : 75,
+          transform: mode === "unicode" ? "translateX(0)" : "translateX(71px)",
           background: "linear-gradient(135deg, var(--neon-cyan), var(--neon-purple))",
           boxShadow: "0 0 12px color-mix(in oklab, var(--neon-cyan) 50%, transparent)",
         }}

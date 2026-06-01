@@ -13,7 +13,8 @@ import appCss from "../styles.css?url";
 import { AppProvider } from "@/lib/app-context";
 import { AuthProvider } from "@/lib/auth-context";
 import { EdgeBar, EdgeDock } from "@/components/EdgeBar";
-import { FeedbackFooter } from "@/components/FeedbackFooter";
+import { SiteFooter } from "@/components/SiteFooter";
+import { GOOGLE_FONTS_CSS } from "@/lib/google-fonts";
 import {
   DEFAULT_KEYWORDS,
   GOOGLE_SITE_VERIFICATION,
@@ -76,10 +77,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Orbitron:wght@600;800&family=JetBrains+Mono&display=swap",
-      },
+      { rel: "preload", href: GOOGLE_FONTS_CSS, as: "style" },
       { rel: "sitemap", type: "application/xml", title: "Sitemap", href: `${SITE_URL}/sitemap.xml` },
     ],
   }),
@@ -95,6 +93,18 @@ function RootShell({ children }: { children: React.ReactNode }) {
     <html lang="en" className="dark">
       <head>
         <HeadContent />
+        <link
+          rel="stylesheet"
+          href={GOOGLE_FONTS_CSS}
+          media="print"
+          // Non-blocking font CSS (PageSpeed render-blocking fix)
+          onLoad={(e) => {
+            (e.currentTarget as HTMLLinkElement).media = "all";
+          }}
+        />
+        <noscript>
+          <link rel="stylesheet" href={GOOGLE_FONTS_CSS} />
+        </noscript>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -120,7 +130,7 @@ function Layout({ children }: { children: React.ReactNode }) {
       {!isMobile && <EdgeBar />}
       {!isMobile && <EdgeDock />}
       <main className={`flex-1 ${!isMobile ? "sm:pl-20" : ""}`}>{children}</main>
-      {!isMobile && <FeedbackFooter />}
+      {!isMobile && <SiteFooter />}
     </div>
   );
 }
