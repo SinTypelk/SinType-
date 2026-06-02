@@ -1,9 +1,8 @@
-
-1.start a aa A Aa i ii u uu \r \\r e ee ai o oo au \n 
+1.start a aa A Aa i ii u uu \r \\r e ee ai o oo au x 
 
 අ ආ ඇ ඈ ඉ ඊ උ ඌ ඍ ඎ එ ඒ ඓ ඔ ඕ ඖ ං 
 
-w wd we wE b B W W! R RD t tA fft T ´ T! x end 
+w wd we wE b B W W! R RD t tA fft T ´ T! \n end 
  
 
 2.start ka kaa kA kAa ki kii ku kuu kre kree kro kroo kru kruu kra kraa ke kee kai ko koo kau k kY kYa kri krii
@@ -69,7 +68,7 @@ c cd ce cE ð Ô cq cQ fc% fÊ% fc%d fc%da cD cDD c% c%d fc fÊ ffc fcd fcda fc!
 ® ®d ®e ®E ¯ ° ®q ®Q f®% fCè% f®%d f®%da ®D ®DD ®% ®%d f® fCè ff® f®d f®da f®! Cè ®H ®Hd f¯% f°% end 
 
 
-11.start xa xaa xA xAa xi xii xu xuu xre xree xro xroo xru xruu xra xraa xe xee xai xo xoo xau x xY xYa xri xrii
+11.start \na \naa \nA \nAa \ni \nii \nu \nuu \nre \nree \nro \nroo \nru \nruu \nra \nraa \ne \nee \nai \no \noo \nau \n \nY \nYa \nri \nrii
 
 ඤ ඤා ඤැ ඤෑ ඤි ඤී ඤු ඤූ ඤ්‍රෙ ඤ්‍රේ ඤ්‍රො ඤ්‍රෝ ඤෘ ඤෲ ඤ්‍ර ඤ්‍රා ඤෙ ඤේ ඤෛ ඤො ඤෝ ඤෞ ඤ් ඤ්‍ය ඤ්‍යා 
 
