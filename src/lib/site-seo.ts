@@ -28,34 +28,8 @@ export const DEFAULT_KEYWORDS = KEYWORDS_HOME;
 export const GOOGLE_SITE_VERIFICATION =
   "4rVw_BDYRnCZ3pcw3docYkAHyOBFzjFKdE3zpopuR70";
 
-export type SitemapEntry = {
-  path: (typeof SITEMAP_PATHS)[number];
-  changefreq: "daily" | "weekly" | "monthly";
-  priority: number;
-};
-
-/** Public marketing routes for sitemap.xml (no /admin, /m/, noindex pages). */
-export const SITEMAP_ENTRIES: SitemapEntry[] = [
-  { path: "/", changefreq: "daily", priority: 1.0 },
-  { path: "/singlish-to-sinhala", changefreq: "weekly", priority: 0.95 },
-  { path: "/sinhala-unicode-converter", changefreq: "weekly", priority: 0.95 },
-  { path: "/download", changefreq: "weekly", priority: 0.9 },
-  { path: "/faq", changefreq: "weekly", priority: 0.85 },
-  { path: "/blog", changefreq: "weekly", priority: 0.88 },
-  {
-    path: "/blog/sinhala-unicode-legacy-seo-guide",
-    changefreq: "monthly",
-    priority: 0.92,
-  },
-  { path: "/about", changefreq: "monthly", priority: 0.75 },
-  { path: "/license", changefreq: "weekly", priority: 0.7 },
-  { path: "/contact", changefreq: "monthly", priority: 0.65 },
-  { path: "/privacy", changefreq: "monthly", priority: 0.5 },
-  { path: "/terms", changefreq: "monthly", priority: 0.5 },
-  { path: "/site-map", changefreq: "monthly", priority: 0.55 },
-];
-
-export const SITEMAP_PATHS = SITEMAP_ENTRIES.map((e) => e.path);
+export type { SitemapEntry } from "./sitemap-entries";
+export { SITEMAP_ENTRIES, SITEMAP_PATHS } from "./sitemap-entries";
 
 /**
  * Social preview image. Add website/public/og-image.png (1200×630) when available;
