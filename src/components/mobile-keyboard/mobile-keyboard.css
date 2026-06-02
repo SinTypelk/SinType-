@@ -107,7 +107,8 @@
   text-align: left;
 }
 
-.mk-preview-text.mk-english {
+.mk-preview-text.mk-english,
+.mk-preview-text.mk-singlish {
   font-family: "Inter", sans-serif;
 }
 
@@ -244,6 +245,11 @@
 
 .mk-key.mk-pressed {
   transform: scale(0.88);
+}
+
+.mk-key.mk-pressed:not(.mk-special):not(.mk-space) {
+  background: #2dd4bf;
+  color: #0b1220;
 }
 
 .mk-key.mk-active-shift {

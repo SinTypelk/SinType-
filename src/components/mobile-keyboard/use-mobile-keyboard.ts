@@ -1,5 +1,4 @@
 import { useCallback, useMemo, useRef, useState } from "react";
-import { processConversion } from "@/lib/sinhala";
 import type { MobileKeyboardLayer, MobileKeyboardMode } from "./types";
 import { HINTS_LOWER, HINTS_UPPER } from "./hints";
 
@@ -15,15 +14,10 @@ export function useMobileKeyboard(
 
   const previewHtml = useMemo(() => {
     if (!transmissionEnabled) return { kind: "off" as const };
-    if (mode === "english") {
-      if (!buffer) return { kind: "placeholder" as const };
-      return { kind: "html" as const, html: escapeHtml(buffer) + '<span class="mk-cursor">|</span>' };
-    }
-    const sinhala = processConversion(buffer, mode);
-    if (!sinhala && !buffer) return { kind: "placeholder" as const };
+    if (!buffer) return { kind: "placeholder" as const };
     return {
       kind: "html" as const,
-      html: escapeHtml(sinhala) + '<span class="mk-cursor">|</span>',
+      html: escapeHtml(buffer) + '<span class="mk-cursor">|</span>',
     };
   }, [buffer, mode, transmissionEnabled]);
 

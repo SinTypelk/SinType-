@@ -1,6 +1,6 @@
 import type { SyncConnectionStatus } from "@/lib/realtime-sync";
 
-export type MobileKeyboardMode = "unicode" | "legacy" | "english";
+export type MobileKeyboardMode = "unicode" | "english";
 
 export type MobileKeyboardLayer = "letters" | "numbers" | "symbols";
 

@@ -7,6 +7,29 @@ export function syncSessionId(sessionId: string): string {
   return sessionId.trim();
 }
 
+/** Wire format for English keyboard (plain string stays Singlish/Uni for backward compatibility). */
+export function encodeMobileSyncText(text: string, keyboard: "unicode" | "english"): string {
+  if (keyboard === "english") {
+    return JSON.stringify({ v: 1, keyboard: "english", text });
+  }
+  return text;
+}
+
+export function decodeMobileSyncText(raw: string): { text: string; englishKeyboard: boolean } {
+  const trimmed = raw.trimStart();
+  if (trimmed.startsWith("{")) {
+    try {
+      const parsed = JSON.parse(raw) as { v?: number; keyboard?: string; text?: string };
+      if (parsed?.v === 1 && parsed.keyboard === "english" && typeof parsed.text === "string") {
+        return { text: parsed.text, englishKeyboard: true };
+      }
+    } catch {
+      // fall through — treat as plain Singlish
+    }
+  }
+  return { text: raw, englishKeyboard: false };
+}
+
 export type MobileSyncHandlers = {
   onSet?: (text: string) => void;
   onAppend?: (text: string) => void;

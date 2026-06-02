@@ -137,13 +137,17 @@ export function MobileKeyboard({
         <div
           className={`mk-preview${!enabled ? " mk-off" : ""}${kb.previewHtml.kind === "placeholder" ? " mk-placeholder" : ""}`}
         >
-          <div className={`mk-preview-text${kb.mode === "english" ? " mk-english" : ""}`}>{previewContent()}</div>
+          <div
+            className={`mk-preview-text${kb.mode === "english" ? " mk-english" : " mk-singlish"}`}
+          >
+            {previewContent()}
+          </div>
         </div>
       </div>
 
       <div className="mk-kb-wrap">
         <div className="mk-modebar">
-          {(["unicode", "legacy", "english"] as const).map((m) => (
+          {(["unicode", "english"] as const).map((m) => (
             <button
               key={m}
               type="button"
@@ -155,7 +159,7 @@ export function MobileKeyboard({
                 if (enabled && isOnline) onClear?.();
               }}
             >
-              {m === "unicode" ? "Uni" : m === "legacy" ? "Leg" : "EN"}
+              {m === "unicode" ? "Uni" : "EN"}
             </button>
           ))}
         </div>

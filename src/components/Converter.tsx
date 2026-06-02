@@ -19,6 +19,7 @@ import { ClientOnly } from "./ClientOnly";
 import { HistoryPanel } from "./HistoryPanel";
 import { SUPABASE_CONFIGURED } from "@/integrations/supabase/client";
 import {
+  decodeMobileSyncText,
   subscribeMobileSync,
   type SyncConnectionStatus,
   type SyncSubscription,
@@ -31,14 +32,21 @@ export function Converter() {
   const { mode } = useApp();
   const { user } = useAuth();
   const [input, setInput] = useState("");
+  const [mobileEnglishKeyboard, setMobileEnglishKeyboard] = useState(false);
   const [syncStatus, setSyncStatus] = useState<SyncConnectionStatus>("connecting");
   const [kbOpen, setKbOpen] = useState(false);
   const syncRef = useRef<SyncSubscription | null>(null);
   const voiceBaseRef = useRef("");
   const [outputCopied, setOutputCopied] = useState(false);
 
-  const output = useMemo(() => processConversion(input, mode), [input, mode]);
-  const unicodePreview = useMemo(() => processConversion(input, "unicode"), [input]);
+  const output = useMemo(() => {
+    if (mobileEnglishKeyboard) return input;
+    return processConversion(input, mode);
+  }, [input, mode, mobileEnglishKeyboard]);
+  const unicodePreview = useMemo(() => {
+    if (mobileEnglishKeyboard) return input;
+    return processConversion(input, "unicode");
+  }, [input, mobileEnglishKeyboard]);
   const issues = useMemo(() => findSpellIssues(unicodePreview), [unicodePreview]);
 
   // ටයිප් කරද්දී වෙනස්කම් බලාගන්නා Function එක
@@ -78,7 +86,11 @@ export function Converter() {
 
     let cancelled = false;
     void subscribeMobileSync(user.id, {
-      onSet: (text) => setInput(text),
+      onSet: (raw) => {
+        const { text, englishKeyboard } = decodeMobileSyncText(raw);
+        setMobileEnglishKeyboard(englishKeyboard);
+        setInput(text);
+      },
       onAppend: (text) => {
         if (text) setInput((prev) => (prev ? `${prev} ${text}` : text));
       },

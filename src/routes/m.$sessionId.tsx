@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { MobileKeyboard } from "@/components/mobile-keyboard";
 import {
+  encodeMobileSyncText,
   pushSyncText,
   subscribeMobileSync,
   type SyncConnectionStatus,
@@ -55,9 +56,10 @@ function CloudMobilePage() {
       enabled={enabled}
       onEnabledChange={setEnabled}
       connectionHint={connectionHint}
-      onSync={({ latin }) => {
+      onSync={({ latin, mode }) => {
         if (!enabled || status !== "live") return;
-        void pushSyncText(sessionId, latin);
+        const keyboard = mode === "english" ? "english" : "unicode";
+        void pushSyncText(sessionId, encodeMobileSyncText(latin, keyboard));
       }}
       onClear={() => {
         if (enabled && status === "live") void pushSyncText(sessionId, "");

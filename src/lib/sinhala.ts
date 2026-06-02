@@ -59,8 +59,12 @@ function parseDict(src: string): ParsedDict {
     const n = Math.min(triggers.length, unis.length, legs.length);
     for (let k = 0; k < n; k++) {
       const t = triggers[k];
-      const u = unis[k];
-      const l = legs[k];
+      let u = unis[k];
+      let l = legs[k];
+      // Dict row 1 maps trigger "x" to legacy "\n" (newline glyph) — keep FM legacy as literal "x".
+      if (t === "x" && (l === "\\n" || l === "\n")) {
+        l = "x";
+      }
       // Dict A: Singlish → Unicode / Legacy (first occurrence wins)
       if (!unicode.has(t)) unicode.set(t, u);
       if (!legacy.has(t)) legacy.set(t, l);

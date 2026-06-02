@@ -43,16 +43,15 @@ function LocalMobilePage() {
 
   const pushPayload = (payload: MobileSyncPayload) => {
     if (!enabled || status !== "live") return;
-    const outMode: LocalSyncPayload["mode"] = payload.mode === "legacy" ? "legacy" : "unicode";
     const latin = payload.latin;
     const out =
       payload.mode === "english"
         ? latin
-        : processConversion(latin, payload.mode as "unicode" | "legacy");
+        : processConversion(latin, "unicode");
     void pushLocalSyncText(sessionId, {
       latin_draft: latin,
       sinhala_output: out,
-      mode: outMode,
+      mode: "unicode",
     });
   };
 
