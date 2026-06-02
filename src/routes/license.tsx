@@ -13,7 +13,9 @@ import {
 import { LoginModal } from "@/components/LoginModal";
 import { LicenseProfileCard } from "@/components/LicenseProfileCard";
 import { OptionalShareCard } from "@/components/OptionalShareCard";
-import { pageHead } from "@/lib/site-seo";
+import { BreadcrumbNav } from "@/components/seo/BreadcrumbNav";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { breadcrumbJsonLd, pageHead } from "@/lib/site-seo";
 
 export const Route = createFileRoute("/license")({
   head: () =>
@@ -99,6 +101,13 @@ function LicenseHub() {
 
   return (
     <section className="max-w-5xl mx-auto px-6 pt-14 pb-24">
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: "License", path: "/license" },
+        ])}
+      />
+      <BreadcrumbNav items={[{ label: "Activation Hub" }]} />
       <LoginModal open={loginOpen} onOpenChange={setLoginOpen} redirectTo="/license" />
 
       <header className="mb-10">

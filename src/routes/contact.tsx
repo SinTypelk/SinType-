@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Mail, Github } from "lucide-react";
-import { pageHead } from "@/lib/site-seo";
+import { BreadcrumbNav } from "@/components/seo/BreadcrumbNav";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { breadcrumbJsonLd, pageHead } from "@/lib/site-seo";
 
 export const Route = createFileRoute("/contact")({
   head: () =>
@@ -9,9 +11,17 @@ export const Route = createFileRoute("/contact")({
       description:
         "Contact the SinType team for Sinhala typing support, bug reports, partnerships, or media inquiries.",
       path: "/contact",
+      keywords: "contact sintype, sinhala typing support, sintype.lk help",
     }),
   component: () => (
-    <article className="max-w-3xl mx-auto px-4 py-12">
+    <article className="max-w-3xl mx-auto px-4 py-12 pb-24">
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: "Contact", path: "/contact" },
+        ])}
+      />
+      <BreadcrumbNav items={[{ label: "Contact" }]} />
       <h1 className="font-display text-4xl neon-text mb-6">Contact</h1>
       <p className="text-muted-foreground mb-8">Found a bug, want a feature, or just want to say hi? We'd love to hear from you.</p>
       <div className="grid gap-4 sm:grid-cols-2">

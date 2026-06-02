@@ -2,5 +2,9 @@ User-agent: *
 Allow: /
 Disallow: /admin/
 Disallow: /m/
+Disallow: /login
+Disallow: /feedback
+Disallow: /messages
 
+# XML sitemap for crawlers; HTML site map at /site-map
 Sitemap: https://sintype.lk/sitemap.xml

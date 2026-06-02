@@ -1,17 +1,30 @@
 import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
+import { BreadcrumbNav, type BreadcrumbCrumb } from "@/components/seo/BreadcrumbNav";
 
 type SeoLandingIntroProps = {
   eyebrow: string;
   title: string;
   description: string;
+  breadcrumbs?: BreadcrumbCrumb[];
   children?: ReactNode;
 };
 
 /** Keyword-rich, crawlable intro block for SEO landing pages. */
-export function SeoLandingIntro({ eyebrow, title, description, children }: SeoLandingIntroProps) {
+export function SeoLandingIntro({
+  eyebrow,
+  title,
+  description,
+  breadcrumbs,
+  children,
+}: SeoLandingIntroProps) {
   return (
     <header className="max-w-4xl mx-auto px-4 sm:px-6 pt-12 pb-4 text-center sm:text-left">
+      {breadcrumbs && breadcrumbs.length > 0 && (
+        <div className="mb-4 text-left">
+          <BreadcrumbNav items={breadcrumbs} />
+        </div>
+      )}
       <p className="text-[11px] uppercase tracking-[0.35em] text-[var(--neon-cyan)] font-semibold">
         {eyebrow}
       </p>

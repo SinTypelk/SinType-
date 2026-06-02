@@ -1,9 +1,9 @@
 /** Shared SEO constants for SinType.lk (meta, Open Graph, JSON-LD). */
 
 import {
+  ALL_ALTERNATE_NAMES,
   KEYWORDS_HOME,
   SINHALA_KEYWORD_PHRASES,
-  TYPO_ALTERNATE_NAMES,
 } from "@/lib/seo-keywords";
 
 export const SITE_NAME = "SinType";
@@ -17,9 +17,10 @@ export const HOME_TITLE =
   "Sinhala Unicode Converter | Singlish to Sinhala — SinType.lk";
 
 export const HOME_DESCRIPTION =
-  "Free Sinhala Unicode converter and Singlish to Sinhala typing online. " +
-  "Convert to Unicode or Legacy FM Abhaya in real time. " +
-  "Offline Windows desktop app for system-wide Sinhala typing in any app.";
+  "Free Sinhala Unicode converter — Singlish to Unicode, easy Unicode converter, " +
+  "FM Abhaya & legacy font mode, Unicode to legacy font. " +
+  "Sri Lanka Unicode converter for web + Windows desktop app with Sinhala voice typing. " +
+  "SinType.lk — singlish converter & sintype unicode converter online.";
 
 export const DEFAULT_KEYWORDS = KEYWORDS_HOME;
 
@@ -40,20 +41,92 @@ export const SITEMAP_ENTRIES: SitemapEntry[] = [
   { path: "/sinhala-unicode-converter", changefreq: "weekly", priority: 0.95 },
   { path: "/download", changefreq: "weekly", priority: 0.9 },
   { path: "/faq", changefreq: "weekly", priority: 0.85 },
+  { path: "/blog", changefreq: "weekly", priority: 0.88 },
+  {
+    path: "/blog/sinhala-unicode-legacy-seo-guide",
+    changefreq: "monthly",
+    priority: 0.92,
+  },
   { path: "/about", changefreq: "monthly", priority: 0.75 },
   { path: "/license", changefreq: "weekly", priority: 0.7 },
   { path: "/contact", changefreq: "monthly", priority: 0.65 },
   { path: "/privacy", changefreq: "monthly", priority: 0.5 },
   { path: "/terms", changefreq: "monthly", priority: 0.5 },
+  { path: "/site-map", changefreq: "monthly", priority: 0.55 },
 ];
 
 export const SITEMAP_PATHS = SITEMAP_ENTRIES.map((e) => e.path);
 
-/** Social preview — place a 1200×630 PNG at website/public/og-image.png */
+/**
+ * Social preview image. Add website/public/og-image.png (1200×630) when available;
+ * until then crawlers use icon.png (must be absolute URL).
+ */
 export const OG_IMAGE_PATH = "/og-image.png";
+export const OG_IMAGE_FALLBACK_PATH = "/icon.png";
 export const OG_IMAGE_URL = `${SITE_URL}${OG_IMAGE_PATH}`;
+export const OG_IMAGE_FALLBACK_URL = `${SITE_URL}${OG_IMAGE_FALLBACK_PATH}`;
 export const OG_IMAGE_ALT =
   "SinType — Singlish to Sinhala Unicode converter and Windows desktop app";
+
+/** Resolved OG image URL for meta tags (use icon until og-image.png is deployed). */
+export function socialImageUrl(): string {
+  return OG_IMAGE_FALLBACK_URL;
+}
+
+/** Human-readable HTML site map sections (internal linking + discovery). */
+export const HTML_SITEMAP_SECTIONS = [
+  {
+    title: "Converter & typing tools",
+    links: [
+      {
+        path: "/",
+        label: "Sinhala Unicode converter (home)",
+        description: "Free Singlish to Sinhala online — Unicode & Legacy FM",
+      },
+      {
+        path: "/singlish-to-sinhala",
+        label: "Singlish to Sinhala",
+        description: "Phonetic Sinhala typing landing page",
+      },
+      {
+        path: "/sinhala-unicode-converter",
+        label: "Sinhala Unicode converter",
+        description: "Unicode & FM Abhaya conversion",
+      },
+    ],
+  },
+  {
+    title: "Desktop app & license",
+    links: [
+      {
+        path: "/download",
+        label: "Download SinType for Windows",
+        description: "Windows 10/11 desktop app",
+      },
+      {
+        path: "/license",
+        label: "Get activation key",
+        description: "Free 30-day license for desktop",
+      },
+    ],
+  },
+  {
+    title: "Help & company",
+    links: [
+      { path: "/faq", label: "FAQ", description: "Sinhala typing questions answered" },
+      { path: "/blog", label: "Blog", description: "Unicode, legacy fonts & SEO guides" },
+      { path: "/about", label: "About SinType", description: "Mission and font modes" },
+      { path: "/contact", label: "Contact", description: "Support and partnerships" },
+    ],
+  },
+  {
+    title: "Legal",
+    links: [
+      { path: "/privacy", label: "Privacy Policy" },
+      { path: "/terms", label: "Terms of Service" },
+    ],
+  },
+] as const;
 
 export function pageHead(options: {
   title: string;
@@ -61,22 +134,40 @@ export function pageHead(options: {
   path: string;
   keywords?: string;
   noindex?: boolean;
+  ogType?: string;
 }) {
-  const robots = options.noindex ? "noindex, follow" : "index, follow";
+  const robots = options.noindex
+    ? "noindex, follow"
+    : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1";
+  const image = socialImageUrl();
   return {
     meta: [
       { title: options.title },
       { name: "description", content: options.description },
       ...(options.keywords ? [{ name: "keywords", content: options.keywords }] : []),
       { name: "robots", content: robots },
+      { name: "googlebot", content: robots },
+      { name: "theme-color", content: "#06080c" },
       ...openGraphMeta({
         title: options.title,
         description: options.description,
         path: options.path,
+        type: options.ogType,
+        image,
       }),
     ],
     links: [canonicalLink(options.path)],
   };
+}
+
+/** 404 and error pages — avoid indexing thin error URLs. */
+export function notFoundPageHead() {
+  return pageHead({
+    title: "Page not found — SinType.lk",
+    description: "The page you requested is not on SinType.lk. Try the Sinhala Unicode converter or site map.",
+    path: "/404",
+    noindex: true,
+  });
 }
 
 export function organizationJsonLd() {
@@ -86,6 +177,13 @@ export function organizationJsonLd() {
     name: SITE_BRAND,
     url: SITE_URL,
     logo: `${SITE_URL}/icon.png`,
+    email: "hello@sintype.lk",
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "customer support",
+      email: "hello@sintype.lk",
+      availableLanguage: ["English", "Sinhala"],
+    },
     sameAs: [] as string[],
   };
 }
@@ -97,14 +195,7 @@ export function webSiteJsonLd() {
     name: SITE_BRAND,
     url: SITE_URL,
     inLanguage: ["en-LK", "si"],
-    potentialAction: {
-      "@type": "SearchAction",
-      target: {
-        "@type": "EntryPoint",
-        urlTemplate: `${SITE_URL}/?q={search_term_string}`,
-      },
-      "query-input": "required name=search_term_string",
-    },
+    description: HOME_DESCRIPTION,
   };
 }
 
@@ -114,11 +205,8 @@ export function webApplicationJsonLd() {
     "@type": "WebApplication",
     name: SITE_BRAND,
     alternateName: [
-      ...TYPO_ALTERNATE_NAMES,
+      ...ALL_ALTERNATE_NAMES,
       ...SINHALA_KEYWORD_PHRASES,
-      "Singlish to Sinhala Unicode Converter",
-      "FM Abhaya Legacy Font Converter",
-      "Sinhala Unicode Converter",
     ],
     url: SITE_URL,
     applicationCategory: "UtilityApplication",
@@ -133,11 +221,14 @@ export function webApplicationJsonLd() {
     },
     featureList: [
       "Singlish to Sinhala Unicode transliteration",
+      "Singlish to Unicode and easy Unicode converter",
       "Legacy FM Abhaya font output mode",
+      "Unicode to legacy font and FM font converter",
       "Real-time phonetic typing",
+      "Sinhala voice typing in browser (where supported)",
       "Unicode to FM Abhaya conversion",
       "Mobile sync with desktop",
-      "Offline Windows system-wide typing",
+      "Offline Windows Unicode converter app",
     ],
     screenshot: OG_IMAGE_URL,
   };
@@ -152,7 +243,10 @@ export function softwareApplicationJsonLd() {
       "SinType for Windows",
       "Sinhala typing app",
       "Singlish desktop converter",
-      ...TYPO_ALTERNATE_NAMES.slice(0, 6),
+      "Sinhala Unicode converter app",
+      "Windows Unicode converter software",
+      "Sri Lanka Unicode converter app Windows",
+      ...ALL_ALTERNATE_NAMES.slice(0, 12),
     ],
     applicationCategory: "UtilitiesApplication",
     applicationSubCategory: "InputMethod",
@@ -230,22 +324,25 @@ export function openGraphMeta(options: {
   description: string;
   path?: string;
   type?: string;
+  image?: string;
 }) {
   const url = options.path ? `${SITE_URL}${options.path}` : SITE_URL;
+  const image = options.image ?? OG_IMAGE_FALLBACK_URL;
   return [
     { property: "og:site_name", content: SITE_BRAND },
     { property: "og:title", content: options.title },
     { property: "og:description", content: options.description },
     { property: "og:type", content: options.type ?? "website" },
     { property: "og:url", content: url },
-    { property: "og:image", content: OG_IMAGE_URL },
+    { property: "og:image", content: image },
+    { property: "og:image:secure_url", content: image },
     { property: "og:image:alt", content: OG_IMAGE_ALT },
     { property: "og:locale", content: "en_LK" },
     { property: "og:locale:alternate", content: "si_LK" },
     { name: "twitter:card", content: "summary_large_image" },
     { name: "twitter:title", content: options.title },
     { name: "twitter:description", content: options.description },
-    { name: "twitter:image", content: OG_IMAGE_URL },
+    { name: "twitter:image", content: image },
     { name: "twitter:image:alt", content: OG_IMAGE_ALT },
   ];
 }

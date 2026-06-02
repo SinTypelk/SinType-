@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { LegalPageLayout, LegalSection } from "@/components/layout/LegalPageLayout";
-import { pageHead } from "@/lib/site-seo";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { breadcrumbJsonLd, pageHead } from "@/lib/site-seo";
 
 export const Route = createFileRoute("/terms")({
   head: () =>
@@ -15,10 +16,18 @@ export const Route = createFileRoute("/terms")({
 
 function TermsPage() {
   return (
-    <LegalPageLayout
-      title="Terms of Service"
-      subtitle="By using SinType.lk or the SinType desktop application, you agree to these terms. Please read them together with our Privacy Policy."
-    >
+    <>
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: "Terms of Service", path: "/terms" },
+        ])}
+      />
+      <LegalPageLayout
+        title="Terms of Service"
+        breadcrumbLabel="Terms of Service"
+        subtitle="By using SinType.lk or the SinType desktop application, you agree to these terms. Please read them together with our Privacy Policy."
+      >
       <LegalSection title="1. Acceptance">
         <p>
           These Terms of Service (&quot;Terms&quot;) apply to sintype.lk, related pages (download,
@@ -141,5 +150,6 @@ function TermsPage() {
         </p>
       </LegalSection>
     </LegalPageLayout>
+    </>
   );
 }

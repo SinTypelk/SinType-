@@ -15,27 +15,21 @@ import { AuthProvider } from "@/lib/auth-context";
 import { EdgeBar, EdgeDock } from "@/components/EdgeBar";
 import { SiteFooter } from "@/components/SiteFooter";
 import { GOOGLE_FONTS_CSS } from "@/lib/google-fonts";
+import { NotFoundPage } from "@/components/NotFoundPage";
 import {
   DEFAULT_KEYWORDS,
   GOOGLE_SITE_VERIFICATION,
   HOME_DESCRIPTION,
   HOME_TITLE,
+  canonicalLink,
   openGraphMeta,
+  socialImageUrl,
   SITE_URL,
   rootJsonLdGraph,
 } from "@/lib/site-seo";
 
 function NotFoundComponent() {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold neon-text font-display">404</h1>
-        <h2 className="mt-4 text-xl font-semibold">Page not found</h2>
-        <p className="mt-2 text-sm text-muted-foreground">The page you're looking for doesn't exist.</p>
-        <Link to="/" className="mt-6 inline-flex rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">Go home</Link>
-      </div>
-    </div>
-  );
+  return <NotFoundPage />;
 }
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
@@ -64,14 +58,22 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: HOME_DESCRIPTION },
       { name: "author", content: "SinType.lk" },
       { name: "keywords", content: DEFAULT_KEYWORDS },
-      { name: "robots", content: "index, follow" },
+      {
+        name: "robots",
+        content:
+          "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
+      },
       { name: "google-site-verification", content: GOOGLE_SITE_VERIFICATION },
+      { name: "theme-color", content: "#06080c" },
       ...openGraphMeta({
         title: HOME_TITLE,
         description: HOME_DESCRIPTION,
+        path: "/",
+        image: socialImageUrl(),
       }),
     ],
     links: [
+      canonicalLink("/"),
       { rel: "icon", href: "/icon.png", type: "image/png" },
       { rel: "apple-touch-icon", href: "/icon.png" },
       { rel: "stylesheet", href: appCss },
@@ -84,6 +86,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
+  notFoundMode: "root",
   errorComponent: ErrorComponent,
 });
 

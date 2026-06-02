@@ -1,10 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
+import { BreadcrumbNav, type BreadcrumbCrumb } from "@/components/seo/BreadcrumbNav";
 
 type LegalPageLayoutProps = {
   title: string;
   subtitle: string;
   lastUpdated?: string;
+  breadcrumbLabel?: string;
   children: ReactNode;
 };
 
@@ -12,17 +14,16 @@ export function LegalPageLayout({
   title,
   subtitle,
   lastUpdated = "June 2026",
+  breadcrumbLabel,
   children,
 }: LegalPageLayoutProps) {
+  const crumbs: BreadcrumbCrumb[] = breadcrumbLabel
+    ? [{ label: breadcrumbLabel }]
+    : [{ label: title }];
+
   return (
     <article className="max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-16 pb-28">
-      <nav className="text-xs text-muted-foreground mb-6 flex flex-wrap gap-x-3 gap-y-1">
-        <Link to="/" className="hover:text-foreground">
-          Home
-        </Link>
-        <span aria-hidden>·</span>
-        <span className="text-foreground/80">Legal</span>
-      </nav>
+      <BreadcrumbNav items={crumbs} />
 
       <header className="mb-10">
         <p className="text-[11px] uppercase tracking-[0.35em] text-[var(--neon-cyan)] font-semibold">

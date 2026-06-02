@@ -13,7 +13,8 @@ import {
   WEBSITE_FAQ_ENTRIES,
   type FaqEntry,
 } from "@/lib/faq-content";
-import { faqPageJsonLd, pageHead } from "@/lib/site-seo";
+import { BreadcrumbNav } from "@/components/seo/BreadcrumbNav";
+import { breadcrumbJsonLd, faqPageJsonLd, pageHead } from "@/lib/site-seo";
 
 export const Route = createFileRoute("/faq")({
   head: () =>
@@ -54,10 +55,17 @@ function FaqPage() {
   return (
     <section className="max-w-3xl mx-auto px-4 py-12 pb-24">
       <JsonLd
-        data={faqPageJsonLd(
-          ALL_FAQ_SCHEMA_ENTRIES.map((e) => ({ question: e.q, answer: e.a })),
-        )}
+        data={[
+          breadcrumbJsonLd([
+            { name: "Home", path: "/" },
+            { name: "FAQ", path: "/faq" },
+          ]),
+          faqPageJsonLd(
+            ALL_FAQ_SCHEMA_ENTRIES.map((e) => ({ question: e.q, answer: e.a })),
+          ),
+        ]}
       />
+      <BreadcrumbNav items={[{ label: "FAQ" }]} />
       <header className="text-center mb-10">
         <h1 className="font-display text-3xl sm:text-5xl font-bold neon-text">
           Sinhala typing FAQ

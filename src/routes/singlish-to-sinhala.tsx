@@ -33,6 +33,7 @@ function SinglishLandingPage() {
         ]}
       />
       <SeoLandingIntro
+        breadcrumbs={[{ label: "Singlish to Sinhala" }]}
         eyebrow="Singlish to Sinhala"
         title="Singlish to Sinhala — phonetic typing made simple"
         description="Write the way you speak: Latin letters map to Sinhala sounds in real time. Copy Unicode for Facebook, YouTube, and Google Docs, or switch to Legacy FM Abhaya for print and design workflows."

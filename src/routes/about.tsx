@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { BreadcrumbNav } from "@/components/seo/BreadcrumbNav";
 import { breadcrumbJsonLd, pageHead } from "@/lib/site-seo";
 
 export const Route = createFileRoute("/about")({
@@ -31,6 +32,7 @@ function AboutPage() {
           { name: "About", path: "/about" },
         ])}
       />
+      <BreadcrumbNav items={[{ label: "About" }]} />
       <h1 className="font-display text-4xl neon-text mb-6">About SinType</h1>
       <div
         className="space-y-4 text-muted-foreground leading-relaxed rounded-3xl border border-white/10 p-6 sm:p-8"

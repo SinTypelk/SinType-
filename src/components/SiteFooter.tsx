@@ -46,6 +46,9 @@ export function SiteFooter() {
               <Link to="/faq" className={linkClass}>
                 FAQ
               </Link>
+              <Link to="/blog" className={linkClass}>
+                Blog
+              </Link>
               <Link to="/about" className={linkClass}>
                 About
               </Link>
@@ -84,8 +87,12 @@ export function SiteFooter() {
 
         <div className="mt-12 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
           <p>© {new Date().getFullYear()} SinType.lk. All rights reserved.</p>
-          <p className="text-center sm:text-right">
-            Typing stays on your device · Licenses stored securely via Supabase
+          <p className="text-center sm:text-right flex flex-wrap justify-center sm:justify-end gap-x-3 gap-y-1">
+            <Link to="/site-map" className="hover:text-foreground transition-colors">
+              Site map
+            </Link>
+            <span aria-hidden>·</span>
+            <span>Typing stays on your device</span>
           </p>
         </div>
       </div>

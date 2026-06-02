@@ -154,7 +154,7 @@ function UpdatesPage() {
                     type="url"
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
-                    placeholder="https://github.com/…/releases/download/v1.0.1/SinType_Setup.exe"
+                    placeholder="https://github.com/…/releases/download/v2.0.0/SinType_Setup.exe"
                     required
                   />
                   <p className="text-xs text-muted-foreground">

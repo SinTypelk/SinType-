@@ -24,9 +24,11 @@ import {
   type AppUpdateRow,
 } from "@/lib/app-updates-service";
 import { KEYWORDS_DOWNLOAD } from "@/lib/seo-keywords";
-import { pageHead } from "@/lib/site-seo";
+import { BreadcrumbNav } from "@/components/seo/BreadcrumbNav";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { breadcrumbJsonLd, pageHead } from "@/lib/site-seo";
 
-const SITE_CURRENT_VERSION = "1.0.1";
+const SITE_CURRENT_VERSION = "2.0.0";
 
 export const Route = createFileRoute("/download")({
   head: () =>
@@ -43,6 +45,13 @@ export const Route = createFileRoute("/download")({
 function DownloadPage() {
   return (
     <section className="max-w-6xl mx-auto px-6 pt-16 pb-24">
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: "Download", path: "/download" },
+        ])}
+      />
+      <BreadcrumbNav items={[{ label: "Download desktop app" }]} />
       <AppUpdateBanner currentVersion={SITE_CURRENT_VERSION} />
 
       <div className="mb-10">

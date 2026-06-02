@@ -37,6 +37,7 @@ function UnicodeLandingPage() {
         ]}
       />
       <SeoLandingIntro
+        breadcrumbs={[{ label: "Sinhala Unicode Converter" }]}
         eyebrow="Sinhala Unicode"
         title="Sinhala Unicode converter for web and design"
         description="Sri Lanka uses both modern Unicode (U+0D80–U+0DFF) and legacy FM fonts. SinType converts phonetic input to Unicode instantly and offers Legacy FM Abhaya output for DTP, newspapers, and Adobe Creative Cloud workflows."

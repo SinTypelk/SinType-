@@ -40,10 +40,24 @@ export function HomeSeoSection() {
           <a href="/download" className="text-[var(--neon-cyan)] hover:underline">
             SinType Windows desktop app
           </a>{" "}
-          for offline Singlish conversion with hotkeys (F10 toggle by default).
+          for offline Singlish conversion with hotkeys (F10 toggle by default). Read our{" "}
+          <a href="/blog/sinhala-unicode-legacy-seo-guide" className="text-[var(--neon-cyan)] hover:underline">
+            in-depth guide to Sinhala Unicode, legacy fonts, and SEO
+          </a>{" "}
+          for publishers and developers.
+        </p>
+        <h3 className="font-display text-lg text-foreground pt-2">
+          Sinhala voice typing &amp; mobile
+        </h3>
+        <p>
+          Use the microphone on the converter for <strong className="text-foreground">Sinhala voice typing</strong>{" "}
+          where your browser allows it. On iPhone, add this site to your home screen (Safari → Share →
+          Add to Home Screen) for the best experience — Apple limits voice input inside normal browser tabs.
         </p>
         <p className="text-xs text-muted-foreground/80">
-          Also known as: සිංහල යුනිකෝඩ් පරිවර්තකය · සිංහල ටයිප් කිරීම · sinhala type · singlish unicode · fm abhaya converter.
+          Also known as: සිංහල යුනිකෝඩ් පරිවර්තකය · සිංහල unicode පරිවර්තන මෘදුකාංග · singlish converter ·
+          sintype unicode converter · unicode to legacy · fm font converter · sri lanka unicode converter
+          app windows · sinhala font download (use Unicode/Legacy modes above).
         </p>
       </div>
     </section>

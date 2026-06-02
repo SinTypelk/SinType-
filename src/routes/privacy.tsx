@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { LegalPageLayout, LegalSection } from "@/components/layout/LegalPageLayout";
-import { pageHead } from "@/lib/site-seo";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { breadcrumbJsonLd, pageHead } from "@/lib/site-seo";
 
 export const Route = createFileRoute("/privacy")({
   head: () =>
@@ -15,10 +16,18 @@ export const Route = createFileRoute("/privacy")({
 
 function PrivacyPage() {
   return (
-    <LegalPageLayout
-      title="Privacy Policy"
-      subtitle="This policy explains how SinType works, what data we process, where it is stored, and what choices you have. SinType is designed so that everyday typing stays on your device."
-    >
+    <>
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: "Privacy Policy", path: "/privacy" },
+        ])}
+      />
+      <LegalPageLayout
+        title="Privacy Policy"
+        breadcrumbLabel="Privacy Policy"
+        subtitle="This policy explains how SinType works, what data we process, where it is stored, and what choices you have. SinType is designed so that everyday typing stays on your device."
+      >
       <LegalSection title="1. Who we are">
         <p>
           SinType.lk (&quot;SinType&quot;, &quot;we&quot;, &quot;us&quot;) provides a free web Singlish →
@@ -220,5 +229,6 @@ function PrivacyPage() {
         </p>
       </LegalSection>
     </LegalPageLayout>
+    </>
   );
 }

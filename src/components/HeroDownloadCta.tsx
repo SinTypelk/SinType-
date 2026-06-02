@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Download, KeyRound } from "lucide-react";
+import { HeaderKeywordChips } from "@/components/seo/HeaderKeywordChips";
 import { useAuth } from "@/lib/auth-context";
 import { LoginModal } from "@/components/LoginModal";
 
@@ -33,10 +34,15 @@ export function HeroDownloadCta() {
         <span className="neon-text">Singlish to Sinhala Online</span>
       </h1>
       <p className="mt-4 max-w-2xl mx-auto text-muted-foreground text-sm sm:text-base leading-relaxed">
-        Free <strong className="text-foreground font-medium">Singlish to Sinhala</strong> typing with
-        Unicode and Legacy FM Abhaya output. Real-time phonetic conversion in your browser — plus an
-        offline Windows app for system-wide Sinhala typing.
+        Free <strong className="text-foreground font-medium">Singlish to Unicode</strong> and{" "}
+        <strong className="text-foreground font-medium">Sinhala Unicode converter</strong> — easy
+        Unicode converter with Legacy FM Abhaya, Unicode to legacy font, and{" "}
+        <strong className="text-foreground font-medium">Sinhala voice typing</strong> in your browser.
+        Sri Lankan Unicode converter online plus a{" "}
+        <strong className="text-foreground font-medium">Windows Unicode converter app</strong> for
+        system-wide typing.
       </p>
+      <HeaderKeywordChips />
       <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
         <Link
           to="/download"

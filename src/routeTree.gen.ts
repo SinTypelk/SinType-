@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SiteMapRouteImport } from './routes/site-map'
 import { Route as SinhalaUnicodeConverterRouteImport } from './routes/sinhala-unicode-converter'
 import { Route as SinglishToSinhalaRouteImport } from './routes/singlish-to-sinhala'
 import { Route as PrivacyRouteImport } from './routes/privacy'
@@ -23,9 +24,12 @@ import { Route as DownloadRouteImport } from './routes/download'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as SplatRouteImport } from './routes/$'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BlogIndexRouteImport } from './routes/blog/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as MSessionIdRouteImport } from './routes/m.$sessionId'
+import { Route as BlogSlugRouteImport } from './routes/blog/$slug'
 import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
 import { Route as AdminDashboardIndexRouteImport } from './routes/admin/dashboard.index'
 import { Route as MLocalSessionIdRouteImport } from './routes/m.local.$sessionId'
@@ -43,6 +47,11 @@ const TermsRoute = TermsRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SiteMapRoute = SiteMapRouteImport.update({
+  id: '/site-map',
+  path: '/site-map',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SinhalaUnicodeConverterRoute = SinhalaUnicodeConverterRouteImport.update({
@@ -105,9 +114,19 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SplatRoute = SplatRouteImport.update({
+  id: '/$',
+  path: '/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -118,6 +137,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
 const MSessionIdRoute = MSessionIdRouteImport.update({
   id: '/m/$sessionId',
   path: '/m/$sessionId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/blog/$slug',
+  path: '/blog/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminDashboardRoute = AdminDashboardRouteImport.update({
@@ -164,6 +188,7 @@ const AdminDashboardFeedbackRoute = AdminDashboardFeedbackRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/$': typeof SplatRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRouteWithChildren
   '/contact': typeof ContactRoute
@@ -176,11 +201,14 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/singlish-to-sinhala': typeof SinglishToSinhalaRoute
   '/sinhala-unicode-converter': typeof SinhalaUnicodeConverterRoute
+  '/site-map': typeof SiteMapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/admin/dashboard': typeof AdminDashboardRouteWithChildren
+  '/blog/$slug': typeof BlogSlugRoute
   '/m/$sessionId': typeof MSessionIdRoute
   '/admin/': typeof AdminIndexRoute
+  '/blog/': typeof BlogIndexRoute
   '/admin/dashboard/feedback': typeof AdminDashboardFeedbackRoute
   '/admin/dashboard/notifications': typeof AdminDashboardNotificationsRoute
   '/admin/dashboard/updates': typeof AdminDashboardUpdatesRoute
@@ -191,6 +219,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/$': typeof SplatRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/download': typeof DownloadRoute
@@ -202,10 +231,13 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/singlish-to-sinhala': typeof SinglishToSinhalaRoute
   '/sinhala-unicode-converter': typeof SinhalaUnicodeConverterRoute
+  '/site-map': typeof SiteMapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/m/$sessionId': typeof MSessionIdRoute
   '/admin': typeof AdminIndexRoute
+  '/blog': typeof BlogIndexRoute
   '/admin/dashboard/feedback': typeof AdminDashboardFeedbackRoute
   '/admin/dashboard/notifications': typeof AdminDashboardNotificationsRoute
   '/admin/dashboard/updates': typeof AdminDashboardUpdatesRoute
@@ -217,6 +249,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/$': typeof SplatRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRouteWithChildren
   '/contact': typeof ContactRoute
@@ -229,11 +262,14 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/singlish-to-sinhala': typeof SinglishToSinhalaRoute
   '/sinhala-unicode-converter': typeof SinhalaUnicodeConverterRoute
+  '/site-map': typeof SiteMapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/admin/dashboard': typeof AdminDashboardRouteWithChildren
+  '/blog/$slug': typeof BlogSlugRoute
   '/m/$sessionId': typeof MSessionIdRoute
   '/admin/': typeof AdminIndexRoute
+  '/blog/': typeof BlogIndexRoute
   '/admin/dashboard/feedback': typeof AdminDashboardFeedbackRoute
   '/admin/dashboard/notifications': typeof AdminDashboardNotificationsRoute
   '/admin/dashboard/updates': typeof AdminDashboardUpdatesRoute
@@ -246,6 +282,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/$'
     | '/about'
     | '/admin'
     | '/contact'
@@ -258,11 +295,14 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/singlish-to-sinhala'
     | '/sinhala-unicode-converter'
+    | '/site-map'
     | '/sitemap.xml'
     | '/terms'
     | '/admin/dashboard'
+    | '/blog/$slug'
     | '/m/$sessionId'
     | '/admin/'
+    | '/blog/'
     | '/admin/dashboard/feedback'
     | '/admin/dashboard/notifications'
     | '/admin/dashboard/updates'
@@ -273,6 +313,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/$'
     | '/about'
     | '/contact'
     | '/download'
@@ -284,10 +325,13 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/singlish-to-sinhala'
     | '/sinhala-unicode-converter'
+    | '/site-map'
     | '/sitemap.xml'
     | '/terms'
+    | '/blog/$slug'
     | '/m/$sessionId'
     | '/admin'
+    | '/blog'
     | '/admin/dashboard/feedback'
     | '/admin/dashboard/notifications'
     | '/admin/dashboard/updates'
@@ -298,6 +342,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/$'
     | '/about'
     | '/admin'
     | '/contact'
@@ -310,11 +355,14 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/singlish-to-sinhala'
     | '/sinhala-unicode-converter'
+    | '/site-map'
     | '/sitemap.xml'
     | '/terms'
     | '/admin/dashboard'
+    | '/blog/$slug'
     | '/m/$sessionId'
     | '/admin/'
+    | '/blog/'
     | '/admin/dashboard/feedback'
     | '/admin/dashboard/notifications'
     | '/admin/dashboard/updates'
@@ -326,6 +374,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  SplatRoute: typeof SplatRoute
   AboutRoute: typeof AboutRoute
   AdminRoute: typeof AdminRouteWithChildren
   ContactRoute: typeof ContactRoute
@@ -338,9 +387,12 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   SinglishToSinhalaRoute: typeof SinglishToSinhalaRoute
   SinhalaUnicodeConverterRoute: typeof SinhalaUnicodeConverterRoute
+  SiteMapRoute: typeof SiteMapRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
+  BlogSlugRoute: typeof BlogSlugRoute
   MSessionIdRoute: typeof MSessionIdRoute
+  BlogIndexRoute: typeof BlogIndexRoute
   ApiSinhalaLearnRoute: typeof ApiSinhalaLearnRoute
   MLocalSessionIdRoute: typeof MLocalSessionIdRoute
 }
@@ -359,6 +411,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/site-map': {
+      id: '/site-map'
+      path: '/site-map'
+      fullPath: '/site-map'
+      preLoaderRoute: typeof SiteMapRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sinhala-unicode-converter': {
@@ -445,11 +504,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/$': {
+      id: '/$'
+      path: '/$'
+      fullPath: '/$'
+      preLoaderRoute: typeof SplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/': {
+      id: '/blog/'
+      path: '/blog'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -464,6 +537,13 @@ declare module '@tanstack/react-router' {
       path: '/m/$sessionId'
       fullPath: '/m/$sessionId'
       preLoaderRoute: typeof MSessionIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/blog/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/dashboard': {
@@ -559,6 +639,7 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  SplatRoute: SplatRoute,
   AboutRoute: AboutRoute,
   AdminRoute: AdminRouteWithChildren,
   ContactRoute: ContactRoute,
@@ -571,9 +652,12 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   SinglishToSinhalaRoute: SinglishToSinhalaRoute,
   SinhalaUnicodeConverterRoute: SinhalaUnicodeConverterRoute,
+  SiteMapRoute: SiteMapRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
+  BlogSlugRoute: BlogSlugRoute,
   MSessionIdRoute: MSessionIdRoute,
+  BlogIndexRoute: BlogIndexRoute,
   ApiSinhalaLearnRoute: ApiSinhalaLearnRoute,
   MLocalSessionIdRoute: MLocalSessionIdRoute,
 }
