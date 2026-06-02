@@ -28,6 +28,7 @@ import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as MSessionIdRouteImport } from './routes/m.$sessionId'
 import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
 import { Route as AdminDashboardIndexRouteImport } from './routes/admin/dashboard.index'
+import { Route as MLocalSessionIdRouteImport } from './routes/m.local.$sessionId'
 import { Route as ApiSinhalaLearnRouteImport } from './routes/api/sinhala/learn'
 import { Route as AdminDashboardUsersRouteImport } from './routes/admin/dashboard.users'
 import { Route as AdminDashboardUpdatesRouteImport } from './routes/admin/dashboard.updates'
@@ -129,6 +130,11 @@ const AdminDashboardIndexRoute = AdminDashboardIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminDashboardRoute,
 } as any)
+const MLocalSessionIdRoute = MLocalSessionIdRouteImport.update({
+  id: '/m/local/$sessionId',
+  path: '/m/local/$sessionId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiSinhalaLearnRoute = ApiSinhalaLearnRouteImport.update({
   id: '/api/sinhala/learn',
   path: '/api/sinhala/learn',
@@ -180,6 +186,7 @@ export interface FileRoutesByFullPath {
   '/admin/dashboard/updates': typeof AdminDashboardUpdatesRoute
   '/admin/dashboard/users': typeof AdminDashboardUsersRoute
   '/api/sinhala/learn': typeof ApiSinhalaLearnRoute
+  '/m/local/$sessionId': typeof MLocalSessionIdRoute
   '/admin/dashboard/': typeof AdminDashboardIndexRoute
 }
 export interface FileRoutesByTo {
@@ -204,6 +211,7 @@ export interface FileRoutesByTo {
   '/admin/dashboard/updates': typeof AdminDashboardUpdatesRoute
   '/admin/dashboard/users': typeof AdminDashboardUsersRoute
   '/api/sinhala/learn': typeof ApiSinhalaLearnRoute
+  '/m/local/$sessionId': typeof MLocalSessionIdRoute
   '/admin/dashboard': typeof AdminDashboardIndexRoute
 }
 export interface FileRoutesById {
@@ -231,6 +239,7 @@ export interface FileRoutesById {
   '/admin/dashboard/updates': typeof AdminDashboardUpdatesRoute
   '/admin/dashboard/users': typeof AdminDashboardUsersRoute
   '/api/sinhala/learn': typeof ApiSinhalaLearnRoute
+  '/m/local/$sessionId': typeof MLocalSessionIdRoute
   '/admin/dashboard/': typeof AdminDashboardIndexRoute
 }
 export interface FileRouteTypes {
@@ -259,6 +268,7 @@ export interface FileRouteTypes {
     | '/admin/dashboard/updates'
     | '/admin/dashboard/users'
     | '/api/sinhala/learn'
+    | '/m/local/$sessionId'
     | '/admin/dashboard/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -283,6 +293,7 @@ export interface FileRouteTypes {
     | '/admin/dashboard/updates'
     | '/admin/dashboard/users'
     | '/api/sinhala/learn'
+    | '/m/local/$sessionId'
     | '/admin/dashboard'
   id:
     | '__root__'
@@ -309,6 +320,7 @@ export interface FileRouteTypes {
     | '/admin/dashboard/updates'
     | '/admin/dashboard/users'
     | '/api/sinhala/learn'
+    | '/m/local/$sessionId'
     | '/admin/dashboard/'
   fileRoutesById: FileRoutesById
 }
@@ -330,6 +342,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   MSessionIdRoute: typeof MSessionIdRoute
   ApiSinhalaLearnRoute: typeof ApiSinhalaLearnRoute
+  MLocalSessionIdRoute: typeof MLocalSessionIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -467,6 +480,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDashboardIndexRouteImport
       parentRoute: typeof AdminDashboardRoute
     }
+    '/m/local/$sessionId': {
+      id: '/m/local/$sessionId'
+      path: '/m/local/$sessionId'
+      fullPath: '/m/local/$sessionId'
+      preLoaderRoute: typeof MLocalSessionIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/sinhala/learn': {
       id: '/api/sinhala/learn'
       path: '/api/sinhala/learn'
@@ -555,6 +575,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   MSessionIdRoute: MSessionIdRoute,
   ApiSinhalaLearnRoute: ApiSinhalaLearnRoute,
+  MLocalSessionIdRoute: MLocalSessionIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

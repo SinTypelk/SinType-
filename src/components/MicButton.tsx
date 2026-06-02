@@ -26,10 +26,12 @@ export function MicButton({
   onTranscript,
   onListenStart,
   lang = "si-LK",
+  className,
 }: {
   onTranscript: (text: string, options: MicTranscriptOptions) => void;
   onListenStart?: () => void;
   lang?: string;
+  className?: string;
 }) {
   const [availability, setAvailability] = useState<MicAvailability>("checking");
   const [active, setActive] = useState(false);
@@ -189,7 +191,7 @@ export function MicButton({
         type="button"
         disabled
         title={unavailableTitle(availability.reason)}
-        className="p-3 rounded-full border border-border bg-card opacity-40 cursor-not-allowed"
+        className={className ?? "p-3 rounded-full border border-border bg-card opacity-40 cursor-not-allowed"}
         aria-label="Voice typing unavailable"
       >
         <Mic className="w-5 h-5" />
@@ -203,9 +205,12 @@ export function MicButton({
       onClick={toggle}
       aria-label={active ? "Stop voice typing" : "Start voice typing"}
       aria-pressed={active}
-      className={`shrink-0 p-3 rounded-full border border-border bg-card hover:bg-accent/30 transition-colors ${
-        active ? "mic-active border-[var(--neon-pink)]/50" : ""
-      } ${availability === "checking" ? "opacity-80" : ""}`}
+      className={
+        className ??
+        `shrink-0 p-3 rounded-full border border-border bg-card hover:bg-accent/30 transition-colors ${
+          active ? "mic-active border-[var(--neon-pink)]/50" : ""
+        } ${availability === "checking" ? "opacity-80" : ""}`
+      }
     >
       <Mic className={`w-5 h-5 ${active ? "text-[var(--neon-pink)]" : ""}`} />
     </button>
