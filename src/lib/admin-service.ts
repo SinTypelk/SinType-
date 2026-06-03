@@ -29,6 +29,17 @@ export type DashboardStats = {
   totalUsers: number;
   activeLicenses: number;
   pendingFeedback: number;
+  pendingLicenseResets: number;
+};
+
+export type LicenseResetRequestRow = {
+  id: string;
+  machineId: string;
+  boundEmail: string | null;
+  message: string;
+  status: "pending" | "resolved" | "rejected";
+  createdAt: string;
+  resolvedAt: string | null;
 };
 
 export type AppUpdateRecord = {
@@ -70,7 +81,7 @@ function licenseStatus(
 }
 
 export async function fetchDashboardStats(): Promise<DashboardStats> {
-  const [profilesRes, licensesRes, feedbackRes] = await Promise.all([
+  const [profilesRes, licensesRes, feedbackRes, resetRes] = await Promise.all([
     supabase.from("profiles").select("id", { count: "exact", head: true }),
     supabase
       .from("licenses")
@@ -81,17 +92,73 @@ export async function fetchDashboardStats(): Promise<DashboardStats> {
       .from("user_feedback")
       .select("id", { count: "exact", head: true })
       .eq("status", "pending"),
+    supabase
+      .from("license_reset_requests")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "pending"),
   ]);
 
   if (profilesRes.error) throw new Error(profilesRes.error.message);
   if (licensesRes.error) throw new Error(licensesRes.error.message);
   if (feedbackRes.error) throw new Error(feedbackRes.error.message);
+  if (resetRes.error) throw new Error(resetRes.error.message);
 
   return {
     totalUsers: profilesRes.count ?? 0,
     activeLicenses: licensesRes.count ?? 0,
     pendingFeedback: feedbackRes.count ?? 0,
+    pendingLicenseResets: resetRes.count ?? 0,
   };
+}
+
+export async function fetchLicenseResetRequests(): Promise<LicenseResetRequestRow[]> {
+  const { data, error } = await supabase
+    .from("license_reset_requests")
+    .select("id, machine_id, bound_email, message, status, created_at, resolved_at")
+    .order("created_at", { ascending: false });
+
+  if (error) throw new Error(error.message);
+
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    machineId: row.machine_id,
+    boundEmail: row.bound_email,
+    message: row.message,
+    status: (row.status as LicenseResetRequestRow["status"]) ?? "pending",
+    createdAt: row.created_at,
+    resolvedAt: row.resolved_at,
+  }));
+}
+
+/** Clear machine_id on licenses + revoke desktop binding (user can activate with new email). */
+export async function resetDesktopBinding(machineId: string): Promise<void> {
+  const mid = machineId.trim();
+  if (!mid) throw new Error("Machine ID is required");
+
+  const { error: rpcErr } = await supabase.rpc("admin_reset_desktop_binding", {
+    p_machine_id: mid,
+  });
+
+  if (!rpcErr) return;
+
+  const { error: licErr } = await supabase
+    .from("licenses")
+    .update({ machine_id: null })
+    .eq("machine_id", mid);
+  if (licErr) throw new Error(licErr.message);
+
+  const { error: bindErr } = await supabase
+    .from("desktop_bindings")
+    .update({ revoked_at: new Date().toISOString(), bound_email: "[revoked]" })
+    .eq("machine_id", mid);
+  if (bindErr) throw new Error(bindErr.message);
+
+  const { error: reqErr } = await supabase
+    .from("license_reset_requests")
+    .update({ status: "resolved", resolved_at: new Date().toISOString() })
+    .eq("machine_id", mid)
+    .eq("status", "pending");
+  if (reqErr) throw new Error(reqErr.message);
 }
 
 export async function fetchAdminUsers(): Promise<AdminUserRow[]> {

@@ -49,6 +49,11 @@ function DashboardOverview() {
     { label: "Total Users", value: stats?.totalUsers ?? 0, icon: Users },
     { label: "Active Licenses", value: stats?.activeLicenses ?? 0, icon: KeyRound },
     { label: "Pending Feedbacks", value: stats?.pendingFeedback ?? 0, icon: MessageSquareWarning },
+    {
+      label: "License reset requests",
+      value: stats?.pendingLicenseResets ?? 0,
+      icon: KeyRound,
+    },
   ];
 
   return (

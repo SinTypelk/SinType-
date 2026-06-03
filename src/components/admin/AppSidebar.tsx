@@ -5,6 +5,7 @@ import {
   MessageSquareWarning,
   Bell,
   Rocket,
+  KeyRound,
   LogOut,
 } from "lucide-react";
 import { BrandLogo } from "@/components/BrandLogo";
@@ -27,6 +28,11 @@ import { useAdminAuth } from "@/lib/admin-auth-context";
 const items = [
   { title: "Dashboard", url: "/admin/dashboard", icon: LayoutDashboard },
   { title: "Users & Licenses", url: "/admin/dashboard/users", icon: Users },
+  {
+    title: "License resets",
+    url: "/admin/dashboard/license-resets",
+    icon: KeyRound,
+  },
   { title: "Feedback & Bugs", url: "/admin/dashboard/feedback", icon: MessageSquareWarning },
   { title: "Notifications", url: "/admin/dashboard/notifications", icon: Bell },
   { title: "App Updates", url: "/admin/dashboard/updates", icon: Rocket },
