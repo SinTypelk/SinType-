@@ -5,10 +5,16 @@ import {
   Copy,
   Eraser,
   Keyboard as KeyboardIcon,
+  ListTree,
   Radio,
 } from "lucide-react";
 const VirtualKeyboard = lazy(() =>
   import("./VirtualKeyboard").then((m) => ({ default: m.VirtualKeyboard })),
+);
+const MappingReferencePanel = lazy(() =>
+  import("./MappingReferencePanel").then((m) => ({
+    default: m.MappingReferencePanel,
+  })),
 );
 import { SmartLearningEngine } from "@/lib/smartEngine";
 import { findSpellIssues, processConversion } from "@/lib/sinhala";
@@ -35,6 +41,7 @@ export function Converter() {
   const [mobileEnglishKeyboard, setMobileEnglishKeyboard] = useState(false);
   const [syncStatus, setSyncStatus] = useState<SyncConnectionStatus>("connecting");
   const [kbOpen, setKbOpen] = useState(false);
+  const [mapOpen, setMapOpen] = useState(false);
   const syncRef = useRef<SyncSubscription | null>(null);
   const voiceBaseRef = useRef("");
   const [outputCopied, setOutputCopied] = useState(false);
@@ -255,14 +262,24 @@ export function Converter() {
         </div>
       </div>
 
-      <div className="flex justify-center">
+      <div className="flex flex-wrap justify-center gap-3">
         <button
+          type="button"
           onClick={() => setKbOpen((v) => !v)}
           className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-[var(--neon-cyan)] text-sm hover:bg-accent/30 transition"
           style={{ boxShadow: kbOpen ? "0 0 18px color-mix(in oklab, var(--neon-cyan) 60%, transparent)" : undefined }}
         >
           <KeyboardIcon className="w-4 h-4" />
           {kbOpen ? "Hide Keyboard" : "Show Sinhala Keyboard"}
+        </button>
+        <button
+          type="button"
+          onClick={() => setMapOpen(true)}
+          className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-[var(--neon-purple)] text-sm hover:bg-accent/30 transition"
+          style={{ boxShadow: mapOpen ? "0 0 18px color-mix(in oklab, var(--neon-purple) 50%, transparent)" : undefined }}
+        >
+          <ListTree className="w-4 h-4" />
+          Show Mapping
         </button>
       </div>
 
@@ -273,6 +290,12 @@ export function Converter() {
             onClose={() => setKbOpen(false)}
             onInsert={(ch) => setInput((prev) => prev + ch)}
           />
+        </Suspense>
+      )}
+
+      {mapOpen && (
+        <Suspense fallback={null}>
+          <MappingReferencePanel open={mapOpen} onClose={() => setMapOpen(false)} />
         </Suspense>
       )}
     </section>

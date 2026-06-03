@@ -19,7 +19,7 @@
 | **Spell hints** | Underlined suggestions in Unicode mode when `findSpellIssues` detects likely typos. |
 | **Conversion history** | Last 20 entries stored locally; restore from the history panel. |
 | **Dark / light UI** | Theme persisted in `localStorage`; neon-accented layout (Tailwind + CSS variables). |
-| **License & telemetry** | Sign-in required 7-day keys at `/license`; live desktop stats on `/download` from `app_usage`. |
+| **License & telemetry** | Sign-in required 30-day keys at `/license`; live desktop stats on `/download` from `app_usage`. |
 | **Marketing pages** | About, FAQ, download (desktop app), contact, privacy, and terms routes. |
 
 ---
@@ -155,9 +155,9 @@ SinType.lk uses **Supabase Auth** for identity and session management, with **Go
    - `supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.origin } })`
    - Supabase captures the callback, persists the session, and `AuthProvider` reacts to `onAuthStateChange`.
 
-3. **Email / password** sign-in is available on `/login` and in `LoginModal` (used before generating a 7-day desktop key).
+3. **Email / password** sign-in is available on `/login` and in `LoginModal` (used before generating a 30-day desktop key).
 
-4. **7-day activation keys** (`/license`, download CTAs): requires an authenticated user. Keys are inserted into Supabase `licenses` with `email`, `license_key`, and `status: active`.
+4. **30-day activation keys** (`/license`, download CTAs): requires an authenticated user. Keys are inserted into Supabase `licenses` with `email`, `license_key`, and `status: active`.
 
 5. **Live usage** on `/download` reads from `app_usage` (unique `session_id` counts and recent pings).
 
