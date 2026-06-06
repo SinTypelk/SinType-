@@ -21,7 +21,19 @@ export const WEBSITE_FAQ_ENTRIES: FaqEntry[] = [
   },
   {
     q: "How does mobile sync work?",
-    a: "Sign in, scan the QR code on the home page, and text you type on your phone streams into the desktop converter in real time.",
+    a: "SinType 2.0 runs a local web server on your PC. Scan the QR code from the desktop app to pair your phone — then use it as a wireless keyboard, touchpad, or file-transfer remote over your Wi-Fi.",
+  },
+  {
+    q: "Why does the app need local network access?",
+    a: "To facilitate real-time mobile-to-PC syncing. The local web server listens on your LAN so your phone can connect as a remote keyboard, touchpad, and file-transfer client without routing data through the public internet.",
+  },
+  {
+    q: "What if I encounter a bug?",
+    a: "Please report it via our feedback page (/feedback), contact form (/contact), WhatsApp support, or GitHub issues. Beta releases may have rough edges — your reports help us improve quickly.",
+  },
+  {
+    q: "Is it safe?",
+    a: "Yes. Mobile remote and file sync operate within your local environment (LAN/Wi-Fi). Everyday typing conversion runs offline on your PC. Only license activation, optional cloud notifications, and web sign-in use external servers.",
   },
 ];
 
@@ -36,7 +48,7 @@ export const DESKTOP_FAQ_ENTRIES: FaqEntry[] = [
   },
   {
     q: "Does it work offline?",
-    a: "Day-to-day Singlish conversion runs offline on your PC. Internet is only needed for license activation and optional sync.",
+    a: "Day-to-day Singlish conversion runs offline on your PC. Mobile remote and LAN file sync use your local Wi-Fi only — no internet required. Internet is needed for license activation and optional cloud notifications.",
   },
   {
     q: "How do I get an activation key?",

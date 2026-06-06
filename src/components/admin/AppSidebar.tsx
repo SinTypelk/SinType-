@@ -7,6 +7,8 @@ import {
   Rocket,
   KeyRound,
   LogOut,
+  BookOpen,
+  FileText,
 } from "lucide-react";
 import { BrandLogo } from "@/components/BrandLogo";
 import {
@@ -36,6 +38,8 @@ const items = [
   { title: "Feedback & Bugs", url: "/admin/dashboard/feedback", icon: MessageSquareWarning },
   { title: "Notifications", url: "/admin/dashboard/notifications", icon: Bell },
   { title: "App Updates", url: "/admin/dashboard/updates", icon: Rocket },
+  { title: "Blog Manager", url: "/admin/dashboard/blog", icon: BookOpen },
+  { title: "App Content", url: "/admin/dashboard/content", icon: FileText },
 ];
 
 export function AppSidebar() {

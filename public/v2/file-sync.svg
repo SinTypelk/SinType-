@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="400" viewBox="0 0 640 400" role="img" aria-label="Local file sync">
+  <defs>
+    <linearGradient id="bg2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#312e81"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#bg2)"/>
+  <rect x="80" y="120" width="180" height="140" rx="12" fill="#1e293b" stroke="#a78bfa" stroke-width="2"/>
+  <text x="170" y="200" text-anchor="middle" fill="#c4b5fd" font-family="system-ui,sans-serif" font-size="13">PC</text>
+  <rect x="380" y="120" width="180" height="140" rx="12" fill="#1e293b" stroke="#22d3ee" stroke-width="2"/>
+  <text x="470" y="200" text-anchor="middle" fill="#67e8f9" font-family="system-ui,sans-serif" font-size="13">Phone</text>
+  <path d="M270 180 H370" stroke="#22d3ee" stroke-width="3" stroke-dasharray="8 6"/>
+  <polygon points="370,180 358,174 358,186" fill="#22d3ee"/>
+  <rect x="290" y="155" width="60" height="50" rx="6" fill="#334155" stroke="#64748b"/>
+  <text x="320" y="380" text-anchor="middle" fill="#a78bfa" font-family="system-ui,sans-serif" font-size="16" font-weight="600">LAN File Transfer</text>
+</svg>

@@ -7,16 +7,13 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { JsonLd } from "@/components/seo/JsonLd";
-import {
-  ALL_FAQ_SCHEMA_ENTRIES,
-  DESKTOP_FAQ_ENTRIES,
-  WEBSITE_FAQ_ENTRIES,
-  type FaqEntry,
-} from "@/lib/faq-content";
+import { fetchFaqContent } from "@/lib/content-service";
+import type { FaqEntry } from "@/lib/faq-content";
 import { BreadcrumbNav } from "@/components/seo/BreadcrumbNav";
 import { breadcrumbJsonLd, faqPageJsonLd, pageHead } from "@/lib/site-seo";
 
 export const Route = createFileRoute("/faq")({
+  loader: async () => fetchFaqContent(),
   head: () =>
     pageHead({
       title: "FAQ | Sinhala Unicode, Singlish & Desktop — SinType.lk",
@@ -37,7 +34,7 @@ function FaqAccordion({ items }: { items: FaqEntry[] }) {
   return (
     <Accordion type="single" collapsible className="neon-border p-2 sm:p-4">
       {items.map((f, i) => (
-        <AccordionItem key={f.q} value={`item-${i}`} className="border-border">
+        <AccordionItem key={`${f.q}-${i}`} value={`item-${i}`} className="border-border">
           <AccordionTrigger className="text-left px-3 hover:no-underline">{f.q}</AccordionTrigger>
           <AccordionContent className="px-3 text-muted-foreground text-sm leading-relaxed">
             {renderAnswer(f.a)}
@@ -49,8 +46,9 @@ function FaqAccordion({ items }: { items: FaqEntry[] }) {
 }
 
 function FaqPage() {
+  const { web, desktop } = Route.useLoaderData();
   const [tab, setTab] = useState<"web" | "desktop">("web");
-  const items = tab === "web" ? WEBSITE_FAQ_ENTRIES : DESKTOP_FAQ_ENTRIES;
+  const items = tab === "web" ? web : desktop;
 
   return (
     <section className="max-w-3xl mx-auto px-4 py-12 pb-24">
@@ -61,7 +59,7 @@ function FaqPage() {
             { name: "FAQ", path: "/faq" },
           ]),
           faqPageJsonLd(
-            ALL_FAQ_SCHEMA_ENTRIES.map((e) => ({ question: e.q, answer: e.a })),
+            [...web, ...desktop].map((e) => ({ question: e.q, answer: e.a })),
           ),
         ]}
       />

@@ -34,10 +34,18 @@ import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
 import { Route as AdminDashboardIndexRouteImport } from './routes/admin/dashboard.index'
 import { Route as MLocalSessionIdRouteImport } from './routes/m.local.$sessionId'
 import { Route as ApiSinhalaLearnRouteImport } from './routes/api/sinhala/learn'
+import { Route as ApiAdminStatsRouteImport } from './routes/api/admin/stats'
+import { Route as ApiAdminLoginRouteImport } from './routes/api/admin/login'
+import { Route as ApiAdminContentRouteImport } from './routes/api/admin/content'
+import { Route as ApiAdminBlogRouteImport } from './routes/api/admin/blog'
 import { Route as AdminDashboardUsersRouteImport } from './routes/admin/dashboard.users'
 import { Route as AdminDashboardUpdatesRouteImport } from './routes/admin/dashboard.updates'
 import { Route as AdminDashboardNotificationsRouteImport } from './routes/admin/dashboard.notifications'
+import { Route as AdminDashboardLicenseResetsRouteImport } from './routes/admin/dashboard.license-resets'
 import { Route as AdminDashboardFeedbackRouteImport } from './routes/admin/dashboard.feedback'
+import { Route as AdminDashboardContentRouteImport } from './routes/admin/dashboard.content'
+import { Route as AdminDashboardBlogRouteImport } from './routes/admin/dashboard.blog'
+import { Route as ApiAdminBlogIdRouteImport } from './routes/api/admin/blog.$id'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -164,6 +172,26 @@ const ApiSinhalaLearnRoute = ApiSinhalaLearnRouteImport.update({
   path: '/api/sinhala/learn',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminStatsRoute = ApiAdminStatsRouteImport.update({
+  id: '/api/admin/stats',
+  path: '/api/admin/stats',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminLoginRoute = ApiAdminLoginRouteImport.update({
+  id: '/api/admin/login',
+  path: '/api/admin/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminContentRoute = ApiAdminContentRouteImport.update({
+  id: '/api/admin/content',
+  path: '/api/admin/content',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminBlogRoute = ApiAdminBlogRouteImport.update({
+  id: '/api/admin/blog',
+  path: '/api/admin/blog',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminDashboardUsersRoute = AdminDashboardUsersRouteImport.update({
   id: '/users',
   path: '/users',
@@ -180,10 +208,31 @@ const AdminDashboardNotificationsRoute =
     path: '/notifications',
     getParentRoute: () => AdminDashboardRoute,
   } as any)
+const AdminDashboardLicenseResetsRoute =
+  AdminDashboardLicenseResetsRouteImport.update({
+    id: '/license-resets',
+    path: '/license-resets',
+    getParentRoute: () => AdminDashboardRoute,
+  } as any)
 const AdminDashboardFeedbackRoute = AdminDashboardFeedbackRouteImport.update({
   id: '/feedback',
   path: '/feedback',
   getParentRoute: () => AdminDashboardRoute,
+} as any)
+const AdminDashboardContentRoute = AdminDashboardContentRouteImport.update({
+  id: '/content',
+  path: '/content',
+  getParentRoute: () => AdminDashboardRoute,
+} as any)
+const AdminDashboardBlogRoute = AdminDashboardBlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
+  getParentRoute: () => AdminDashboardRoute,
+} as any)
+const ApiAdminBlogIdRoute = ApiAdminBlogIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiAdminBlogRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -209,13 +258,21 @@ export interface FileRoutesByFullPath {
   '/m/$sessionId': typeof MSessionIdRoute
   '/admin/': typeof AdminIndexRoute
   '/blog/': typeof BlogIndexRoute
+  '/admin/dashboard/blog': typeof AdminDashboardBlogRoute
+  '/admin/dashboard/content': typeof AdminDashboardContentRoute
   '/admin/dashboard/feedback': typeof AdminDashboardFeedbackRoute
+  '/admin/dashboard/license-resets': typeof AdminDashboardLicenseResetsRoute
   '/admin/dashboard/notifications': typeof AdminDashboardNotificationsRoute
   '/admin/dashboard/updates': typeof AdminDashboardUpdatesRoute
   '/admin/dashboard/users': typeof AdminDashboardUsersRoute
+  '/api/admin/blog': typeof ApiAdminBlogRouteWithChildren
+  '/api/admin/content': typeof ApiAdminContentRoute
+  '/api/admin/login': typeof ApiAdminLoginRoute
+  '/api/admin/stats': typeof ApiAdminStatsRoute
   '/api/sinhala/learn': typeof ApiSinhalaLearnRoute
   '/m/local/$sessionId': typeof MLocalSessionIdRoute
   '/admin/dashboard/': typeof AdminDashboardIndexRoute
+  '/api/admin/blog/$id': typeof ApiAdminBlogIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -238,13 +295,21 @@ export interface FileRoutesByTo {
   '/m/$sessionId': typeof MSessionIdRoute
   '/admin': typeof AdminIndexRoute
   '/blog': typeof BlogIndexRoute
+  '/admin/dashboard/blog': typeof AdminDashboardBlogRoute
+  '/admin/dashboard/content': typeof AdminDashboardContentRoute
   '/admin/dashboard/feedback': typeof AdminDashboardFeedbackRoute
+  '/admin/dashboard/license-resets': typeof AdminDashboardLicenseResetsRoute
   '/admin/dashboard/notifications': typeof AdminDashboardNotificationsRoute
   '/admin/dashboard/updates': typeof AdminDashboardUpdatesRoute
   '/admin/dashboard/users': typeof AdminDashboardUsersRoute
+  '/api/admin/blog': typeof ApiAdminBlogRouteWithChildren
+  '/api/admin/content': typeof ApiAdminContentRoute
+  '/api/admin/login': typeof ApiAdminLoginRoute
+  '/api/admin/stats': typeof ApiAdminStatsRoute
   '/api/sinhala/learn': typeof ApiSinhalaLearnRoute
   '/m/local/$sessionId': typeof MLocalSessionIdRoute
   '/admin/dashboard': typeof AdminDashboardIndexRoute
+  '/api/admin/blog/$id': typeof ApiAdminBlogIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -270,13 +335,21 @@ export interface FileRoutesById {
   '/m/$sessionId': typeof MSessionIdRoute
   '/admin/': typeof AdminIndexRoute
   '/blog/': typeof BlogIndexRoute
+  '/admin/dashboard/blog': typeof AdminDashboardBlogRoute
+  '/admin/dashboard/content': typeof AdminDashboardContentRoute
   '/admin/dashboard/feedback': typeof AdminDashboardFeedbackRoute
+  '/admin/dashboard/license-resets': typeof AdminDashboardLicenseResetsRoute
   '/admin/dashboard/notifications': typeof AdminDashboardNotificationsRoute
   '/admin/dashboard/updates': typeof AdminDashboardUpdatesRoute
   '/admin/dashboard/users': typeof AdminDashboardUsersRoute
+  '/api/admin/blog': typeof ApiAdminBlogRouteWithChildren
+  '/api/admin/content': typeof ApiAdminContentRoute
+  '/api/admin/login': typeof ApiAdminLoginRoute
+  '/api/admin/stats': typeof ApiAdminStatsRoute
   '/api/sinhala/learn': typeof ApiSinhalaLearnRoute
   '/m/local/$sessionId': typeof MLocalSessionIdRoute
   '/admin/dashboard/': typeof AdminDashboardIndexRoute
+  '/api/admin/blog/$id': typeof ApiAdminBlogIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -303,13 +376,21 @@ export interface FileRouteTypes {
     | '/m/$sessionId'
     | '/admin/'
     | '/blog/'
+    | '/admin/dashboard/blog'
+    | '/admin/dashboard/content'
     | '/admin/dashboard/feedback'
+    | '/admin/dashboard/license-resets'
     | '/admin/dashboard/notifications'
     | '/admin/dashboard/updates'
     | '/admin/dashboard/users'
+    | '/api/admin/blog'
+    | '/api/admin/content'
+    | '/api/admin/login'
+    | '/api/admin/stats'
     | '/api/sinhala/learn'
     | '/m/local/$sessionId'
     | '/admin/dashboard/'
+    | '/api/admin/blog/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -332,13 +413,21 @@ export interface FileRouteTypes {
     | '/m/$sessionId'
     | '/admin'
     | '/blog'
+    | '/admin/dashboard/blog'
+    | '/admin/dashboard/content'
     | '/admin/dashboard/feedback'
+    | '/admin/dashboard/license-resets'
     | '/admin/dashboard/notifications'
     | '/admin/dashboard/updates'
     | '/admin/dashboard/users'
+    | '/api/admin/blog'
+    | '/api/admin/content'
+    | '/api/admin/login'
+    | '/api/admin/stats'
     | '/api/sinhala/learn'
     | '/m/local/$sessionId'
     | '/admin/dashboard'
+    | '/api/admin/blog/$id'
   id:
     | '__root__'
     | '/'
@@ -363,13 +452,21 @@ export interface FileRouteTypes {
     | '/m/$sessionId'
     | '/admin/'
     | '/blog/'
+    | '/admin/dashboard/blog'
+    | '/admin/dashboard/content'
     | '/admin/dashboard/feedback'
+    | '/admin/dashboard/license-resets'
     | '/admin/dashboard/notifications'
     | '/admin/dashboard/updates'
     | '/admin/dashboard/users'
+    | '/api/admin/blog'
+    | '/api/admin/content'
+    | '/api/admin/login'
+    | '/api/admin/stats'
     | '/api/sinhala/learn'
     | '/m/local/$sessionId'
     | '/admin/dashboard/'
+    | '/api/admin/blog/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -393,6 +490,10 @@ export interface RootRouteChildren {
   BlogSlugRoute: typeof BlogSlugRoute
   MSessionIdRoute: typeof MSessionIdRoute
   BlogIndexRoute: typeof BlogIndexRoute
+  ApiAdminBlogRoute: typeof ApiAdminBlogRouteWithChildren
+  ApiAdminContentRoute: typeof ApiAdminContentRoute
+  ApiAdminLoginRoute: typeof ApiAdminLoginRoute
+  ApiAdminStatsRoute: typeof ApiAdminStatsRoute
   ApiSinhalaLearnRoute: typeof ApiSinhalaLearnRoute
   MLocalSessionIdRoute: typeof MLocalSessionIdRoute
 }
@@ -574,6 +675,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiSinhalaLearnRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin/stats': {
+      id: '/api/admin/stats'
+      path: '/api/admin/stats'
+      fullPath: '/api/admin/stats'
+      preLoaderRoute: typeof ApiAdminStatsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/login': {
+      id: '/api/admin/login'
+      path: '/api/admin/login'
+      fullPath: '/api/admin/login'
+      preLoaderRoute: typeof ApiAdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/content': {
+      id: '/api/admin/content'
+      path: '/api/admin/content'
+      fullPath: '/api/admin/content'
+      preLoaderRoute: typeof ApiAdminContentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/blog': {
+      id: '/api/admin/blog'
+      path: '/api/admin/blog'
+      fullPath: '/api/admin/blog'
+      preLoaderRoute: typeof ApiAdminBlogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/dashboard/users': {
       id: '/admin/dashboard/users'
       path: '/users'
@@ -595,6 +724,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDashboardNotificationsRouteImport
       parentRoute: typeof AdminDashboardRoute
     }
+    '/admin/dashboard/license-resets': {
+      id: '/admin/dashboard/license-resets'
+      path: '/license-resets'
+      fullPath: '/admin/dashboard/license-resets'
+      preLoaderRoute: typeof AdminDashboardLicenseResetsRouteImport
+      parentRoute: typeof AdminDashboardRoute
+    }
     '/admin/dashboard/feedback': {
       id: '/admin/dashboard/feedback'
       path: '/feedback'
@@ -602,11 +738,35 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDashboardFeedbackRouteImport
       parentRoute: typeof AdminDashboardRoute
     }
+    '/admin/dashboard/content': {
+      id: '/admin/dashboard/content'
+      path: '/content'
+      fullPath: '/admin/dashboard/content'
+      preLoaderRoute: typeof AdminDashboardContentRouteImport
+      parentRoute: typeof AdminDashboardRoute
+    }
+    '/admin/dashboard/blog': {
+      id: '/admin/dashboard/blog'
+      path: '/blog'
+      fullPath: '/admin/dashboard/blog'
+      preLoaderRoute: typeof AdminDashboardBlogRouteImport
+      parentRoute: typeof AdminDashboardRoute
+    }
+    '/api/admin/blog/$id': {
+      id: '/api/admin/blog/$id'
+      path: '/$id'
+      fullPath: '/api/admin/blog/$id'
+      preLoaderRoute: typeof ApiAdminBlogIdRouteImport
+      parentRoute: typeof ApiAdminBlogRoute
+    }
   }
 }
 
 interface AdminDashboardRouteChildren {
+  AdminDashboardBlogRoute: typeof AdminDashboardBlogRoute
+  AdminDashboardContentRoute: typeof AdminDashboardContentRoute
   AdminDashboardFeedbackRoute: typeof AdminDashboardFeedbackRoute
+  AdminDashboardLicenseResetsRoute: typeof AdminDashboardLicenseResetsRoute
   AdminDashboardNotificationsRoute: typeof AdminDashboardNotificationsRoute
   AdminDashboardUpdatesRoute: typeof AdminDashboardUpdatesRoute
   AdminDashboardUsersRoute: typeof AdminDashboardUsersRoute
@@ -614,7 +774,10 @@ interface AdminDashboardRouteChildren {
 }
 
 const AdminDashboardRouteChildren: AdminDashboardRouteChildren = {
+  AdminDashboardBlogRoute: AdminDashboardBlogRoute,
+  AdminDashboardContentRoute: AdminDashboardContentRoute,
   AdminDashboardFeedbackRoute: AdminDashboardFeedbackRoute,
+  AdminDashboardLicenseResetsRoute: AdminDashboardLicenseResetsRoute,
   AdminDashboardNotificationsRoute: AdminDashboardNotificationsRoute,
   AdminDashboardUpdatesRoute: AdminDashboardUpdatesRoute,
   AdminDashboardUsersRoute: AdminDashboardUsersRoute,
@@ -637,6 +800,18 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface ApiAdminBlogRouteChildren {
+  ApiAdminBlogIdRoute: typeof ApiAdminBlogIdRoute
+}
+
+const ApiAdminBlogRouteChildren: ApiAdminBlogRouteChildren = {
+  ApiAdminBlogIdRoute: ApiAdminBlogIdRoute,
+}
+
+const ApiAdminBlogRouteWithChildren = ApiAdminBlogRoute._addFileChildren(
+  ApiAdminBlogRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SplatRoute: SplatRoute,
@@ -658,6 +833,10 @@ const rootRouteChildren: RootRouteChildren = {
   BlogSlugRoute: BlogSlugRoute,
   MSessionIdRoute: MSessionIdRoute,
   BlogIndexRoute: BlogIndexRoute,
+  ApiAdminBlogRoute: ApiAdminBlogRouteWithChildren,
+  ApiAdminContentRoute: ApiAdminContentRoute,
+  ApiAdminLoginRoute: ApiAdminLoginRoute,
+  ApiAdminStatsRoute: ApiAdminStatsRoute,
   ApiSinhalaLearnRoute: ApiSinhalaLearnRoute,
   MLocalSessionIdRoute: MLocalSessionIdRoute,
 }

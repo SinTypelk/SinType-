@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { BrandLogo } from "@/components/BrandLogo";
 import { NotificationFooterLink } from "@/components/NotificationFooterLink";
+import { WhatsAppContactButton } from "@/components/WhatsAppContactButton";
 
 const linkClass =
   "text-sm text-muted-foreground hover:text-foreground transition-colors";
@@ -18,9 +19,12 @@ export function SiteFooter() {
               </span>
             </Link>
             <p className="mt-3 text-sm text-muted-foreground leading-relaxed max-w-xs">
-              Professional Singlish → Sinhala typing for the web and Windows. Unicode and
-              Legacy FM fonts, offline on desktop.
+              Sinhala typing ecosystem — web converter, Windows desktop, and v2.0 local web server
+              for mobile remote control. Unicode &amp; Legacy FM fonts.
             </p>
+            <div className="mt-4">
+              <WhatsAppContactButton className="w-full sm:w-auto text-left" />
+            </div>
           </div>
 
           <div>

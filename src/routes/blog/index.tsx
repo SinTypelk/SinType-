@@ -1,10 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { BlogPageLayout } from "@/components/blog/BlogPageLayout";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { BLOG_POSTS } from "@/lib/blog-posts";
+import { fetchPublishedBlogPosts } from "@/lib/content-service";
+import { mergeBlogPosts } from "@/lib/blog-merge";
 import { breadcrumbJsonLd, pageHead, SITE_URL } from "@/lib/site-seo";
 
 export const Route = createFileRoute("/blog/")({
+  loader: async () => {
+    const dbPosts = await fetchPublishedBlogPosts().catch(() => []);
+    return mergeBlogPosts(dbPosts);
+  },
   head: () =>
     pageHead({
       title: "Blog | Sinhala Unicode, Legacy Fonts & SEO — SinType.lk",
@@ -20,6 +25,8 @@ export const Route = createFileRoute("/blog/")({
 });
 
 function BlogIndexPage() {
+  const posts = Route.useLoaderData();
+
   return (
     <>
       <JsonLd
@@ -40,7 +47,7 @@ function BlogIndexPage() {
               name: "SinType.lk",
               url: SITE_URL,
             },
-            blogPost: BLOG_POSTS.map((p) => ({
+            blogPost: posts.map((p) => ({
               "@type": "BlogPosting",
               headline: p.title,
               url: `${SITE_URL}/blog/${p.slug}`,
@@ -52,9 +59,17 @@ function BlogIndexPage() {
       />
       <BlogPageLayout>
         <ul className="space-y-6 list-none p-0 m-0">
-          {BLOG_POSTS.map((post) => (
+          {posts.map((post) => (
             <li key={post.slug}>
               <article className="rounded-2xl border border-white/10 p-5 sm:p-6 bg-card/30 hover:border-[var(--neon-cyan)]/30 transition-colors">
+                {post.imageUrl ? (
+                  <img
+                    src={post.imageUrl}
+                    alt=""
+                    className="mb-4 h-40 w-full rounded-xl object-cover"
+                    loading="lazy"
+                  />
+                ) : null}
                 <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-2">
                   {post.publishedAt} · {post.readMinutes} min read
                 </p>

@@ -1,9 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { LegalPageLayout, LegalSection } from "@/components/layout/LegalPageLayout";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { fetchPrivacyContent } from "@/lib/content-service";
 import { breadcrumbJsonLd, pageHead } from "@/lib/site-seo";
 
+const DEFAULT_SUBTITLE =
+  "This policy explains how SinType works, what data we process, where it is stored, and what choices you have. SinType is designed so that everyday typing stays on your device.";
+
 export const Route = createFileRoute("/privacy")({
+  loader: async () => fetchPrivacyContent().catch(() => null),
   head: () =>
     pageHead({
       title: "Privacy Policy · SinType.lk",
@@ -15,6 +20,32 @@ export const Route = createFileRoute("/privacy")({
 });
 
 function PrivacyPage() {
+  const stored = Route.useLoaderData();
+
+  if (stored?.sections?.length) {
+    return (
+      <>
+        <JsonLd
+          data={breadcrumbJsonLd([
+            { name: "Home", path: "/" },
+            { name: "Privacy Policy", path: "/privacy" },
+          ])}
+        />
+        <LegalPageLayout
+          title="Privacy Policy"
+          breadcrumbLabel="Privacy Policy"
+          subtitle={stored.subtitle || DEFAULT_SUBTITLE}
+        >
+          {stored.sections.map((section) => (
+            <LegalSection key={section.title} title={section.title}>
+              <p className="whitespace-pre-wrap">{section.body}</p>
+            </LegalSection>
+          ))}
+        </LegalPageLayout>
+      </>
+    );
+  }
+
   return (
     <>
       <JsonLd
@@ -26,7 +57,7 @@ function PrivacyPage() {
       <LegalPageLayout
         title="Privacy Policy"
         breadcrumbLabel="Privacy Policy"
-        subtitle="This policy explains how SinType works, what data we process, where it is stored, and what choices you have. SinType is designed so that everyday typing stays on your device."
+        subtitle={DEFAULT_SUBTITLE}
       >
       <LegalSection title="1. Who we are">
         <p>
@@ -72,6 +103,28 @@ function PrivacyPage() {
           pair a phone via QR, Latin/Sinhala text can be exchanged through a private session row in
           the <code>mobile_sync_state</code> table so your phone and desktop stay in sync. You
           choose when to use this; the main converter works without it.
+        </p>
+        <p>
+          <strong className="text-foreground">Local Web Server (v2.0).</strong> SinType Desktop can
+          start a lightweight HTTP server on your PC for mobile remote control and LAN file transfer.
+          Your phone connects over the same Wi-Fi network — not through our public website.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="2a. Local Web Server &amp; private network sync">
+        <p>
+          All data synchronization handled by the Local Web Server — including remote keystrokes,
+          touchpad input, and file transfers between your phone and PC — occurs{" "}
+          <strong className="text-foreground">
+            strictly within your private local network (LAN/Wi-Fi)
+          </strong>
+          . No sensitive sync payload is transmitted to SinType.lk or other external servers during
+          normal local-remote use.
+        </p>
+        <p>
+          You control when the server is running. Close it from the desktop app when you do not need
+          mobile remote features. Windows may prompt for local network (firewall) permission so
+          devices on your Wi-Fi can reach the server — this is expected for LAN-only operation.
         </p>
       </LegalSection>
 

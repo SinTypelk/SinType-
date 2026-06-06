@@ -32,11 +32,11 @@ function AdminLoginPage() {
     if (isAuthed) navigate({ to: "/admin/dashboard" });
   }, [isAuthed, navigate]);
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
-    const res = login(email, password);
+    const res = await login(email, password);
     setLoading(false);
     if (!res.ok) setError(res.error ?? "Login failed");
     else navigate({ to: "/admin/dashboard" });

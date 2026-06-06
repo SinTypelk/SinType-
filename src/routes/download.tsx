@@ -27,15 +27,19 @@ import { KEYWORDS_DOWNLOAD } from "@/lib/seo-keywords";
 import { BreadcrumbNav } from "@/components/seo/BreadcrumbNav";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { breadcrumbJsonLd, pageHead } from "@/lib/site-seo";
+import { BetaDisclaimerBanner } from "@/components/v2/BetaDisclaimerBanner";
+import { V2FeaturesGrid } from "@/components/v2/V2FeaturesGrid";
+import { V2ScreenshotGallery } from "@/components/v2/V2ScreenshotGallery";
+import { V2_TAGLINE } from "@/lib/v2-showcase";
 
 const SITE_CURRENT_VERSION = "2.0.0";
 
 export const Route = createFileRoute("/download")({
   head: () =>
     pageHead({
-      title: "Download SinType Desktop | Windows Sinhala Typing App — SinType.lk",
+      title: "Download SinType 2.0 Beta | Windows Sinhala Typing + Mobile Remote — SinType.lk",
       description:
-        "Download SinType for Windows 10/11. Offline Singlish to Sinhala Unicode and FM Abhaya typing system-wide with hotkeys. Free activation key.",
+        "Download SinType 2.0 Beta for Windows 10/11. Local web server, mobile touchpad & keyboard, LAN file sync, QR activation, and system-wide Singlish to Sinhala typing.",
       path: "/download",
       keywords: KEYWORDS_DOWNLOAD,
     }),
@@ -52,20 +56,26 @@ function DownloadPage() {
         ])}
       />
       <BreadcrumbNav items={[{ label: "Download desktop app" }]} />
+      <BetaDisclaimerBanner />
       <AppUpdateBanner currentVersion={SITE_CURRENT_VERSION} />
 
       <div className="mb-10">
-        <p className="text-[11px] uppercase tracking-[0.35em] text-muted-foreground">Desktop</p>
+        <p className="text-[11px] uppercase tracking-[0.35em] text-[var(--neon-cyan)]">
+          SinType Desktop 2.0 Beta
+        </p>
         <h1 className="font-display text-4xl sm:text-5xl font-bold mt-2">
-          Download SinType — Windows Sinhala typing app
+          Download SinType — typing ecosystem for Windows
         </h1>
-        <p className="mt-3 text-muted-foreground max-w-xl">
-          System-wide Singlish to Sinhala Unicode and Legacy FM Abhaya engine for Windows. Type in
-          Photoshop, Word, WhatsApp, and any app — offline, with global hotkeys.
+        <p className="mt-3 text-muted-foreground max-w-2xl leading-relaxed">
+          {V2_TAGLINE} Plus system-wide Singlish to Sinhala Unicode and Legacy FM Abhaya — type in
+          Photoshop, Word, WhatsApp, and any app with global hotkeys.
         </p>
       </div>
 
       <DownloadCard />
+
+      <V2FeaturesGrid className="mt-12" />
+      <V2ScreenshotGallery className="mt-12" />
 
       <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch w-full">
         <LiveStats />
@@ -94,10 +104,12 @@ function DownloadPage() {
 }
 
 const FALLBACK_RELEASE_NOTES = [
-  "First public Windows release",
-  "System-wide Singlish input via global hotkey",
-  "Unicode + Legacy FM font output modes",
-  "30-day activation key via sintype.lk (sign-in required)",
+  "Built-in Local Web Server for mobile remote control",
+  "Wireless touchpad & keyboard — Spacebar to swap modes",
+  "Mobile-to-PC file sync over your private LAN",
+  "Mobile-QR license activation",
+  "Easy mapping editor for custom Singlish rules",
+  "System-wide Unicode + Legacy FM typing (F10 toggle)",
 ];
 
 function DownloadCard() {
@@ -160,7 +172,12 @@ function DownloadCard() {
             </div>
             <h2 className="font-display text-3xl mt-3">SinType Desktop</h2>
             <p className="text-sm text-muted-foreground mt-1">
-              v{releaseVersion} · Stable channel
+              v{releaseVersion} ·{" "}
+              {releaseVersion.startsWith("2.0") ? (
+                <span className="text-amber-400 font-medium">Beta channel</span>
+              ) : (
+                "Stable channel"
+              )}
             </p>
           </div>
         </div>

@@ -5,15 +5,17 @@ import {
   useState,
   type ReactNode,
 } from "react";
-
-const VALID_EMAIL = "udaperuweaththadassi@gamail.com";
-const VALID_PASSWORD = "Aththa@2007";
-const STORAGE_KEY = "sintype_admin_auth_v1";
+import {
+  adminLogin,
+  clearAdminSession,
+  getAdminToken,
+  getStoredAdminEmail,
+} from "@/lib/admin-api";
 
 interface AdminAuthCtx {
   isAuthed: boolean;
   email: string | null;
-  login: (email: string, password: string) => { ok: boolean; error?: string };
+  login: (email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
   logout: () => void;
 }
 
@@ -21,32 +23,36 @@ const Ctx = createContext<AdminAuthCtx | null>(null);
 
 export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const [email, setEmail] = useState<string | null>(null);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setEmail(JSON.parse(raw).email);
-    } catch {
-      // ignore
-    }
+    const storedEmail = getStoredAdminEmail();
+    const token = getAdminToken();
+    setEmail(token ? storedEmail : null);
+    setReady(true);
   }, []);
 
-  const login = (e: string, p: string) => {
-    if (e.trim() !== VALID_EMAIL || p !== VALID_PASSWORD) {
-      return { ok: false, error: "Invalid email or password." };
-    }
-    setEmail(e.trim());
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ email: e.trim() }));
+  const login = async (e: string, p: string) => {
+    const res = await adminLogin(e, p);
+    if (!res.ok) return res;
+    setEmail(res.email);
     return { ok: true };
   };
 
   const logout = () => {
     setEmail(null);
-    localStorage.removeItem(STORAGE_KEY);
+    clearAdminSession();
   };
 
   return (
-    <Ctx.Provider value={{ isAuthed: !!email, email, login, logout }}>
+    <Ctx.Provider
+      value={{
+        isAuthed: ready && !!email && !!getAdminToken(),
+        email: ready ? email : null,
+        login,
+        logout,
+      }}
+    >
       {children}
     </Ctx.Provider>
   );

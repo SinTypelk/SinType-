@@ -1,13 +1,24 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Users, KeyRound, MessageSquareWarning, Activity, Loader2 } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import {
+  Users,
+  KeyRound,
+  MessageSquareWarning,
+  Activity,
+  Loader2,
+  Download,
+  Monitor,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
   fetchDashboardStats,
   fetchAdminFeedback,
   type AdminFeedbackRow,
   type DashboardStats,
 } from "@/lib/admin-service";
+import { adminFetchEnhancedStats } from "@/lib/admin-content-service";
 
 export const Route = createFileRoute("/admin/dashboard/")({
   component: DashboardOverview,
@@ -15,6 +26,9 @@ export const Route = createFileRoute("/admin/dashboard/")({
 
 function DashboardOverview() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [appSessions, setAppSessions] = useState(0);
+  const [latestDownloadUrl, setLatestDownloadUrl] = useState<string | null>(null);
+  const [latestVersion, setLatestVersion] = useState<string | null>(null);
   const [recent, setRecent] = useState<AdminFeedbackRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -23,13 +37,19 @@ function DashboardOverview() {
     let cancelled = false;
     (async () => {
       try {
-        const [s, feedback] = await Promise.all([
+        const [s, feedback, enhanced] = await Promise.all([
           fetchDashboardStats(),
           fetchAdminFeedback(),
+          adminFetchEnhancedStats().catch(() => null),
         ]);
         if (!cancelled) {
           setStats(s);
           setRecent(feedback.slice(0, 5));
+          if (enhanced) {
+            setAppSessions(enhanced.totalAppSessions);
+            setLatestDownloadUrl(enhanced.latestDownloadUrl);
+            setLatestVersion(enhanced.latestVersion);
+          }
           setError(null);
         }
       } catch (e) {
@@ -48,6 +68,7 @@ function DashboardOverview() {
   const cards = [
     { label: "Total Users", value: stats?.totalUsers ?? 0, icon: Users },
     { label: "Active Licenses", value: stats?.activeLicenses ?? 0, icon: KeyRound },
+    { label: "Desktop sessions (24h)", value: appSessions, icon: Monitor },
     { label: "Pending Feedbacks", value: stats?.pendingFeedback ?? 0, icon: MessageSquareWarning },
     {
       label: "License reset requests",
@@ -76,7 +97,34 @@ function DashboardOverview() {
         </p>
       )}
 
-      <div className="grid gap-4 md:grid-cols-3">
+      {latestDownloadUrl && (
+        <Card className="border-border/60 bg-[image:var(--gradient-surface)]">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Download className="h-4 w-4 text-primary" />
+              Latest desktop download
+              {latestVersion ? (
+                <span className="font-mono text-sm text-muted-foreground">v{latestVersion}</span>
+              ) : null}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-wrap items-center gap-3">
+            <a
+              href={latestDownloadUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="truncate text-sm text-primary hover:underline max-w-full"
+            >
+              {latestDownloadUrl}
+            </a>
+            <Button asChild size="sm" variant="outline">
+              <Link to="/admin/dashboard/updates">Manage in App Updates</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {cards.map((s) => (
           <Card
             key={s.label}
