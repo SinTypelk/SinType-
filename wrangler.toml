@@ -1,14 +1,14 @@
-# Cloudflare Workers — static TanStack Start output (prerendered + SPA fallback).
+# Cloudflare Workers — TanStack Start SSR + static assets
 #
-# Workers Builds (recommended):
-#   Build:  npm run build
-#   Deploy: npx wrangler deploy   (default; uses CI credentials — no Pages API token)
-#
-# Do NOT use `wrangler pages deploy` on Workers Builds unless CLOUDFLARE_API_TOKEN
-# includes Account → Cloudflare Pages → Edit.
+# Build:  npm run build
+# Deploy: npx wrangler deploy
 name = "sintype"
-compatibility_date = "2024-01-01"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+main = "./dist/server/server.js"
 
 [assets]
 directory = "./dist/client"
+binding = "ASSETS"
 not_found_handling = "single-page-application"

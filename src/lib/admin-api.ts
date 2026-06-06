@@ -1,3 +1,5 @@
+import { TOKEN_TTL_MS, createAdminToken } from "@/lib/admin-token";
+
 const STORAGE_KEY = "sintype_admin_auth_v2";
 
 type StoredAdminSession = {
@@ -5,6 +7,21 @@ type StoredAdminSession = {
   token: string;
   exp: number;
 };
+
+function getClientFallbackCreds() {
+  const env = import.meta.env as ImportMetaEnv & {
+    VITE_ADMIN_EMAIL?: string;
+    VITE_ADMIN_PASSWORD?: string;
+    VITE_ADMIN_JWT_SECRET?: string;
+    VITE_ADMIN_FALLBACK_LOGIN?: string;
+  };
+  if (env.VITE_ADMIN_FALLBACK_LOGIN !== "true") return null;
+  const email = env.VITE_ADMIN_EMAIL?.trim();
+  const password = env.VITE_ADMIN_PASSWORD;
+  const secret = env.VITE_ADMIN_JWT_SECRET?.trim();
+  if (!email || !password || !secret) return null;
+  return { email, password, secret };
+}
 
 export function getAdminToken(): string | null {
   if (typeof window === "undefined") return null;
@@ -43,20 +60,72 @@ export function getStoredAdminEmail(): string | null {
   }
 }
 
+async function tryClientFallbackLogin(
+  email: string,
+  password: string,
+): Promise<{ ok: true; email: string; token: string; exp: number } | { ok: false; error: string }> {
+  const creds = getClientFallbackCreds();
+  if (!creds) {
+    return {
+      ok: false,
+      error:
+        "Admin API is unavailable. Deploy the server worker or enable VITE_ADMIN_FALLBACK_LOGIN for static hosting.",
+    };
+  }
+  if (email.trim() !== creds.email || password !== creds.password) {
+    return { ok: false, error: "Invalid email or password." };
+  }
+  const token = await createAdminToken(email, creds.secret);
+  return { ok: true, email: creds.email, token, exp: Date.now() + TOKEN_TTL_MS };
+}
+
 export async function adminLogin(
   email: string,
   password: string,
 ): Promise<{ ok: true; email: string } | { ok: false; error: string }> {
-  const res = await fetch("/api/admin/login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-  });
-  const body = (await res.json()) as { token?: string; email?: string; error?: string; exp?: number };
-  if (!res.ok) return { ok: false, error: body.error ?? "Login failed" };
-  if (!body.token || !body.email) return { ok: false, error: "Invalid login response" };
-  saveAdminSession(body.email, body.token, body.exp ?? Date.now() + 24 * 60 * 60 * 1000);
-  return { ok: true, email: body.email };
+  try {
+    const res = await fetch("/api/admin/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const contentType = res.headers.get("content-type") ?? "";
+    if (contentType.includes("application/json")) {
+      const body = (await res.json()) as {
+        token?: string;
+        email?: string;
+        error?: string;
+        exp?: number;
+      };
+      if (res.ok && body.token && body.email) {
+        saveAdminSession(body.email, body.token, body.exp ?? Date.now() + TOKEN_TTL_MS);
+        return { ok: true, email: body.email };
+      }
+      if (!res.ok) {
+        return { ok: false, error: body.error ?? "Login failed" };
+      }
+    }
+
+    const fallback = await tryClientFallbackLogin(email, password);
+    if (fallback.ok) {
+      saveAdminSession(fallback.email, fallback.token, fallback.exp);
+      return { ok: true, email: fallback.email };
+    }
+    return {
+      ok: false,
+      error:
+        fallback.error ??
+        "Admin API returned an invalid response. Check server deployment and environment variables.",
+    };
+  } catch {
+    const fallback = await tryClientFallbackLogin(email, password);
+    if (fallback.ok) {
+      saveAdminSession(fallback.email, fallback.token, fallback.exp);
+      return { ok: true, email: fallback.email };
+    }
+    return { ok: false, error: fallback.error ?? "Network error — could not reach admin login." };
+  }
 }
 
 export async function adminFetch<T>(
@@ -73,6 +142,13 @@ export async function adminFetch<T>(
   }
 
   const res = await fetch(path, { ...init, headers });
+  const contentType = res.headers.get("content-type") ?? "";
+  if (!contentType.includes("application/json")) {
+    throw new Error(
+      "Admin API unavailable (static host?). Enable VITE_ADMIN_FALLBACK_LOGIN or deploy the server worker.",
+    );
+  }
+
   const body = (await res.json()) as T & { error?: string };
   if (res.status === 401) {
     clearAdminSession();
