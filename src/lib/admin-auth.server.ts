@@ -1,9 +1,14 @@
 import { TOKEN_TTL_MS, createAdminToken as signToken, verifyAdminToken as verifyToken } from "./admin-token";
 
+// ✅ Works on both Node.js (local) AND Cloudflare Workers
 function getAdminCredentials() {
-  const email = process.env.ADMIN_EMAIL?.trim();
-  const password = process.env.ADMIN_PASSWORD?.trim();
-  const secret = process.env.ADMIN_JWT_SECRET?.trim();
+  // Cloudflare Workers binds secrets to globalThis in service-worker mode
+  const g = globalThis as Record<string, string | undefined>;
+
+  const email = (process.env?.ADMIN_EMAIL ?? g["ADMIN_EMAIL"])?.trim();
+  const password = (process.env?.ADMIN_PASSWORD ?? g["ADMIN_PASSWORD"])?.trim();
+  const secret = (process.env?.ADMIN_JWT_SECRET ?? g["ADMIN_JWT_SECRET"])?.trim();
+
   return { email, password, secret };
 }
 
