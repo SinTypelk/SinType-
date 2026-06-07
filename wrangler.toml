@@ -4,7 +4,8 @@
 # Deploy: npx wrangler deploy
 name = "sintype"
 compatibility_date = "2024-09-23"
-compatibility_flags = ["nodejs_compat"]
+# Populate Worker secrets/vars into process.env (required for ADMIN_* and SUPABASE_* server reads)
+compatibility_flags = ["nodejs_compat", "nodejs_compat_populate_process_env"]
 
 main = "./dist/server/server.js"
 
