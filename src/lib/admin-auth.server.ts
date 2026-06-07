@@ -1,9 +1,21 @@
 import { TOKEN_TTL_MS, createAdminToken as signToken, verifyAdminToken as verifyToken } from "./admin-token";
 
+// ✅ After — works in Cloudflare Workers AND local dev
+function getCFEnv(): Record<string, string> {
+  try {
+    // Cloudflare Workers: secrets live on globalThis in service-worker format
+    // or via nodejs_compat. Cast safely.
+    return (globalThis as unknown as Record<string, string>);
+  } catch {
+    return {};
+  }
+}
+
 function getAdminCredentials() {
-  const email = process.env.ADMIN_EMAIL?.trim();
-  const password = process.env.ADMIN_PASSWORD?.trim();
-  const secret = process.env.ADMIN_JWT_SECRET?.trim();
+  const cf = getCFEnv();
+  const email = (process.env.ADMIN_EMAIL ?? cf["ADMIN_EMAIL"])?.trim();
+  const password = (process.env.ADMIN_PASSWORD ?? cf["ADMIN_PASSWORD"])?.trim();
+  const secret = (process.env.ADMIN_JWT_SECRET ?? cf["ADMIN_JWT_SECRET"])?.trim();
   return { email, password, secret };
 }
 
