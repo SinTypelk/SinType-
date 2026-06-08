@@ -7,8 +7,9 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { V2_FEATURES } from "@/lib/v2-showcase";
+import { type KeyFeature } from "@/lib/app-content-service";
 
-const ICONS: Record<(typeof V2_FEATURES)[number]["icon"], LucideIcon> = {
+const ICONS: Record<string, LucideIcon> = {
   "mouse-pointer-click": MousePointerClick,
   "folder-sync": FolderSync,
   "qr-code": QrCode,
@@ -19,13 +20,17 @@ type V2FeaturesGridProps = {
   title?: string;
   subtitle?: string;
   className?: string;
+  features?: KeyFeature[];
 };
 
 export function V2FeaturesGrid({
   title = "What's new in SinType 2.0 Beta",
   subtitle = "A local web server on your PC powers mobile remote control, file sync, and faster activation — all on your private network.",
   className = "",
+  features,
 }: V2FeaturesGridProps) {
+  const displayFeatures = features && features.length > 0 ? features : V2_FEATURES;
+
   return (
     <section className={className} aria-labelledby="v2-features-heading">
       <div className="mb-8 text-center sm:text-left">
@@ -39,11 +44,12 @@ export function V2FeaturesGrid({
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        {V2_FEATURES.map((feature, i) => {
-          const Icon = ICONS[feature.icon];
+        {displayFeatures.map((feature, i) => {
+          const featureIcon = "icon" in feature ? feature.icon : "mouse-pointer-click";
+          const Icon = ICONS[featureIcon] || MousePointerClick;
           return (
             <motion.article
-              key={feature.id}
+              key={("id" in feature ? feature.id : feature.id)}
               initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-40px" }}

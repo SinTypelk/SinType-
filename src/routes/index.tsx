@@ -13,6 +13,9 @@ import {
   canonicalLink,
   openGraphMeta,
 } from "@/lib/site-seo";
+import { useEffect, useState } from "react";
+import { fetchFeatures, type KeyFeature } from "@/lib/app-content-service";
+import { V2_FEATURES } from "@/lib/v2-showcase";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -32,6 +35,23 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+  const [homeFeatures, setHomeFeatures] = useState<KeyFeature[]>([]);
+
+  useEffect(() => {
+    const loadFeatures = async () => {
+      try {
+        const features = await fetchFeatures();
+        const filtered = features
+          .filter((f) => f.page === "home" && f.is_visible)
+          .sort((a, b) => a.display_order - b.display_order);
+        setHomeFeatures(filtered);
+      } catch (err) {
+        console.error("Failed to load home features:", err);
+      }
+    };
+    loadFeatures();
+  }, []);
+
   return (
     <>
       <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }])} />
@@ -40,6 +60,7 @@ function Index() {
         <V2FeaturesGrid
           title="SinType 2.0 Beta — mobile meets desktop"
           subtitle="The new local web server turns your phone into a wireless remote for your PC. Typing, touchpad control, and file transfer — without leaving your home network."
+          features={homeFeatures.length > 0 ? homeFeatures : undefined}
         />
       </div>
       <div className="max-w-7xl mx-auto px-4 pb-2">

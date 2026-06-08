@@ -16,6 +16,8 @@ import {
   HardDrive,
   Wifi,
   Lock,
+  Loader2,
+  Smartphone,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { fetchLiveUsageStats, type LiveUsageStats } from "@/lib/usage-stats";
@@ -35,8 +37,34 @@ import { BetaDisclaimerBanner } from "@/components/v2/BetaDisclaimerBanner";
 import { V2FeaturesGrid } from "@/components/v2/V2FeaturesGrid";
 import { V2ScreenshotGallery } from "@/components/v2/V2ScreenshotGallery";
 import { V2_TAGLINE } from "@/lib/v2-showcase";
+import {
+  fetchActiveBanners,
+  fetchAppVersions,
+  fetchDownloadPageConfig,
+  fetchFeatures,
+  type SiteBanner,
+  type AppVersion,
+  type KeyFeature,
+  type DownloadPageConfig,
+} from "@/lib/app-content-service";
 
 const SITE_CURRENT_VERSION = "2.0.0";
+
+function BannerNotice({ banner }: { banner: SiteBanner }) {
+  const colorClasses: Record<SiteBanner["color_scheme"], string> = {
+    warning: "border-orange-500/50 bg-orange-500/10 text-orange-400",
+    info: "border-blue-500/50 bg-blue-500/10 text-blue-400",
+    success: "border-green-500/50 bg-green-500/10 text-green-400",
+    danger: "border-red-500/50 bg-red-500/10 text-red-400",
+  };
+
+  return (
+    <div className={`mb-6 rounded-lg border p-4 ${colorClasses[banner.color_scheme]}`}>
+      <p className="font-semibold">{banner.title}</p>
+      {banner.message && <p className="text-sm mt-1 opacity-90">{banner.message}</p>}
+    </div>
+  );
+}
 
 export const Route = createFileRoute("/download")({
   head: () =>
@@ -51,6 +79,32 @@ export const Route = createFileRoute("/download")({
 });
 
 function DownloadPage() {
+  const [banners, setBanners] = useState<SiteBanner[]>([]);
+  const [config, setConfig] = useState<DownloadPageConfig[]>([]);
+  const [loadingBanners, setLoadingBanners] = useState(true);
+
+  useEffect(() => {
+    const loadContent = async () => {
+      try {
+        setLoadingBanners(true);
+        const [bannersData, configData] = await Promise.all([
+          fetchActiveBanners("download"),
+          fetchDownloadPageConfig(),
+        ]);
+        setBanners(bannersData);
+        setConfig(configData);
+      } catch (err) {
+        console.error("Failed to load download page content:", err);
+      } finally {
+        setLoadingBanners(false);
+      }
+    };
+    loadContent();
+  }, []);
+
+  const heroTitle = config.find((c) => c.field_key === "hero_title")?.field_value || "Download SinType — typing ecosystem for Windows";
+  const heroSubtitle = config.find((c) => c.field_key === "hero_subtitle")?.field_value || `${V2_TAGLINE} Plus system-wide Singlish to Sinhala Unicode and Legacy FM Abhaya — type in Photoshop, Word, WhatsApp, and any app with global hotkeys.`;
+
   return (
     <section className="max-w-6xl mx-auto px-6 pt-16 pb-24">
       <JsonLd
@@ -60,6 +114,11 @@ function DownloadPage() {
         ])}
       />
       <BreadcrumbNav items={[{ label: "Download desktop app" }]} />
+
+      {banners.map((banner) => (
+        <BannerNotice key={banner.id} banner={banner} />
+      ))}
+
       <BetaDisclaimerBanner />
       <AppUpdateBanner currentVersion={SITE_CURRENT_VERSION} />
 
@@ -68,17 +127,16 @@ function DownloadPage() {
           SinType Desktop 2.0 Beta
         </p>
         <h1 className="font-display text-4xl sm:text-5xl font-bold mt-2">
-          Download SinType — typing ecosystem for Windows
+          {heroTitle}
         </h1>
         <p className="mt-3 text-muted-foreground max-w-2xl leading-relaxed">
-          {V2_TAGLINE} Plus system-wide Singlish to Sinhala Unicode and Legacy FM Abhaya — type in
-          Photoshop, Word, WhatsApp, and any app with global hotkeys.
+          {heroSubtitle}
         </p>
       </div>
 
       <DownloadCard />
 
-      <DownloadInfoSection />
+      <DownloadInfoSection config={config} />
     </section>
   );
 }
@@ -509,7 +567,7 @@ function Feature({
 
 /* ========== NEW DOWNLOAD INFO SECTION ========== */
 
-function DownloadInfoSection() {
+function DownloadInfoSection({ config }: { config: DownloadPageConfig[] }) {
   return (
     <div className="mt-16 space-y-12">
       {/* What is SinType */}
@@ -539,32 +597,32 @@ function DownloadInfoSection() {
       >
         <h2 className="font-display text-2xl sm:text-3xl mb-6">Key Features</h2>
         <div className="grid sm:grid-cols-2 gap-4">
-          <FeatureCard
+          <Feature
             title="Type Sinhala Anywhere"
             description="Works in Word, Photoshop, WhatsApp, Discord, browsers—any app on your PC. Just press F10 to turn Sinhala typing on or off."
             icon={Globe}
           />
-          <FeatureCard
+          <Feature
             title="Two Typing Modes"
             description="Switch between two styles: Modern Unicode Sinhala or Legacy FM Abhaya fonts for design work."
             icon={Zap}
           />
-          <FeatureCard
+          <Feature
             title="Control Right From Your Phone"
             description="Use your mobile phone as a remote touchpad and keyboard. Connect via a simple QR code scan on your home network."
             icon={Smartphone}
           />
-          <FeatureCard
+          <Feature
             title="Send Files From Mobile to PC"
             description="Drag and drop files from your phone directly to your computer over your private home network—no cloud needed."
             icon={HardDrive}
           />
-          <FeatureCard
+          <Feature
             title="Make Your Own Typing Rules"
             description="Customize how Singlish shortcuts map to Sinhala letters. Save your personal typing dictionary."
             icon={Sparkles}
           />
-          <FeatureCard
+          <Feature
             title="Everything Stays Private"
             description="Your typing stays on your computer. Nothing is sent to the internet or stored in the cloud."
             icon={Lock}
