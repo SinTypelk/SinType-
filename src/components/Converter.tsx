@@ -134,7 +134,7 @@ export function Converter() {
   };
 
   return (
-    <section className="max-w-7xl mx-auto px-4 pt-4 pb-8 space-y-6">
+    <section id="converter" className="max-w-7xl mx-auto px-4 pt-4 pb-8 space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-4">
           <div>

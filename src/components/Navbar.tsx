@@ -30,6 +30,10 @@ export function Navbar() {
           <Link to="/about" className="hover:text-foreground transition">About</Link>
         </nav>
 
+        <a href="/#converter" className="btn-converter-nav inline-flex items-center justify-center text-xs sm:text-sm">
+          ⚡ Try Converter
+        </a>
+
         <div className="flex items-center gap-2 sm:gap-3">
           {/* Mode toggle */}
           <label className="hidden sm:flex items-center gap-2 text-xs sm:text-sm select-none">
