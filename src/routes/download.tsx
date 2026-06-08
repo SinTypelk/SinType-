@@ -893,5 +893,4 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
   );
 }
 
-// Icon for smartphone (using existing icons as fallback)
-const Smartphone = Monitor; // Using Monitor as fallback icon
+
