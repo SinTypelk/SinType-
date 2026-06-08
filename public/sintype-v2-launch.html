@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SinType 2.0 Launch - SinType Blog</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            900: '#1e3a8a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+                        mono: ['Fira Code', 'Consolas', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* CSS Reset & Basics */
+        body {
+            background-color: #f8fafc;
+            color: #0f172a;
+            scroll-behavior: smooth;
+        }
+
+        /* Reading Progress Bar */
+        #progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background-color: #2563eb;
+            width: 0%;
+            z-index: 50;
+            transition: width 0.1s ease;
+        }
+
+        /* Chart Container Requirements */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 250px;
+            max-height: 300px;
+        }
+
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 300px;
+            }
+        }
+
+        /* Tab Active State */
+        .tab-active {
+            background-color: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+        
+        .tab-inactive {
+            background-color: white;
+            color: #475569;
+            border-color: #cbd5e1;
+        }
+
+        .tab-inactive:hover {
+            background-color: #f1f5f9;
+        }
+        
+        /* Interactive Highlight */
+        .tech-highlight {
+            transition: all 0.2s ease;
+            cursor: help;
+            border-bottom: 2px dashed #3b82f6;
+        }
+        .tech-highlight:hover {
+            background-color: #dbeafe;
+        }
+    </style>
+
+</head>
+<body class="antialiased font-sans">
+
+    <!-- Reading Progress -->
+    <div id="progress-bar"></div>
+
+    <!-- Navigation -->
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <a href="/" class="text-xl font-bold tracking-tight text-brand-900">💻 SinType<span class="text-brand-500">Blog</span></a>
+            <a href="/blog" class="text-sm font-medium text-slate-500 hover:text-brand-600">← Back to Blog</a>
+        </div>
+    </nav>
+
+    <!-- Main Content Layout -->
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:grid lg:grid-cols-12 lg:gap-12">
+        
+        <!-- Left Column: The Blog Post Narrative -->
+        <article class="lg:col-span-7 space-y-8">
+            
+            <!-- Header Section -->
+            <header class="space-y-4">
+                <div class="flex items-center space-x-2 text-sm font-semibold text-brand-600 uppercase tracking-wider">
+                    <span>🚀 Launch Spotlight</span>
+                    <span>•</span>
+                    <span>5 Min Read</span>
+                </div>
+                <h1 class="text-4xl sm:text-5xl font-extrabold leading-tight text-slate-900 tracking-tight">
+                    Goodbye 'Singlish' Struggles: How an 18-Year-Old Sri Lankan Dev Revolutionized Sinhala Typing
+                </h1>
+                <p class="text-lg text-slate-500 font-medium">
+                    SinType 2.0 brings Mobile Sync, offline drops, and realtime Unicode injection to Windows. And yes, it was built by an A/L student.
+                </p>
+            </header>
+
+            <!-- Section 1: The Hook -->
+            <section class="prose prose-slate prose-lg max-w-none text-slate-700 leading-relaxed">
+                <p>
+                    Remember the days of keeping a browser tab constantly open just to copy-paste translated Sinhala text? Or wrestling with complex keyboard layouts, only to find out the font broke as soon as you pasted it into Photoshop? <em>Epa wenawa, neda?</em> (It gets incredibly frustrating, right?).
+                </p>
+                <p>
+                    For years, typing Sinhala natively on Windows across all applications has been a friction-filled experience, especially for graphic designers and social media managers. Enter <strong><span class="text-brand-600 font-bold">SinType 2.0</span></strong>. It's a completely native Windows desktop application that lets you type seamlessly in Singlish, translating it to flawless Sinhala in real-time. But the most mind-blowing part? <strong>The architect behind this robust system is an 18-year-old Sri Lankan A/L student.</strong>
+                </p>
+            </section>
+
+            <!-- Section 2: Under the Hood (Tech details) -->
+            <section class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 mt-8">
+                <h2 class="text-2xl font-bold text-slate-900 mb-4">⚙️ Under the Hood: Built for Speed</h2>
+                <p class="text-slate-700 leading-relaxed mb-4">
+                    As developers, we know building native Windows UI isn't easy. SinType bypasses traditional heavy frameworks, utilizing <span class="tech-highlight" data-tooltip="A Python UI library for modern, DPI-aware desktop interfaces.">customtkinter</span> to deliver a sleek, floating toolbar that respects Windows DPI settings. 
+                </p>
+                <p class="text-slate-700 leading-relaxed">
+                    The core magic happens in the <code>ConverterEngine</code>. It doesn't rely on slow clipboard polling. Instead, it uses low-level keyboard hooks via <span class="tech-highlight" data-tooltip="Captures physical keystrokes globally across Windows.">pynput</span>. When you type "amma", the engine captures the buffer, runs it through a highly optimized <code>SinglishMapper</code> trie data structure, and utilizes a custom text-injection queue to rapidly backspace and inject the Unicode text directly into your active window—be it Discord, WhatsApp Desktop, or Word.
+                </p>
+                
+                <!-- Dynamic Tech Tooltip Display -->
+                <div id="tooltip-display" class="mt-4 p-4 bg-brand-50 rounded-lg border border-brand-100 text-sm text-brand-900 font-mono hidden">
+                    <!-- JS injects tooltip text here -->
+                </div>
+            </section>
+
+            <!-- Section 3: The Developer Story -->
+            <section class="prose prose-slate prose-lg max-w-none text-slate-700 leading-relaxed mt-8">
+                <h3 class="text-2xl font-bold text-slate-900">🎓 The 18-Year-Old Architect</h3>
+                <p>
+                    Let's take a moment to appreciate the engineering here. Balancing Advanced Level (A/L) studies is grueling enough in Sri Lanka. Yet, this developer built a multi-threaded Python application packaged with PyInstaller, implemented a local offline licensing system encrypted with Fernet keys, and integrated an autostart registry manager. 
+                </p>
+                <p>
+                    They even wrote a custom uninstaller script generator that registers cleanly with Windows "Add/Remove Programs". This isn't just a weekend script; it's a commercial-grade application architecture. <em>Patta wedak!</em> (Awesome work!).
+                </p>
+            </section>
+
+        </article>
+
+        <!-- Right Column: Interactive Elements & Visuals -->
+        <aside class="lg:col-span-5 space-y-8 mt-12 lg:mt-0">
+            
+            <!-- Interactive Feature Explorer -->
+            <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden sticky top-24">
+                <div class="bg-slate-900 p-5 text-white">
+                    <h3 class="text-xl font-bold flex items-center gap-2">✨ v2.0 Feature Explorer</h3>
+                    <p class="text-sm text-slate-400 mt-1">Click the tabs to explore the interactive architecture.</p>
+                </div>
+                
+                <!-- Tabs -->
+                <div class="flex border-b border-slate-200 bg-slate-50">
+                    <button class="flex-1 py-3 px-4 text-sm font-semibold text-center tab-button tab-active" data-tab="1">🌐 Unicode Pipeline</button>
+                    <button class="flex-1 py-3 px-4 text-sm font-semibold text-center tab-button tab-inactive" data-tab="2">📱 Mobile Sync</button>
+                    <button class="flex-1 py-3 px-4 text-sm font-semibold text-center tab-button tab-inactive" data-tab="3">🔐 Licensing</button>
+                </div>
+                
+                <!-- Tab Contents -->
+                <div class="p-6 space-y-4">
+                    <!-- Tab 1 -->
+                    <div class="tab-content" id="tab-1">
+                        <h4 class="font-bold text-slate-900 text-sm mb-3">Unicode Sinhala Injection</h4>
+                        <ul class="space-y-2 text-sm text-slate-600">
+                            <li class="flex gap-2"><span class="text-brand-600">▪</span> <span><strong>Input:</strong> Singlish "amma"</span></li>
+                            <li class="flex gap-2"><span class="text-brand-600">▪</span> <span><strong>Processing:</strong> Custom mapper trie</span></li>
+                            <li class="flex gap-2"><span class="text-brand-600">▪</span> <span><strong>Output:</strong> Unicode "අම්ම"</span></li>
+                            <li class="flex gap-2"><span class="text-brand-600">▪</span> <span><strong>Latency:</strong> &lt;50ms per character</span></li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Tab 2 (hidden) -->
+                    <div class="tab-content hidden" id="tab-2">
+                        <h4 class="font-bold text-slate-900 text-sm mb-3">Local Network Sync</h4>
+                        <ul class="space-y-2 text-sm text-slate-600">
+                            <li class="flex gap-2"><span class="text-brand-600">▪</span> <span><strong>Connection:</strong> QR-based pairing</span></li>
+                            <li class="flex gap-2"><span class="text-brand-600">▪</span> <span><strong>Transport:</strong> WebSocket over LAN</span></li>
+                            <li class="flex gap-2"><span class="text-brand-600">▪</span> <span><strong>Security:</strong> End-to-end encrypted</span></li>
+                            <li class="flex gap-2"><span class="text-brand-600">▪</span> <span><strong>Data:</strong> Never leaves your network</span></li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Tab 3 (hidden) -->
+                    <div class="tab-content hidden" id="tab-3">
+                        <h4 class="font-bold text-slate-900 text-sm mb-3">Offline-First Licensing</h4>
+                        <ul class="space-y-2 text-sm text-slate-600">
+                            <li class="flex gap-2"><span class="text-brand-600">▪</span> <span><strong>Model:</strong> Hardware-locked keys</span></li>
+                            <li class="flex gap-2"><span class="text-brand-600">▪</span> <span><strong>Activation:</strong> One-time online</span></li>
+                            <li class="flex gap-2"><span class="text-brand-600">▪</span> <span><strong>Encryption:</strong> Fernet (symmetric)</span></li>
+                            <li class="flex gap-2"><span class="text-brand-600">▪</span> <span><strong>Offline:</strong> Works without internet</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Compatibility Chart -->
+            <div class="bg-white rounded-2xl shadow-lg border border-slate-200 p-6">
+                <h3 class="font-bold text-slate-900 mb-1">📊 App Compatibility Matrix</h3>
+                <p class="text-xs text-slate-500 mb-4">% of injections across different apps</p>
+                <div class="chart-container">
+                    <canvas id="compatibilityChart"></canvas>
+                </div>
+            </div>
+
+            <!-- CTA Section -->
+            <div class="bg-gradient-to-br from-brand-50 to-brand-100 rounded-2xl border border-brand-200 p-6 text-center">
+                <h3 class="text-lg font-bold text-brand-900 mb-2">Ready to Type Sinhala Natively?</h3>
+                <p class="text-sm text-brand-700 mb-4">
+                    Download SinType 2.0 and experience frictionless Sinhala typing across all your Windows apps.
+                </p>
+                <button class="w-full bg-brand-600 text-white py-3 rounded-lg font-semibold hover:bg-brand-700 transition">
+                    🚀 Download Now
+                </button>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-300 py-8 mt-16">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-sm">© 2024 SinType. All rights reserved. Built with ❤️ in Sri Lanka.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Reading Progress Bar
+        window.addEventListener('scroll', () => {
+            const scrolled = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+            document.getElementById('progress-bar').style.width = scrolled + '%';
+        });
+
+        // Tab Switching
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const tabId = button.getAttribute('data-tab');
+                
+                // Hide all tabs
+                document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+                
+                // Show selected tab
+                document.getElementById('tab-' + tabId).classList.remove('hidden');
+                
+                // Update button styles
+                document.querySelectorAll('.tab-button').forEach(btn => {
+                    btn.classList.remove('tab-active');
+                    btn.classList.add('tab-inactive');
+                });
+                button.classList.remove('tab-inactive');
+                button.classList.add('tab-active');
+            });
+        });
+
+        // Tooltip display for tech-highlight hovers
+        document.querySelectorAll('.tech-highlight').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                const tooltip = el.getAttribute('data-tooltip');
+                const display = document.getElementById('tooltip-display');
+                if (tooltip) {
+                    display.textContent = tooltip;
+                    display.classList.remove('hidden');
+                }
+            });
+            el.addEventListener('mouseleave', () => {
+                document.getElementById('tooltip-display').classList.add('hidden');
+            });
+        });
+
+        // Compatibility Chart (Doughnut)
+        const ctx = document.getElementById('compatibilityChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: [
+                    'MS Office',
+                    'Adobe Apps',
+                    'Browsers',
+                    'Chat Apps',
+                    'Other'
+                ],
+                datasets: [{
+                    data: [28, 24, 22, 18, 8],
+                    backgroundColor: [
+                        '#3b82f6',
+                        '#22c55e',
+                        '#1e40af',
+                        '#f59e0b',
+                        '#6366f1'
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: {
+                                family: "'Inter', sans-serif",
+                                size: 11
+                            },
+                            padding: 15,
+                            usePointStyle: true
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#0f172a',
+                        titleFont: { family: "'Inter', sans-serif", size: 13 },
+                        bodyFont: { family: "'Inter', sans-serif", size: 12 },
+                        padding: 10,
+                        cornerRadius: 8,
+                        callbacks: {
+                            label: function(context) {
+                                return ' ' + context.label + ': ' + context.raw + '% of injections';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Admin Panel - SinType</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            900: '#1e3a8a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+                        mono: ['Fira Code', 'Consolas', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: #f1f5f9;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+
+        .input-field {
+            background-color: rgba(30, 41, 59, 0.5);
+            border-color: rgba(148, 163, 184, 0.2);
+            color: #f1f5f9;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            background-color: rgba(30, 41, 59, 0.7);
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .input-field::placeholder {
+            color: #94a3b8;
+        }
+
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-secondary {
+            background-color: rgba(100, 116, 139, 0.3);
+            color: #cbd5e1;
+            border-color: rgba(148, 163, 184, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(100, 116, 139, 0.5);
+            border-color: #64748b;
+        }
+
+        .preview-card {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(124, 58, 202, 0.1) 100%);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 12px;
+        }
+
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+        }
+
+        .success-toast {
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        code {
+            background-color: rgba(30, 41, 59, 0.8);
+            color: #86efac;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85em;
+        }
+
+        .textarea-field {
+            background-color: rgba(30, 41, 59, 0.5);
+            border-color: rgba(148, 163, 184, 0.2);
+            color: #f1f5f9;
+            font-family: 'Fira Code', monospace;
+            resize: vertical;
+        }
+
+        .textarea-field:focus {
+            background-color: rgba(30, 41, 59, 0.7);
+            border-color: #3b82f6;
+        }
+
+        .badge {
+            display: inline-block;
+            background-color: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .sitemap-output {
+            background-color: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+        }
+
+        .sitemap-code {
+            background-color: rgba(15, 23, 42, 0.9);
+            color: #86efac;
+            padding: 12px;
+            border-radius: 6px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.8em;
+            overflow-x: auto;
+            line-height: 1.5;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .sitemap-note {
+            background-color: rgba(124, 58, 202, 0.1);
+            border-left: 3px solid #a78bfa;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            color: #cbd5e1;
+            margin-top: 12px;
+            line-height: 1.6;
+        }
+</head>
+<body>
+    <!-- Password Protection Modal -->
+    <div id="login-modal" class="fixed inset-0 modal-backdrop flex items-center justify-center z-50">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-8 w-full max-w-md shadow-2xl">
+            <div class="mb-6 text-center">
+                <h1 class="text-3xl font-bold text-white mb-2">🔐 Admin Panel</h1>
+                <p class="text-slate-400">Secured Blog Management</p>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-300 mb-2">Admin Password</label>
+                    <input type="password" id="password-input" class="w-full px-4 py-2 rounded-lg input-field border" placeholder="Enter password">
+                </div>
+                <button onclick="checkPassword()" class="w-full py-2 px-4 rounded-lg btn-primary">
+                    Unlock Admin Panel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Admin Panel (hidden initially) -->
+    <div id="admin-panel" class="hidden min-h-screen">
+        <!-- Header -->
+        <header class="bg-slate-900 border-b border-slate-700 sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
+                <h1 class="text-3xl font-bold text-white">📝 Blog Admin Panel</h1>
+                <button onclick="logout()" class="px-6 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold transition">
+                    Logout
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-6 py-8">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <!-- Form Column (Left) -->
+                <div class="lg:col-span-2">
+                    <form id="blog-form" class="space-y-6">
+                        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-8 shadow-lg">
+                            <h2 class="text-2xl font-bold text-white mb-6">Create New Blog Post</h2>
+                            
+                            <!-- Title -->
+                            <div class="mb-6">
+                                <label class="block text-sm font-semibold text-slate-300 mb-2">Blog Title</label>
+                                <input type="text" id="title" class="w-full px-4 py-3 rounded-lg input-field border focus:outline-none" placeholder="e.g., SinType 2.0 Launch" required>
+                            </div>
+
+                            <!-- Date -->
+                            <div class="grid grid-cols-2 gap-4 mb-6">
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-300 mb-2">Publish Date</label>
+                                    <input type="date" id="date" class="w-full px-4 py-3 rounded-lg input-field border focus:outline-none" required>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-300 mb-2">Read Time (e.g., "5 Min Read")</label>
+                                    <input type="text" id="read-time" class="w-full px-4 py-3 rounded-lg input-field border focus:outline-none" placeholder="5 Min Read" required>
+                                </div>
+                            </div>
+
+                            <!-- Tags -->
+                            <div class="mb-6">
+                                <label class="block text-sm font-semibold text-slate-300 mb-2">Tags (comma-separated)</label>
+                                <input type="text" id="tags" class="w-full px-4 py-3 rounded-lg input-field border focus:outline-none" placeholder="launch, sinhala, typing, unicode" required>
+                            </div>
+
+                            <!-- Excerpt -->
+                            <div class="mb-6">
+                                <label class="block text-sm font-semibold text-slate-300 mb-2">Short Excerpt/Description</label>
+                                <textarea id="excerpt" class="w-full px-4 py-3 rounded-lg textarea-field border focus:outline-none" rows="2" placeholder="Brief summary for blog listing..." required></textarea>
+                            </div>
+
+                            <!-- HTML Content -->
+                            <div class="mb-6">
+                                <label class="block text-sm font-semibold text-slate-300 mb-2">Blog Content (HTML)</label>
+                                <p class="text-xs text-slate-400 mb-2">Paste your HTML blog content here. It will be wrapped in the blog post template.</p>
+                                <textarea id="content" class="w-full px-4 py-3 rounded-lg textarea-field border focus:outline-none" rows="10" placeholder="<h2>Your Heading</h2><p>Your paragraph...</p>" required></textarea>
+                            </div>
+
+                            <!-- Featured Checkbox -->
+                            <div class="mb-8 flex items-center">
+                                <input type="checkbox" id="featured" class="w-5 h-5 rounded cursor-pointer">
+                                <label for="featured" class="ml-3 text-slate-300 font-medium cursor-pointer">⭐ Feature this post on homepage</label>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="flex gap-3 pt-6 border-t border-slate-700">
+                                <button type="button" onclick="previewBlogCard()" class="flex-1 py-3 px-4 rounded-lg btn-secondary border">
+                                    👁️ Preview Card
+                                </button>
+                                <button type="button" onclick="generateSitemapEntry()" class="flex-1 py-3 px-4 rounded-lg btn-secondary border">
+                                    🗺️ Generate Sitemap
+                                </button>
+                                <button type="button" onclick="generateHTML()" class="flex-1 py-3 px-4 rounded-lg btn-primary">
+                                    📄 Generate HTML
+                                </button>
+                                <button type="reset" class="flex-1 py-3 px-4 rounded-lg btn-secondary border">
+                                    🔄 Clear Form
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Preview Column (Right) -->
+                <aside class="lg:col-span-1">
+                    <!-- Card Preview -->
+                    <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-lg sticky top-24 space-y-4">
+                        <h3 class="text-lg font-bold text-white">🎨 Preview</h3>
+                        <div id="card-preview" class="preview-card rounded-lg p-4">
+                            <div class="h-48 bg-slate-700 rounded-lg mb-4 flex items-center justify-center text-slate-500">
+                                <span class="text-sm">Card preview will appear here</span>
+                            </div>
+                            <p class="text-sm text-slate-300 font-semibold">Blog Title Preview</p>
+                            <p class="text-xs text-slate-400 mt-1">Excerpt preview...</p>
+                        </div>
+
+                        <!-- Generated HTML Display -->
+                        <div id="html-output" class="hidden bg-slate-700 rounded-lg p-4 border border-slate-600">
+                            <h4 class="font-bold text-white mb-3 text-sm">📋 Generated HTML</h4>
+                            <div id="html-code" class="bg-slate-900 p-3 rounded text-xs text-slate-300 font-mono max-h-96 overflow-auto border border-slate-600"></div>
+                            <button onclick="copyHTML()" class="w-full mt-3 py-2 px-3 bg-green-600 hover:bg-green-700 text-white rounded font-semibold text-sm transition">
+                                ✅ Copy to Clipboard
+                            </button>
+                        </div>
+
+                        <!-- Sitemap Entry Display -->
+                        <div id="sitemap-output" class="hidden">
+                            <h4 class="font-bold text-white mb-3 text-sm">🗺️ Sitemap Entry</h4>
+                            <div class="sitemap-output">
+                                <pre id="sitemap-code" class="sitemap-code"></pre>
+                                <button onclick="copySitemapXML()" class="w-full mt-3 py-2 px-3 bg-purple-600 hover:bg-purple-700 text-white rounded font-semibold text-sm transition">
+                                    📋 Copy XML
+                                </button>
+                            </div>
+                            <div class="sitemap-note">
+                                <strong>📌 Next Steps:</strong><br>
+                                1. Add this XML to your <code>sitemap.xml</code><br>
+                                2. Go to <code>Google Search Console</code><br>
+                                3. Use <code>URL Inspection</code> tool<br>
+                                4. Paste your blog URL & request indexing
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </main>
+
+        <!-- Generated HTML Modal -->
+        <div id="html-modal" class="hidden fixed inset-0 modal-backdrop flex items-center justify-center z-50">
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-8 w-full max-w-2xl max-h-96 overflow-auto shadow-2xl">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-2xl font-bold text-white">Generated Blog Post HTML</h2>
+                    <button onclick="closeHTMLModal()" class="text-slate-400 hover:text-white text-2xl">&times;</button>
+                </div>
+                <div id="modal-html-content" class="bg-slate-900 p-4 rounded-lg text-xs text-slate-300 font-mono overflow-auto mb-4 max-h-64 border border-slate-600"></div>
+                <div class="flex gap-3">
+                    <button onclick="downloadHTML()" class="flex-1 py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition">
+                        💾 Download HTML
+                    </button>
+                    <button onclick="copyFromModal()" class="flex-1 py-2 px-4 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition">
+                        ✅ Copy to Clipboard
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="hidden fixed bottom-6 right-6 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg success-toast">
+            ✅ Copied to clipboard!
+        </div>
+    </div>
+
+    <script>
+        const ADMIN_PASSWORD = 'sintype2024'; // Change this to your preferred password
+
+        // Check password on load
+        document.getElementById('password-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') checkPassword();
+        });
+
+        function checkPassword() {
+            const password = document.getElementById('password-input').value;
+            if (password === ADMIN_PASSWORD) {
+                document.getElementById('login-modal').classList.add('hidden');
+                document.getElementById('admin-panel').classList.remove('hidden');
+                sessionStorage.setItem('adminAuthenticated', 'true');
+                // Set today's date by default
+                document.getElementById('date').valueAsDate = new Date();
+            } else {
+                alert('❌ Incorrect password');
+                document.getElementById('password-input').value = '';
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem('adminAuthenticated');
+            document.getElementById('admin-panel').classList.add('hidden');
+            document.getElementById('login-modal').classList.remove('hidden');
+            document.getElementById('password-input').value = '';
+            document.getElementById('blog-form').reset();
+        }
+
+        // Check if already authenticated on page load
+        window.addEventListener('load', () => {
+            if (sessionStorage.getItem('adminAuthenticated') === 'true') {
+                document.getElementById('login-modal').classList.add('hidden');
+                document.getElementById('admin-panel').classList.remove('hidden');
+                document.getElementById('date').valueAsDate = new Date();
+            }
+        });
+
+        function previewBlogCard() {
+            const title = document.getElementById('title').value || 'Blog Title';
+            const excerpt = document.getElementById('excerpt').value || 'Blog excerpt preview...';
+            const date = document.getElementById('date').value || new Date().toISOString().split('T')[0];
+            const readTime = document.getElementById('read-time').value || '5 Min Read';
+            const tags = document.getElementById('tags').value ? document.getElementById('tags').value.split(',').map(t => t.trim()) : ['blog'];
+
+            const formattedDate = new Date(date).toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+
+            const preview = `
+                <div class="bg-slate-700 rounded-lg overflow-hidden hover:shadow-lg transition h-full">
+                    <div class="h-40 bg-gradient-to-br from-blue-500 to-purple-600"></div>
+                    <div class="p-4">
+                        <div class="flex gap-2 mb-2 flex-wrap">
+                            ${tags.map(tag => `<span class="badge">#${tag}</span>`).join('')}
+                        </div>
+                        <h3 class="font-bold text-white text-sm line-clamp-2 mb-2">${title}</h3>
+                        <p class="text-xs text-slate-400 line-clamp-2 mb-3">${excerpt}</p>
+                        <div class="flex items-center justify-between text-xs text-slate-500">
+                            <span>${formattedDate}</span>
+                            <span>${readTime}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('card-preview').innerHTML = preview;
+        }
+
+        function generateHTML() {
+            const title = document.getElementById('title').value;
+            const date = document.getElementById('date').value;
+            const readTime = document.getElementById('read-time').value;
+            const excerpt = document.getElementById('excerpt').value;
+            const tags = document.getElementById('tags').value.split(',').map(t => t.trim());
+            const content = document.getElementById('content').value;
+            const featured = document.getElementById('featured').checked;
+
+            if (!title || !date || !readTime || !excerpt || !content) {
+                alert('⚠️ Please fill in all required fields');
+                return;
+            }
+
+            const formattedDate = new Date(date).toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+
+            const tagsHTML = tags.map(tag => `<span class="badge">#${tag}</span>`).join('\n                    ');
+            const slugTitle = title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
+
+            const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${title} - SinType Blog</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"><\/script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"><\/script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    <\/script>
+
+    <style>
+        body {
+            background-color: #f8fafc;
+            color: #0f172a;
+            scroll-behavior: smooth;
+        }
+        #progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background-color: #2563eb;
+            width: 0%;
+            z-index: 50;
+        }
+    </style>
+</head>
+<body class="antialiased font-sans">
+
+    <!-- Reading Progress -->
+    <div id="progress-bar"></div>
+
+    <!-- Navigation -->
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <a href="/" class="text-xl font-bold tracking-tight text-brand-900">💻 SinType<span class="text-brand-500">Blog</span></a>
+            <a href="/blog" class="text-sm font-medium text-slate-500 hover:text-brand-600">← Back to Blog</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <article class="space-y-8">
+            
+            <!-- Header -->
+            <header class="space-y-4">
+                <div class="flex items-center gap-2 text-sm font-semibold text-brand-600 uppercase tracking-wider">
+                    <span>${formattedDate}</span>
+                    <span>•</span>
+                    <span>${readTime}</span>
+                </div>
+                <h1 class="text-4xl sm:text-5xl font-extrabold leading-tight text-slate-900">
+                    ${title}
+                </h1>
+                <p class="text-lg text-slate-500 font-medium">
+                    ${excerpt}
+                </p>
+                <div class="flex gap-2 flex-wrap pt-4">
+                    ${tagsHTML}
+                </div>
+            </header>
+
+            <!-- Content -->
+            <section class="prose prose-slate prose-lg max-w-none">
+                ${content}
+            </section>
+        </article>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-300 py-8 mt-16">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-sm">© 2024 SinType. All rights reserved. Built with ❤️ in Sri Lanka.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Reading Progress
+        window.addEventListener('scroll', () => {
+            const scrolled = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+            document.getElementById('progress-bar').style.width = scrolled + '%';
+        });
+    <\/script>
+</body>
+</html>`;
+
+            displayGeneratedHTML(htmlContent, slugTitle);
+        }
+
+        function displayGeneratedHTML(htmlContent, slug) {
+            document.getElementById('modal-html-content').textContent = htmlContent;
+            document.getElementById('html-output').classList.remove('hidden');
+            document.getElementById('html-code').textContent = htmlContent.substring(0, 500) + '...';
+            document.getElementById('html-modal').classList.remove('hidden');
+            window.generatedHTML = htmlContent;
+            window.htmlSlug = slug;
+        }
+
+        function closeHTMLModal() {
+            document.getElementById('html-modal').classList.add('hidden');
+        }
+
+        function copyHTML() {
+            navigator.clipboard.writeText(window.generatedHTML).then(() => {
+                showToast('✅ HTML copied to clipboard!');
+            });
+        }
+
+        function copyFromModal() {
+            navigator.clipboard.writeText(window.generatedHTML).then(() => {
+                showToast('✅ HTML copied to clipboard!');
+                closeHTMLModal();
+            });
+        }
+
+        function downloadHTML() {
+            const element = document.createElement('a');
+            element.setAttribute('href', 'data:text/html;charset=utf-8,' + encodeURIComponent(window.generatedHTML));
+            element.setAttribute('download', `${window.htmlSlug || 'blog-post'}.html`);
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+            showToast('💾 HTML downloaded!');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Slug generation helper
+        function generateSlug(title) {
+            return title
+                .toLowerCase()
+                .replace(/\s+/g, '-')              // Replace spaces with hyphens
+                .replace(/[^\w-]/g, '')            // Remove special characters
+                .replace(/-+/g, '-')               // Replace multiple hyphens with single
+                .trim();
+        }
+
+        // Generate Sitemap Entry
+        function generateSitemapEntry() {
+            const title = document.getElementById('title').value;
+            const date = document.getElementById('date').value;
+
+            if (!title || !date) {
+                alert('⚠️ Please enter both title and date to generate sitemap entry');
+                return;
+            }
+
+            const slug = generateSlug(title);
+            const formattedDate = new Date(date).toISOString().split('T')[0];
+
+            const sitemapXML = `<url>
+  <loc>https://sintype.lk/blog/${slug}.html</loc>
+  <lastmod>${formattedDate}</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.8</priority>
+</url>`;
+
+            // Display the sitemap entry
+            document.getElementById('sitemap-code').textContent = sitemapXML;
+            document.getElementById('sitemap-output').classList.remove('hidden');
+            window.generatedSitemap = sitemapXML;
+            
+            showToast('🗺️ Sitemap entry generated!');
+        }
+
+        // Copy Sitemap XML
+        function copySitemapXML() {
+            if (window.generatedSitemap) {
+                navigator.clipboard.writeText(window.generatedSitemap).then(() => {
+                    showToast('📋 Sitemap XML copied to clipboard!');
+                });
+            }
+        }
+
+        // Form interactions
+        document.getElementById('title').addEventListener('input', previewBlogCard);
+        document.getElementById('excerpt').addEventListener('input', previewBlogCard);
+        document.getElementById('date').addEventListener('change', previewBlogCard);
+        document.getElementById('read-time').addEventListener('input', previewBlogCard);
+        document.getElementById('tags').addEventListener('input', previewBlogCard);
+    </script>
+</body>
+</html>

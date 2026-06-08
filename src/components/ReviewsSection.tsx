@@ -52,7 +52,7 @@ function StarRating({
           aria-label={`${n} star${n === 1 ? "" : "s"}`}
         >
           <Star
-            className="w-3 h-3"
+            className="w-4 h-4"
             fill={n <= value ? "var(--neon-cyan)" : "transparent"}
             stroke={n <= value ? "var(--neon-cyan)" : "currentColor"}
             strokeWidth={1.5}
@@ -213,21 +213,21 @@ export function ReviewsSection() {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.15 }}
-        className="rounded-xl border border-white/10 p-3 flex flex-col w-full"
+        className="rounded-xl border border-white/10 p-4 flex flex-col w-full"
         style={{
           background: "color-mix(in oklab, var(--card) 80%, transparent)",
           WebkitBackdropFilter: "blur(20px)",
           backdropFilter: "blur(20px)",
         }}
       >
-        <div className="flex items-center gap-2 text-[8px] uppercase tracking-[0.25em] text-muted-foreground">
-          <MessageSquareQuote className="w-2 h-2 text-[var(--neon-purple)]" />
+        <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] text-muted-foreground font-semibold">
+          <MessageSquareQuote className="w-3 h-3 text-[var(--neon-purple)]" />
           Community
         </div>
-        <h3 className="font-display text-sm mt-0.5">Ratings & reviews</h3>
-        <form onSubmit={onSubmit} className="mt-2.5 space-y-2">
+        <h3 className="font-display text-lg font-bold mt-2">Ratings & reviews</h3>
+        <form onSubmit={onSubmit} className="mt-3 space-y-2.5">
           <div>
-            <p className="text-[8px] uppercase tracking-[0.15em] text-muted-foreground mb-1">
+            <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-semibold mb-1.5">
               Your rating
             </p>
             <StarRating value={rating} onChange={setRating} />
@@ -262,8 +262,8 @@ export function ReviewsSection() {
           )}
         </form>
 
-        <div className="mt-2.5 pt-2 border-t border-white/10 flex-1 min-h-0 flex flex-col">
-          <p className="text-[8px] uppercase tracking-[0.15em] text-muted-foreground">
+        <div className="mt-3 pt-2.5 border-t border-white/10 flex-1 min-h-0 flex flex-col">
+          <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-semibold">
             Recent feedback
           </p>
           {loading ? (
