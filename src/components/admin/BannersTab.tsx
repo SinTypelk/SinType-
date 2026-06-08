@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -26,6 +27,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { toast } from "sonner";
 import type { SiteBanner } from "@/lib/admin-content-db-service";
 import {
@@ -35,10 +44,18 @@ import {
   adminDeleteBanner,
 } from "@/lib/admin-content-db-service";
 
+const COLOR_LABELS: Record<SiteBanner["color_scheme"], string> = {
+  warning: "Warning",
+  info: "Info",
+  success: "Success",
+  danger: "Danger",
+};
+
 export function BannersTab() {
   const [banners, setBanners] = useState<SiteBanner[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [toggling, setToggling] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -46,8 +63,8 @@ export function BannersTab() {
   const [formData, setFormData] = useState({
     title: "",
     message: "",
-    show_on: "download" as const,
-    color_scheme: "info" as const,
+    show_on: "download" as SiteBanner["show_on"],
+    color_scheme: "info" as SiteBanner["color_scheme"],
     is_active: false,
   });
 
@@ -135,13 +152,16 @@ export function BannersTab() {
     }
   };
 
-  const toggleActive = async (banner: SiteBanner) => {
+  const toggleActive = async (banner: SiteBanner, next: boolean) => {
+    setToggling(banner.id);
     try {
-      await adminUpdateBanner(banner.id, { is_active: !banner.is_active });
-      toast.success(banner.is_active ? "Banner hidden" : "Banner shown");
+      await adminUpdateBanner(banner.id, { is_active: next });
+      toast.success(next ? "Banner activated" : "Banner deactivated");
       await load();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to update banner");
+    } finally {
+      setToggling(null);
     }
   };
 
@@ -156,7 +176,7 @@ export function BannersTab() {
   return (
     <Card className="border-border/60 bg-card/60">
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4">
           <div>
             <CardTitle>Banners & Notices</CardTitle>
             <CardDescription>Manage site-wide notification banners</CardDescription>
@@ -195,9 +215,12 @@ export function BannersTab() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>Show On</Label>
-                    <Select value={formData.show_on} onValueChange={(v) =>
-                      setFormData({ ...formData, show_on: v as "download" | "home" | "all" })
-                    }>
+                    <Select
+                      value={formData.show_on}
+                      onValueChange={(v) =>
+                        setFormData({ ...formData, show_on: v as SiteBanner["show_on"] })
+                      }
+                    >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -210,9 +233,12 @@ export function BannersTab() {
                   </div>
                   <div>
                     <Label>Color Scheme</Label>
-                    <Select value={formData.color_scheme} onValueChange={(v) =>
-                      setFormData({ ...formData, color_scheme: v as any })
-                    }>
+                    <Select
+                      value={formData.color_scheme}
+                      onValueChange={(v) =>
+                        setFormData({ ...formData, color_scheme: v as SiteBanner["color_scheme"] })
+                      }
+                    >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -225,17 +251,24 @@ export function BannersTab() {
                     </Select>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="active"
+                <div className="flex items-center justify-between rounded-lg border border-border/60 px-3 py-2">
+                  <Label htmlFor="banner-active">Active</Label>
+                  <Switch
+                    id="banner-active"
                     checked={formData.is_active}
-                    onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                    onCheckedChange={(checked) =>
+                      setFormData({ ...formData, is_active: checked })
+                    }
                   />
-                  <Label htmlFor="active">Active</Label>
                 </div>
                 <Button onClick={handleSave} disabled={submitting} className="w-full">
-                  {submitting ? "Saving…" : "Save Banner"}
+                  {submitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving…
+                    </>
+                  ) : (
+                    "Save Banner"
+                  )}
                 </Button>
               </div>
             </DialogContent>
@@ -244,56 +277,67 @@ export function BannersTab() {
       </CardHeader>
       <CardContent>
         {banners.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No banners yet</p>
+          <p className="text-sm text-muted-foreground">No banners yet. Add one to get started.</p>
         ) : (
-          <div className="space-y-2">
-            {banners.map((banner) => (
-              <div
-                key={banner.id}
-                className="flex items-center justify-between gap-4 rounded-lg border border-border/60 p-3"
-              >
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm">{banner.title}</p>
-                  <p className="text-xs text-muted-foreground line-clamp-1">{banner.message}</p>
-                  <div className="flex gap-2 mt-1">
-                    <span className="text-[10px] px-2 py-0.5 rounded bg-background/60">
-                      {banner.show_on}
-                    </span>
-                    <span className="text-[10px] px-2 py-0.5 rounded bg-background/60">
-                      {banner.color_scheme}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => toggleActive(banner)}
-                    className={`px-2 py-1 rounded text-xs font-medium ${
-                      banner.is_active
-                        ? "bg-[var(--success)]/20 text-[var(--success)]"
-                        : "bg-background/40 text-muted-foreground"
-                    }`}
-                  >
-                    {banner.is_active ? "Active" : "Inactive"}
-                  </button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => openEditModal(banner)}
-                  >
-                    <Edit2 className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => handleDelete(banner.id)}
-                    disabled={deleting === banner.id}
-                    className="text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
+          <div className="rounded-lg border border-border/60 overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Message</TableHead>
+                  <TableHead>Show On</TableHead>
+                  <TableHead>Color</TableHead>
+                  <TableHead>Active</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {banners.map((banner) => (
+                  <TableRow key={banner.id}>
+                    <TableCell className="font-medium max-w-[140px] truncate">
+                      {banner.title}
+                    </TableCell>
+                    <TableCell className="max-w-[200px] truncate text-muted-foreground">
+                      {banner.message}
+                    </TableCell>
+                    <TableCell className="capitalize">{banner.show_on}</TableCell>
+                    <TableCell>{COLOR_LABELS[banner.color_scheme]}</TableCell>
+                    <TableCell>
+                      <Switch
+                        checked={banner.is_active}
+                        disabled={toggling === banner.id}
+                        onCheckedChange={(checked) => toggleActive(banner, checked)}
+                        aria-label={`Toggle ${banner.title}`}
+                      />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-1">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => openEditModal(banner)}
+                        >
+                          <Edit2 className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleDelete(banner.id)}
+                          disabled={deleting === banner.id}
+                          className="text-destructive"
+                        >
+                          {deleting === banner.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
         )}
       </CardContent>

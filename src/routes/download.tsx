@@ -39,16 +39,19 @@ import { V2ScreenshotGallery } from "@/components/v2/V2ScreenshotGallery";
 import { V2_TAGLINE } from "@/lib/v2-showcase";
 import {
   fetchActiveBanners,
-  fetchAppVersions,
+  fetchActiveAppVersion,
   fetchDownloadPageConfig,
-  fetchFeatures,
+  fetchVisibleFeatures,
   type SiteBanner,
   type AppVersion,
-  type KeyFeature,
   type DownloadPageConfig,
 } from "@/lib/app-content-service";
 
 const SITE_CURRENT_VERSION = "2.0.0";
+
+function configValue(rows: DownloadPageConfig[], key: string, fallback = "") {
+  return rows.find((c) => c.field_key === key)?.field_value?.trim() || fallback;
+}
 
 function BannerNotice({ banner }: { banner: SiteBanner }) {
   const colorClasses: Record<SiteBanner["color_scheme"], string> = {
@@ -81,29 +84,54 @@ export const Route = createFileRoute("/download")({
 function DownloadPage() {
   const [banners, setBanners] = useState<SiteBanner[]>([]);
   const [config, setConfig] = useState<DownloadPageConfig[]>([]);
-  const [loadingBanners, setLoadingBanners] = useState(true);
+  const [stableVersion, setStableVersion] = useState<AppVersion | null>(null);
+  const [betaVersion, setBetaVersion] = useState<AppVersion | null>(null);
+  const [loadingPage, setLoadingPage] = useState(true);
 
   useEffect(() => {
     const loadContent = async () => {
       try {
-        setLoadingBanners(true);
-        const [bannersData, configData] = await Promise.all([
+        setLoadingPage(true);
+        const [bannersData, configData, stable, beta] = await Promise.all([
           fetchActiveBanners("download"),
           fetchDownloadPageConfig(),
+          fetchActiveAppVersion("stable"),
+          fetchActiveAppVersion("beta"),
         ]);
         setBanners(bannersData);
         setConfig(configData);
+        setStableVersion(stable);
+        setBetaVersion(beta);
       } catch (err) {
         console.error("Failed to load download page content:", err);
       } finally {
-        setLoadingBanners(false);
+        setLoadingPage(false);
       }
     };
     loadContent();
   }, []);
 
-  const heroTitle = config.find((c) => c.field_key === "hero_title")?.field_value || "Download SinType — typing ecosystem for Windows";
-  const heroSubtitle = config.find((c) => c.field_key === "hero_subtitle")?.field_value || `${V2_TAGLINE} Plus system-wide Singlish to Sinhala Unicode and Legacy FM Abhaya — type in Photoshop, Word, WhatsApp, and any app with global hotkeys.`;
+  const heroTitle =
+    configValue(config, "hero_title") ||
+    "Download SinType — typing ecosystem for Windows";
+  const heroSubtitle =
+    configValue(config, "hero_subtitle") ||
+    `${V2_TAGLINE} Plus system-wide Singlish to Sinhala Unicode and Legacy FM Abhaya — type in Photoshop, Word, WhatsApp, and any app with global hotkeys.`;
+  const stableLabel = configValue(config, "stable_label", "Download for Windows");
+  const betaLabel = configValue(config, "beta_label", "Download Beta");
+  const reportBugUrl = configValue(config, "report_bug_url", "/feedback");
+  const contactSupportUrl = configValue(config, "contact_support_url", "/contact");
+  const showBetaWarning = Boolean(betaVersion?.is_active && betaVersion.show_beta_warning);
+
+  if (loadingPage) {
+    return (
+      <section className="max-w-6xl mx-auto px-6 pt-16 pb-24">
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <Loader2 className="h-5 w-5 animate-spin" /> Loading download page…
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="max-w-6xl mx-auto px-6 pt-16 pb-24">
@@ -119,8 +147,15 @@ function DownloadPage() {
         <BannerNotice key={banner.id} banner={banner} />
       ))}
 
-      <BetaDisclaimerBanner />
-      <AppUpdateBanner currentVersion={SITE_CURRENT_VERSION} />
+      <BetaDisclaimerBanner
+        show={showBetaWarning}
+        version={betaVersion?.version_string ?? SITE_CURRENT_VERSION}
+        reportBugUrl={reportBugUrl}
+        contactSupportUrl={contactSupportUrl}
+      />
+      <AppUpdateBanner
+        currentVersion={stableVersion?.version_string ?? betaVersion?.version_string ?? SITE_CURRENT_VERSION}
+      />
 
       <div className="mb-10">
         <p className="text-[11px] uppercase tracking-[0.35em] text-[var(--neon-cyan)]">
@@ -134,7 +169,12 @@ function DownloadPage() {
         </p>
       </div>
 
-      <DownloadCard />
+      <DownloadCard
+        stableVersion={stableVersion}
+        betaVersion={betaVersion}
+        stableLabel={stableLabel}
+        betaLabel={betaLabel}
+      />
 
       <DownloadInfoSection config={config} />
     </section>
@@ -190,8 +230,29 @@ const KEY_FEATURES: KeyFeature[] = [
 ];
 
 function KeyFeaturesSection() {
+  const [features, setFeatures] = useState(KEY_FEATURES);
+  const [loadingFeatures, setLoadingFeatures] = useState(true);
   const [inView, setInView] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    fetchVisibleFeatures("download")
+      .then((dbFeatures) => {
+        if (dbFeatures.length > 0) {
+          setFeatures(
+            dbFeatures.map((f) => ({
+              emoji: f.icon,
+              title: f.title,
+              description: f.description,
+            })),
+          );
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load download page features:", err);
+      })
+      .finally(() => setLoadingFeatures(false));
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -226,8 +287,13 @@ function KeyFeaturesSection() {
     >
       <h2 className="font-display text-2xl sm:text-3xl mb-8 text-center">Key Features</h2>
 
+      {loadingFeatures ? (
+        <div className="flex items-center justify-center gap-2 text-muted-foreground py-6">
+          <Loader2 className="h-5 w-5 animate-spin" /> Loading features…
+        </div>
+      ) : (
       <div className="grid sm:grid-cols-2 gap-4">
-        {KEY_FEATURES.map((feature, index) => (
+        {features.map((feature, index) => (
           <motion.div
             key={feature.title}
             initial={{ opacity: 0, y: 12 }}
@@ -258,11 +324,22 @@ function KeyFeaturesSection() {
           </motion.div>
         ))}
       </div>
+      )}
     </motion.div>
   );
 }
 
-function DownloadCard() {
+function DownloadCard({
+  stableVersion,
+  betaVersion,
+  stableLabel,
+  betaLabel,
+}: {
+  stableVersion: AppVersion | null;
+  betaVersion: AppVersion | null;
+  stableLabel: string;
+  betaLabel: string;
+}) {
   const { user } = useAuth();
   const [loginOpen, setLoginOpen] = useState(false);
   const [releases, setReleases] = useState<AppUpdateRow[]>([]);
@@ -275,11 +352,30 @@ function DownloadCard() {
 
   const latestUpdate = releases[0] ?? null;
   const olderReleases = releases.slice(1);
-  const releaseVersion = latestUpdate?.version_number ?? SITE_CURRENT_VERSION;
+
+  const stableHref =
+    stableVersion?.is_active && stableVersion.download_url
+      ? stableVersion.download_url
+      : latestUpdate?.download_url ?? "/download";
+  const betaHref =
+    betaVersion?.is_active && betaVersion.download_url ? betaVersion.download_url : null;
+
+  const releaseVersion =
+    stableVersion?.version_string ??
+    betaVersion?.version_string ??
+    latestUpdate?.version_number ??
+    SITE_CURRENT_VERSION;
   const releaseBullets = latestUpdate
     ? parseReleaseNotes(latestUpdate.release_notes)
     : FALLBACK_RELEASE_NOTES;
-  const downloadHref = latestUpdate?.download_url ?? "/download";
+
+  const channelLabel = stableVersion?.is_active
+    ? "Stable channel"
+    : betaVersion?.is_active
+      ? "Beta channel"
+      : releaseVersion.startsWith("2.0")
+        ? "Beta channel"
+        : "Stable channel";
 
   const onGetKey = () => {
     if (!user) {
@@ -323,20 +419,24 @@ function DownloadCard() {
             <h2 className="font-display text-3xl mt-3">SinType Desktop</h2>
             <p className="text-sm text-muted-foreground mt-1">
               v{releaseVersion} ·{" "}
-              {releaseVersion.startsWith("2.0") ? (
-                <span className="text-amber-400 font-medium">Beta channel</span>
-              ) : (
-                "Stable channel"
-              )}
+              <span
+                className={
+                  channelLabel === "Beta channel"
+                    ? "text-amber-400 font-medium"
+                    : "text-foreground/80"
+                }
+              >
+                {channelLabel}
+              </span>
             </p>
           </div>
         </div>
 
         <div className="relative mt-6 flex flex-col sm:flex-row flex-wrap gap-3">
           <motion.a
-            href={downloadHref}
-            target={downloadHref.startsWith("http") ? "_blank" : undefined}
-            rel={downloadHref.startsWith("http") ? "noopener noreferrer" : undefined}
+            href={stableHref}
+            target={stableHref.startsWith("http") ? "_blank" : undefined}
+            rel={stableHref.startsWith("http") ? "noopener noreferrer" : undefined}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             className="inline-flex items-center gap-3 px-6 py-4 rounded-2xl text-primary-foreground font-semibold shadow-xl"
@@ -345,8 +445,24 @@ function DownloadCard() {
             }}
           >
             <Download className="w-5 h-5" />
-            Download for Windows
+            {stableLabel}
           </motion.a>
+          {betaHref && (
+            <motion.a
+              href={betaHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="inline-flex items-center gap-3 px-6 py-4 rounded-2xl font-semibold border border-amber-500/40 text-amber-300 hover:bg-amber-500/10"
+            >
+              <Download className="w-5 h-5" />
+              {betaLabel}
+              {betaVersion?.version_string ? (
+                <span className="text-xs opacity-80">v{betaVersion.version_string}</span>
+              ) : null}
+            </motion.a>
+          )}
           <motion.button
             type="button"
             whileHover={{ scale: 1.02 }}

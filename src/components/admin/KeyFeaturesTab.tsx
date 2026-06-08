@@ -20,6 +20,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import type { KeyFeature } from "@/lib/admin-content-db-service";
 import {
@@ -36,6 +44,8 @@ interface FormData {
   icon: string;
   title: string;
   description: string;
+  page: Page;
+  is_visible: boolean;
 }
 
 export function KeyFeaturesTab() {
@@ -54,6 +64,8 @@ export function KeyFeaturesTab() {
     icon: "",
     title: "",
     description: "",
+    page: "home",
+    is_visible: true,
   });
 
   const load = useCallback(async () => {
@@ -77,7 +89,13 @@ export function KeyFeaturesTab() {
   }, [load]);
 
   const resetForm = () => {
-    setForm({ icon: "", title: "", description: "" });
+    setForm({
+      icon: "",
+      title: "",
+      description: "",
+      page: currentPage,
+      is_visible: true,
+    });
     setEditingFeature(null);
   };
 
@@ -92,6 +110,8 @@ export function KeyFeaturesTab() {
       icon: feature.icon,
       title: feature.title,
       description: feature.description,
+      page: feature.page,
+      is_visible: feature.is_visible,
     });
     setIsModalOpen(true);
   };
@@ -109,7 +129,8 @@ export function KeyFeaturesTab() {
           icon: form.icon,
           title: form.title,
           description: form.description,
-          is_visible: editingFeature.is_visible,
+          page: form.page,
+          is_visible: form.is_visible,
         });
         toast.success("Feature updated");
       } else {
@@ -117,8 +138,8 @@ export function KeyFeaturesTab() {
           icon: form.icon,
           title: form.title,
           description: form.description,
-          page: currentPage,
-          is_visible: true,
+          page: form.page,
+          is_visible: form.is_visible,
         });
         toast.success("Feature added");
       }
@@ -269,7 +290,7 @@ export function KeyFeaturesTab() {
                   </div>
 
                   <div>
-                    <Label>Description</Label>
+                    <Label>Description *</Label>
                     <Textarea
                       value={form.description}
                       onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -278,8 +299,41 @@ export function KeyFeaturesTab() {
                     />
                   </div>
 
+                  <div>
+                    <Label>Page</Label>
+                    <Select
+                      value={form.page}
+                      onValueChange={(v) => setForm({ ...form, page: v as Page })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="home">Home Page</SelectItem>
+                        <SelectItem value="download">Download Page</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="flex items-center justify-between rounded-lg border border-border/60 px-3 py-2">
+                    <Label htmlFor="feature-visible">Visible</Label>
+                    <Switch
+                      id="feature-visible"
+                      checked={form.is_visible}
+                      onCheckedChange={(checked) => setForm({ ...form, is_visible: checked })}
+                    />
+                  </div>
+
                   <Button onClick={handleSave} disabled={saving} className="w-full">
-                    {saving ? "Saving…" : editingFeature ? "Update" : "Add"}
+                    {saving ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving…
+                      </>
+                    ) : editingFeature ? (
+                      "Update"
+                    ) : (
+                      "Add"
+                    )}
                   </Button>
                 </div>
               </DialogContent>
@@ -313,11 +367,10 @@ export function KeyFeaturesTab() {
                   </div>
 
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    <input
-                      type="checkbox"
+                    <Switch
                       checked={feature.is_visible}
-                      onChange={() => handleToggleVisibility(feature)}
-                      title={feature.is_visible ? "Visible" : "Hidden"}
+                      onCheckedChange={() => handleToggleVisibility(feature)}
+                      aria-label={`Toggle visibility for ${feature.title}`}
                     />
                     <Button
                       variant="outline"
@@ -366,11 +419,10 @@ export function KeyFeaturesTab() {
                   </div>
 
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    <input
-                      type="checkbox"
+                    <Switch
                       checked={feature.is_visible}
-                      onChange={() => handleToggleVisibility(feature)}
-                      title={feature.is_visible ? "Visible" : "Hidden"}
+                      onCheckedChange={() => handleToggleVisibility(feature)}
+                      aria-label={`Toggle visibility for ${feature.title}`}
                     />
                     <Button
                       variant="outline"

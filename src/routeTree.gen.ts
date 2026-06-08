@@ -46,7 +46,6 @@ import { Route as AdminDashboardFeedbackRouteImport } from './routes/admin/dashb
 import { Route as AdminDashboardContentRouteImport } from './routes/admin/dashboard.content'
 import { Route as AdminDashboardBlogRouteImport } from './routes/admin/dashboard.blog'
 import { Route as ApiAdminBlogIdRouteImport } from './routes/api/admin/blog.$id'
-import { Route as AdminDashboardContentNewRouteImport } from './routes/admin/dashboard.content.new'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -235,12 +234,6 @@ const ApiAdminBlogIdRoute = ApiAdminBlogIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => ApiAdminBlogRoute,
 } as any)
-const AdminDashboardContentNewRoute =
-  AdminDashboardContentNewRouteImport.update({
-    id: '/new',
-    path: '/new',
-    getParentRoute: () => AdminDashboardContentRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -266,7 +259,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/admin/dashboard/blog': typeof AdminDashboardBlogRoute
-  '/admin/dashboard/content': typeof AdminDashboardContentRouteWithChildren
+  '/admin/dashboard/content': typeof AdminDashboardContentRoute
   '/admin/dashboard/feedback': typeof AdminDashboardFeedbackRoute
   '/admin/dashboard/license-resets': typeof AdminDashboardLicenseResetsRoute
   '/admin/dashboard/notifications': typeof AdminDashboardNotificationsRoute
@@ -279,7 +272,6 @@ export interface FileRoutesByFullPath {
   '/api/sinhala/learn': typeof ApiSinhalaLearnRoute
   '/m/local/$sessionId': typeof MLocalSessionIdRoute
   '/admin/dashboard/': typeof AdminDashboardIndexRoute
-  '/admin/dashboard/content/new': typeof AdminDashboardContentNewRoute
   '/api/admin/blog/$id': typeof ApiAdminBlogIdRoute
 }
 export interface FileRoutesByTo {
@@ -304,7 +296,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/blog': typeof BlogIndexRoute
   '/admin/dashboard/blog': typeof AdminDashboardBlogRoute
-  '/admin/dashboard/content': typeof AdminDashboardContentRouteWithChildren
+  '/admin/dashboard/content': typeof AdminDashboardContentRoute
   '/admin/dashboard/feedback': typeof AdminDashboardFeedbackRoute
   '/admin/dashboard/license-resets': typeof AdminDashboardLicenseResetsRoute
   '/admin/dashboard/notifications': typeof AdminDashboardNotificationsRoute
@@ -317,7 +309,6 @@ export interface FileRoutesByTo {
   '/api/sinhala/learn': typeof ApiSinhalaLearnRoute
   '/m/local/$sessionId': typeof MLocalSessionIdRoute
   '/admin/dashboard': typeof AdminDashboardIndexRoute
-  '/admin/dashboard/content/new': typeof AdminDashboardContentNewRoute
   '/api/admin/blog/$id': typeof ApiAdminBlogIdRoute
 }
 export interface FileRoutesById {
@@ -345,7 +336,7 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/admin/dashboard/blog': typeof AdminDashboardBlogRoute
-  '/admin/dashboard/content': typeof AdminDashboardContentRouteWithChildren
+  '/admin/dashboard/content': typeof AdminDashboardContentRoute
   '/admin/dashboard/feedback': typeof AdminDashboardFeedbackRoute
   '/admin/dashboard/license-resets': typeof AdminDashboardLicenseResetsRoute
   '/admin/dashboard/notifications': typeof AdminDashboardNotificationsRoute
@@ -358,7 +349,6 @@ export interface FileRoutesById {
   '/api/sinhala/learn': typeof ApiSinhalaLearnRoute
   '/m/local/$sessionId': typeof MLocalSessionIdRoute
   '/admin/dashboard/': typeof AdminDashboardIndexRoute
-  '/admin/dashboard/content/new': typeof AdminDashboardContentNewRoute
   '/api/admin/blog/$id': typeof ApiAdminBlogIdRoute
 }
 export interface FileRouteTypes {
@@ -400,7 +390,6 @@ export interface FileRouteTypes {
     | '/api/sinhala/learn'
     | '/m/local/$sessionId'
     | '/admin/dashboard/'
-    | '/admin/dashboard/content/new'
     | '/api/admin/blog/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -438,7 +427,6 @@ export interface FileRouteTypes {
     | '/api/sinhala/learn'
     | '/m/local/$sessionId'
     | '/admin/dashboard'
-    | '/admin/dashboard/content/new'
     | '/api/admin/blog/$id'
   id:
     | '__root__'
@@ -478,7 +466,6 @@ export interface FileRouteTypes {
     | '/api/sinhala/learn'
     | '/m/local/$sessionId'
     | '/admin/dashboard/'
-    | '/admin/dashboard/content/new'
     | '/api/admin/blog/$id'
   fileRoutesById: FileRoutesById
 }
@@ -772,32 +759,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminBlogIdRouteImport
       parentRoute: typeof ApiAdminBlogRoute
     }
-    '/admin/dashboard/content/new': {
-      id: '/admin/dashboard/content/new'
-      path: '/new'
-      fullPath: '/admin/dashboard/content/new'
-      preLoaderRoute: typeof AdminDashboardContentNewRouteImport
-      parentRoute: typeof AdminDashboardContentRoute
-    }
   }
 }
 
-interface AdminDashboardContentRouteChildren {
-  AdminDashboardContentNewRoute: typeof AdminDashboardContentNewRoute
-}
-
-const AdminDashboardContentRouteChildren: AdminDashboardContentRouteChildren = {
-  AdminDashboardContentNewRoute: AdminDashboardContentNewRoute,
-}
-
-const AdminDashboardContentRouteWithChildren =
-  AdminDashboardContentRoute._addFileChildren(
-    AdminDashboardContentRouteChildren,
-  )
-
 interface AdminDashboardRouteChildren {
   AdminDashboardBlogRoute: typeof AdminDashboardBlogRoute
-  AdminDashboardContentRoute: typeof AdminDashboardContentRouteWithChildren
+  AdminDashboardContentRoute: typeof AdminDashboardContentRoute
   AdminDashboardFeedbackRoute: typeof AdminDashboardFeedbackRoute
   AdminDashboardLicenseResetsRoute: typeof AdminDashboardLicenseResetsRoute
   AdminDashboardNotificationsRoute: typeof AdminDashboardNotificationsRoute
@@ -808,7 +775,7 @@ interface AdminDashboardRouteChildren {
 
 const AdminDashboardRouteChildren: AdminDashboardRouteChildren = {
   AdminDashboardBlogRoute: AdminDashboardBlogRoute,
-  AdminDashboardContentRoute: AdminDashboardContentRouteWithChildren,
+  AdminDashboardContentRoute: AdminDashboardContentRoute,
   AdminDashboardFeedbackRoute: AdminDashboardFeedbackRoute,
   AdminDashboardLicenseResetsRoute: AdminDashboardLicenseResetsRoute,
   AdminDashboardNotificationsRoute: AdminDashboardNotificationsRoute,

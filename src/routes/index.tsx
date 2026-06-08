@@ -14,7 +14,8 @@ import {
   openGraphMeta,
 } from "@/lib/site-seo";
 import { useEffect, useState } from "react";
-import { fetchFeatures, type KeyFeature } from "@/lib/app-content-service";
+import { Loader2 } from "lucide-react";
+import { fetchVisibleFeatures, type KeyFeature } from "@/lib/app-content-service";
 import { V2_FEATURES } from "@/lib/v2-showcase";
 
 export const Route = createFileRoute("/")({
@@ -36,17 +37,18 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const [homeFeatures, setHomeFeatures] = useState<KeyFeature[]>([]);
+  const [loadingFeatures, setLoadingFeatures] = useState(true);
 
   useEffect(() => {
     const loadFeatures = async () => {
       try {
-        const features = await fetchFeatures();
-        const filtered = features
-          .filter((f) => f.page === "home" && f.is_visible)
-          .sort((a, b) => a.display_order - b.display_order);
-        setHomeFeatures(filtered);
+        setLoadingFeatures(true);
+        const features = await fetchVisibleFeatures("home");
+        setHomeFeatures(features);
       } catch (err) {
         console.error("Failed to load home features:", err);
+      } finally {
+        setLoadingFeatures(false);
       }
     };
     loadFeatures();
@@ -57,11 +59,17 @@ function Index() {
       <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }])} />
       <HeroDownloadCta />
       <div className="max-w-6xl mx-auto px-4 py-10">
-        <V2FeaturesGrid
-          title="SinType 2.0 Beta — mobile meets desktop"
-          subtitle="The new local web server turns your phone into a wireless remote for your PC. Typing, touchpad control, and file transfer — without leaving your home network."
-          features={homeFeatures.length > 0 ? homeFeatures : undefined}
-        />
+        {loadingFeatures ? (
+          <div className="flex items-center gap-2 text-muted-foreground py-8">
+            <Loader2 className="h-5 w-5 animate-spin" /> Loading features…
+          </div>
+        ) : (
+          <V2FeaturesGrid
+            title="SinType 2.0 Beta — mobile meets desktop"
+            subtitle="The new local web server turns your phone into a wireless remote for your PC. Typing, touchpad control, and file transfer — without leaving your home network."
+            features={homeFeatures.length > 0 ? homeFeatures : undefined}
+          />
+        )}
       </div>
       <div className="max-w-7xl mx-auto px-4 pb-2">
         <AccountPanel compact />

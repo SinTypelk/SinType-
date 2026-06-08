@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import type { AppVersion } from "@/lib/admin-content-db-service";
 import { adminFetchVersions, adminUpsertVersion } from "@/lib/admin-content-db-service";
@@ -175,19 +176,25 @@ export function VersionManagerTab() {
               />
             </div>
 
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
+            <div className="flex items-center justify-between rounded-lg border border-border/60 px-3 py-2">
+              <Label htmlFor="stable-active">Active</Label>
+              <Switch
                 id="stable-active"
                 checked={stableForm.is_active}
-                onChange={(e) => setStableForm({ ...stableForm, is_active: e.target.checked })}
+                onCheckedChange={(checked) => setStableForm({ ...stableForm, is_active: checked })}
               />
-              <Label htmlFor="stable-active">Active</Label>
             </div>
 
             <Button onClick={handleSaveStable} disabled={saving === "stable"} className="w-full">
-              <Save className="h-4 w-4 mr-2" />
-              {saving === "stable" ? "Saving…" : "Save Stable"}
+              {saving === "stable" ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving…
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-2" /> Save Stable
+                </>
+              )}
             </Button>
           </div>
 
@@ -227,30 +234,37 @@ export function VersionManagerTab() {
             </div>
 
             <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
+              <div className="flex items-center justify-between rounded-lg border border-border/60 px-3 py-2">
+                <Label htmlFor="beta-active">Active</Label>
+                <Switch
                   id="beta-active"
                   checked={betaForm.is_active}
-                  onChange={(e) => setBetaForm({ ...betaForm, is_active: e.target.checked })}
+                  onCheckedChange={(checked) => setBetaForm({ ...betaForm, is_active: checked })}
                 />
-                <Label htmlFor="beta-active">Active</Label>
               </div>
 
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
+              <div className="flex items-center justify-between rounded-lg border border-border/60 px-3 py-2">
+                <Label htmlFor="beta-warning">Show Beta Warning</Label>
+                <Switch
                   id="beta-warning"
                   checked={betaForm.show_beta_warning}
-                  onChange={(e) => setBetaForm({ ...betaForm, show_beta_warning: e.target.checked })}
+                  onCheckedChange={(checked) =>
+                    setBetaForm({ ...betaForm, show_beta_warning: checked })
+                  }
                 />
-                <Label htmlFor="beta-warning">Show Beta Warning</Label>
               </div>
             </div>
 
             <Button onClick={handleSaveBeta} disabled={saving === "beta"} className="w-full">
-              <Save className="h-4 w-4 mr-2" />
-              {saving === "beta" ? "Saving…" : "Save Beta"}
+              {saving === "beta" ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving…
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-2" /> Save Beta
+                </>
+              )}
             </Button>
           </div>
         </div>

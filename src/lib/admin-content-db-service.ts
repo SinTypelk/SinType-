@@ -131,11 +131,22 @@ export async function adminFetchFeatures(page?: "home" | "download"): Promise<Ke
 }
 
 export async function adminCreateFeature(
-  feature: Omit<KeyFeature, "id" | "created_at">,
+  feature: Omit<KeyFeature, "id" | "created_at" | "display_order"> & {
+    display_order?: number;
+  },
 ): Promise<KeyFeature> {
+  let displayOrder = feature.display_order;
+  if (displayOrder === undefined) {
+    const existing = await adminFetchFeatures(feature.page);
+    displayOrder =
+      existing.length > 0
+        ? Math.max(...existing.map((f) => f.display_order ?? 0)) + 1
+        : 0;
+  }
+
   const { data, error } = await supabase
     .from("key_features")
-    .insert([feature])
+    .insert([{ ...feature, display_order: displayOrder }])
     .select()
     .single();
   if (error) throw new Error(`Failed to create feature: ${error.message}`);

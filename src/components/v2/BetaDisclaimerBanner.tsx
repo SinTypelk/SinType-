@@ -2,7 +2,31 @@ import { Link } from "@tanstack/react-router";
 import { AlertTriangle } from "lucide-react";
 import { BETA_DISCLAIMER } from "@/lib/v2-showcase";
 
-export function BetaDisclaimerBanner() {
+type BetaDisclaimerBannerProps = {
+  show?: boolean;
+  version?: string;
+  reportBugUrl?: string;
+  contactSupportUrl?: string;
+};
+
+function toHref(url: string | undefined, fallback: string) {
+  const value = url?.trim() || fallback;
+  return value.startsWith("http") ? value : value;
+}
+
+export function BetaDisclaimerBanner({
+  show = true,
+  version = "2.0.0",
+  reportBugUrl = "/feedback",
+  contactSupportUrl = "/contact",
+}: BetaDisclaimerBannerProps) {
+  if (!show) return null;
+
+  const bugHref = toHref(reportBugUrl, "/feedback");
+  const supportHref = toHref(contactSupportUrl, "/contact");
+  const bugExternal = bugHref.startsWith("http");
+  const supportExternal = supportHref.startsWith("http");
+
   return (
     <div
       role="status"
@@ -14,19 +38,41 @@ export function BetaDisclaimerBanner() {
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-amber-400/90">
-            Beta Release · v2.0.0
+            Beta Release · v{version}
           </p>
           <p className="mt-1.5 text-sm sm:text-base text-foreground/90 leading-relaxed">
             {BETA_DISCLAIMER}
           </p>
           <p className="mt-3 text-xs text-muted-foreground">
-            <Link to="/feedback" className="text-[var(--neon-cyan)] hover:underline font-medium">
-              Report a bug
-            </Link>
+            {bugExternal ? (
+              <a
+                href={bugHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[var(--neon-cyan)] hover:underline font-medium"
+              >
+                Report a bug
+              </a>
+            ) : (
+              <Link to={bugHref} className="text-[var(--neon-cyan)] hover:underline font-medium">
+                Report a bug
+              </Link>
+            )}
             {" · "}
-            <Link to="/contact" className="text-[var(--neon-cyan)] hover:underline font-medium">
-              Contact support
-            </Link>
+            {supportExternal ? (
+              <a
+                href={supportHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[var(--neon-cyan)] hover:underline font-medium"
+              >
+                Contact support
+              </a>
+            ) : (
+              <Link to={supportHref} className="text-[var(--neon-cyan)] hover:underline font-medium">
+                Contact support
+              </Link>
+            )}
           </p>
         </div>
       </div>

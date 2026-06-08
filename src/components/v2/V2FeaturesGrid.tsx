@@ -46,7 +46,7 @@ export function V2FeaturesGrid({
       <div className="grid gap-4 sm:grid-cols-2">
         {displayFeatures.map((feature, i) => {
           const featureIcon = "icon" in feature ? feature.icon : "mouse-pointer-click";
-          const Icon = ICONS[featureIcon] || MousePointerClick;
+          const Icon = ICONS[featureIcon];
           return (
             <motion.article
               key={("id" in feature ? feature.id : feature.id)}
@@ -69,7 +69,13 @@ export function V2FeaturesGrid({
               />
               <div className="relative flex gap-4">
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[var(--neon-cyan)]/25 bg-[var(--neon-cyan)]/10">
-                  <Icon className="h-5 w-5 text-[var(--neon-cyan)]" aria-hidden />
+                  {Icon ? (
+                    <Icon className="h-5 w-5 text-[var(--neon-cyan)]" aria-hidden />
+                  ) : (
+                    <span className="text-xl leading-none" aria-hidden>
+                      {featureIcon}
+                    </span>
+                  )}
                 </div>
                 <div>
                   <h3 className="font-display text-lg font-semibold text-foreground">
