@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="400" viewBox="0 0 640 400" role="img" aria-label="Mapping editor">
+  <defs>
+    <linearGradient id="bg4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#312e81"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#bg4)"/>
+  <rect x="100" y="50" width="440" height="280" rx="12" fill="#1e293b" stroke="#334155" stroke-width="2"/>
+  <text x="130" y="90" fill="#94a3b8" font-family="ui-monospace,monospace" font-size="13">amma  ’  …¸Ê¸Ï</text>
+  <text x="130" y="125" fill="#94a3b8" font-family="ui-monospace,monospace" font-size="13">gedara ’  œÙ¯»</text>
+  <text x="130" y="160" fill="#94a3b8" font-family="ui-monospace,monospace" font-size="13">yanavaa ’ º±ÀÏ</text>
+  <rect x="130" y="190" width="380" height="2" fill="#334155"/>
+  <rect x="130" y="210" width="120" height="32" rx="6" fill="#22d3ee" opacity="0.2" stroke="#22d3ee"/>
+  <text x="190" y="231" text-anchor="middle" fill="#22d3ee" font-family="system-ui,sans-serif" font-size="12">+ Add rule</text>
+  <text x="320" y="380" text-anchor="middle" fill="#a78bfa" font-family="system-ui,sans-serif" font-size="16" font-weight="600">Easy Mapping Editor</text>
+</svg>
