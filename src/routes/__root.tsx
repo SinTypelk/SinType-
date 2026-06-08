@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { AppProvider } from "@/lib/app-context";
 import { AuthProvider } from "@/lib/auth-context";
 import { EdgeBar, EdgeDock } from "@/components/EdgeBar";
+import { Navbar } from "@/components/Navbar";
 import { SiteFooter } from "@/components/SiteFooter";
 import { GOOGLE_FONTS_CSS } from "@/lib/google-fonts";
 import { NotFoundPage } from "@/components/NotFoundPage";
@@ -132,6 +133,7 @@ function Layout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen flex flex-col">
       {!isMobile && <EdgeBar />}
       {!isMobile && <EdgeDock />}
+      {!isMobile && <Navbar />}
       <main className={`flex-1 ${!isMobile ? "sm:pl-20" : ""}`}>{children}</main>
       {!isMobile && <SiteFooter />}
     </div>
