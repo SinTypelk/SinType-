@@ -52,7 +52,7 @@ function StarRating({
           aria-label={`${n} star${n === 1 ? "" : "s"}`}
         >
           <Star
-            className="w-4 h-4"
+            className="w-3 h-3"
             fill={n <= value ? "var(--neon-cyan)" : "transparent"}
             stroke={n <= value ? "var(--neon-cyan)" : "currentColor"}
             strokeWidth={1.5}
@@ -99,7 +99,7 @@ function ScrollingReviews({ reviews }: { reviews: ReviewRow[] }) {
   const durationSec = Math.max(18, reviews.length * 5);
 
   return (
-    <div className="relative mt-3 h-52 overflow-hidden rounded-xl border border-white/5">
+    <div className="relative mt-3 h-28 overflow-hidden rounded-xl border border-white/5">
       <div
         className="flex flex-col gap-3 px-1 py-2 reviews-marquee"
         style={{ animationDuration: `${durationSec}s` }}
@@ -213,25 +213,21 @@ export function ReviewsSection() {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.15 }}
-        className="rounded-3xl border border-white/10 p-5 flex flex-col w-full h-full min-h-[22rem]"
+        className="rounded-xl border border-white/10 p-3 flex flex-col w-full"
         style={{
           background: "color-mix(in oklab, var(--card) 80%, transparent)",
           WebkitBackdropFilter: "blur(20px)",
           backdropFilter: "blur(20px)",
         }}
       >
-        <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
-          <MessageSquareQuote className="w-3 h-3 text-[var(--neon-purple)]" />
+        <div className="flex items-center gap-2 text-[8px] uppercase tracking-[0.25em] text-muted-foreground">
+          <MessageSquareQuote className="w-2 h-2 text-[var(--neon-purple)]" />
           Community
         </div>
-        <h3 className="font-display text-lg mt-2">Ratings & reviews</h3>
-        <p className="text-xs text-muted-foreground mt-1">
-          Tell others what you think about SinType Desktop.
-        </p>
-
-        <form onSubmit={onSubmit} className="mt-4 space-y-3">
+        <h3 className="font-display text-sm mt-0.5">Ratings & reviews</h3>
+        <form onSubmit={onSubmit} className="mt-2.5 space-y-2">
           <div>
-            <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground mb-1.5">
+            <p className="text-[8px] uppercase tracking-[0.15em] text-muted-foreground mb-1">
               Your rating
             </p>
             <StarRating value={rating} onChange={setRating} />
@@ -240,25 +236,25 @@ export function ReviewsSection() {
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             placeholder="What do you like about SinType?"
-            rows={3}
+            rows={2}
             maxLength={2000}
-            className="resize-none bg-background/50 border-white/10 text-sm"
+            className="resize-none bg-background/50 border-white/10 text-xs"
           />
           <button
             type="submit"
             disabled={submitting || !comment.trim()}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-primary-foreground disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold text-primary-foreground disabled:opacity-50"
             style={{
               background:
                 "linear-gradient(135deg, var(--neon-purple), var(--neon-cyan))",
             }}
           >
             {submitting ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="w-3 h-3 animate-spin" />
             ) : (
-              <Send className="w-4 h-4" />
+              <Send className="w-3 h-3" />
             )}
-            {user ? "Submit review" : "Sign in to review"}
+            {user ? "Submit" : "Sign in"}
           </button>
           {error && <p className="text-xs text-destructive">{error}</p>}
           {success && (
@@ -266,13 +262,13 @@ export function ReviewsSection() {
           )}
         </form>
 
-        <div className="mt-5 pt-4 border-t border-white/10 flex-1 min-h-0 flex flex-col">
-          <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground">
+        <div className="mt-2.5 pt-2 border-t border-white/10 flex-1 min-h-0 flex flex-col">
+          <p className="text-[8px] uppercase tracking-[0.15em] text-muted-foreground">
             Recent feedback
           </p>
           {loading ? (
-            <div className="flex justify-center py-10">
-              <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+            <div className="flex justify-center py-4">
+              <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
             </div>
           ) : (
             <ScrollingReviews reviews={reviews} />
@@ -282,3 +278,8 @@ export function ReviewsSection() {
     </>
   );
 }
+
+
+
+
+

@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Download,
   Monitor,
@@ -12,6 +12,10 @@ import {
   Keyboard,
   Zap,
   Globe,
+  HelpCircle,
+  HardDrive,
+  Wifi,
+  Lock,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { fetchLiveUsageStats, type LiveUsageStats } from "@/lib/usage-stats";
@@ -74,31 +78,7 @@ function DownloadPage() {
 
       <DownloadCard />
 
-      <V2FeaturesGrid className="mt-12" />
-      <V2ScreenshotGallery className="mt-12" />
-
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch w-full">
-        <LiveStats />
-        <ReviewsSection />
-      </div>
-
-      <div className="mt-8 grid sm:grid-cols-3 gap-4">
-        <Feature
-          icon={Sparkles}
-          title="Smart engine"
-          body="Greedy-match converter with custom dictionary, Unicode + Legacy FM."
-        />
-        <Feature
-          icon={Shield}
-          title="Private & offline"
-          body="Conversion runs locally. No keystrokes leave your machine."
-        />
-        <Feature
-          icon={Monitor}
-          title="System-wide"
-          body="Works in any window — use F10 (default) to toggle Singlish mode."
-        />
-      </div>
+      <DownloadInfoSection />
     </section>
   );
 }
@@ -111,6 +91,118 @@ const FALLBACK_RELEASE_NOTES = [
   "Easy mapping editor for custom Singlish rules",
   "System-wide Unicode + Legacy FM typing (F10 toggle)",
 ];
+
+interface KeyFeature {
+  emoji: string;
+  title: string;
+  description: string;
+}
+
+const KEY_FEATURES: KeyFeature[] = [
+  {
+    emoji: "🌐",
+    title: "Type Sinhala Anywhere",
+    description: "Works in Word, Photoshop, WhatsApp, Discord, browsers",
+  },
+  {
+    emoji: "⚡",
+    title: "Two Typing Modes",
+    description: "Unicode Sinhala or Legacy FM Abhaya fonts",
+  },
+  {
+    emoji: "🖥️",
+    title: "Control Right From Your Phone",
+    description: "Remote touchpad & keyboard via QR",
+  },
+  {
+    emoji: "📁",
+    title: "Send Files Mobile to PC",
+    description: "Drag & drop over local network, no cloud",
+  },
+  {
+    emoji: "✏️",
+    title: "Make Your Own Typing Rules",
+    description: "Custom Singlish shortcuts & personal dictionary",
+  },
+  {
+    emoji: "🔒",
+    title: "Everything Stays Private",
+    description: "No internet connection, no cloud storage",
+  },
+];
+
+function KeyFeaturesSection() {
+  const [inView, setInView] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          observer.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.2 }
+    );
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5, delay: 0.2 }}
+      className="mt-10 rounded-2xl border border-white/10 p-8"
+      style={{
+        background: "color-mix(in oklab, var(--card) 75%, transparent)",
+        backdropFilter: "blur(14px)",
+      }}
+    >
+      <h2 className="font-display text-2xl sm:text-3xl mb-8 text-center">Key Features</h2>
+
+      <div className="grid sm:grid-cols-2 gap-4">
+        {KEY_FEATURES.map((feature, index) => (
+          <motion.div
+            key={feature.title}
+            initial={{ opacity: 0, y: 12 }}
+            animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
+            transition={{
+              duration: 0.4,
+              delay: inView ? index * 0.1 : 0,
+            }}
+            className="group relative rounded-xl border border-white/10 p-4 transition-all duration-300 hover:border-[var(--neon-cyan)]/50 hover:shadow-lg"
+            style={{
+              background: "color-mix(in oklab, var(--card) 60%, transparent)",
+              transitionProperty: "all",
+            }}
+            onMouseEnter={(e) => {
+              const el = e.currentTarget as HTMLElement;
+              el.style.transform = "translateY(-4px)";
+              el.style.boxShadow = "0 8px 32px rgba(0, 217, 255, 0.2)";
+            }}
+            onMouseLeave={(e) => {
+              const el = e.currentTarget as HTMLElement;
+              el.style.transform = "translateY(0)";
+              el.style.boxShadow = "none";
+            }}
+          >
+            <div className="text-3xl mb-2">{feature.emoji}</div>
+            <h3 className="font-display font-semibold text-base mb-1.5">{feature.title}</h3>
+            <p className="text-sm text-muted-foreground">{feature.description}</p>
+          </motion.div>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
 
 function DownloadCard() {
   const { user } = useAuth();
@@ -209,60 +301,43 @@ function DownloadCard() {
           </motion.button>
         </div>
 
-        <div
-          className="mt-8 relative rounded-2xl border border-white/10 p-5 sm:p-6"
-          style={{
-            background: "color-mix(in oklab, var(--card) 75%, transparent)",
-            backdropFilter: "blur(14px)",
-          }}
-        >
-          <p className="text-[10px] uppercase tracking-[0.35em] text-muted-foreground mb-2">
-            SinType Desktop
-          </p>
-          <h3 className="font-display text-xl sm:text-2xl">
-            System-wide Singlish — type Sinhala everywhere
-          </h3>
-          <p className="mt-3 text-base sm:text-lg text-foreground/90 leading-relaxed max-w-2xl">
-            SinType Desktop is a native Windows input engine that converts Singlish to flawless
-            Sinhala in any application. No browser tab required — activate once, then type in Word,
-            Photoshop, browsers, chat apps, and more.
-          </p>
-          <ul className="mt-5 grid sm:grid-cols-2 gap-3 text-sm">
-            <HotFeature
-              icon={Keyboard}
-              title="Toggle Singlish (default F10)"
-              body="Turn the engine on/off system-wide. Change hotkeys in Desktop → Settings."
-            />
-            <HotFeature
-              icon={Sparkles}
-              title="Unicode & Legacy (FM) fonts"
-              body="Switch output for modern apps or FM Abhaya-style design workflows."
-            />
-            <HotFeature
-              icon={Globe}
-              title="Works in any app"
-              body="Photoshop, Premiere, Word, Excel, Discord, browsers — everywhere."
-            />
-            <HotFeature
-              icon={Zap}
-              title="Ultra-fast offline processing"
-              body="Conversion runs on your PC. No keystrokes sent to the cloud while typing."
-            />
-          </ul>
+        {/* Usage & Reviews Cards */}
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch w-full">
+          <LiveStats />
+          <ReviewsSection />
         </div>
 
+        <KeyFeaturesSection />
+
         <div className="mt-7 relative">
-          <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-3">
+          <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-4">
             Release notes — v{releaseVersion}
           </p>
-          <ul className="space-y-2 text-sm">
-            {releaseBullets.map((line) => (
-              <li key={line} className="flex items-start gap-2">
-                <CheckCircle2 className="w-4 h-4 mt-0.5 text-[var(--neon-cyan)]" />
-                <span>{line}</span>
-              </li>
+          <div className="space-y-3">
+            {releaseBullets.map((line, index) => (
+              <motion.div
+                key={line}
+                initial={{ opacity: 0, x: -8 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+                className="relative rounded-lg border border-white/15 p-3.5"
+                style={{
+                  background: "linear-gradient(135deg, color-mix(in oklab, var(--neon-cyan) 5%, var(--card)), color-mix(in oklab, var(--neon-purple) 3%, var(--card)))",
+                  backdropFilter: "blur(8px)",
+                }}
+              >
+                <div className="flex items-start gap-3">
+                  <div className="shrink-0 mt-0.5">
+                    <CheckCircle2 className="w-4 h-4 text-[var(--neon-cyan)]" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-foreground/90 leading-relaxed">{line}</p>
+                  </div>
+                </div>
+              </motion.div>
             ))}
-          </ul>
+          </div>
         </div>
 
         {olderReleases.length > 0 && (
@@ -338,52 +413,49 @@ function LiveStats() {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.1 }}
-      className="rounded-3xl border border-white/10 p-5 flex flex-col w-full h-full min-h-[22rem]"
+      className="rounded-xl border border-white/10 p-3 flex flex-col w-full"
       style={{
         background: "color-mix(in oklab, var(--card) 80%, transparent)",
         WebkitBackdropFilter: "blur(20px)",
         backdropFilter: "blur(20px)",
       }}
     >
-      <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
-        <Activity className="w-3 h-3 text-[var(--neon-cyan)] animate-pulse" /> Live
+      <div className="flex items-center gap-2 text-[8px] uppercase tracking-[0.25em] text-muted-foreground">
+        <Activity className="w-2 h-2 text-[var(--neon-cyan)] animate-pulse" /> Live
       </div>
-      <h3 className="font-display text-lg mt-2">Usage right now</h3>
+      <h3 className="font-display text-sm mt-1">Usage right now</h3>
 
-      <div className="mt-4 space-y-4">
-        <Stat
+      <div className="mt-2 space-y-1.5">
+        <CompactStat
           label="Desktop pings (24h)"
           value={loading ? "…" : total.toLocaleString()}
         />
-        <Stat
+        <CompactStat
           label="Active sessions (5 min)"
           value={loading ? "…" : active.toLocaleString()}
         />
-        <Stat
+        <CompactStat
           label="Unique sessions (24h)"
           value={loading ? "…" : sessions.toLocaleString()}
         />
       </div>
 
-      <div className="mt-4 pt-2 text-xs text-muted-foreground">
-        Pulled from Supabase <code className="text-[10px]">app_usage</code> telemetry.
-        {!loading && total === 0 && (
-          <span className="block mt-1">Stats appear after desktop app launches.</span>
-        )}
+      <div className="mt-2 pt-0.5 text-[9px] text-muted-foreground">
+        Pulled from Supabase <code className="text-[8px]">app_usage</code>
       </div>
     </motion.div>
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function CompactStat({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground">{label}</p>
+      <p className="text-[9px] uppercase tracking-[0.15em] text-muted-foreground">{label}</p>
       <motion.p
         key={value}
         initial={{ opacity: 0.4, y: -2 }}
         animate={{ opacity: 1, y: 0 }}
-        className="font-display text-2xl mt-1"
+        className="font-display text-xl mt-0.25"
       >
         {value}
       </motion.p>
@@ -434,3 +506,334 @@ function Feature({
     </div>
   );
 }
+
+/* ========== NEW DOWNLOAD INFO SECTION ========== */
+
+function DownloadInfoSection() {
+  return (
+    <div className="mt-16 space-y-12">
+      {/* What is SinType */}
+      <motion.section
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+        className="rounded-2xl border border-white/10 p-6 sm:p-8"
+        style={{
+          background: "color-mix(in oklab, var(--card) 75%, transparent)",
+          backdropFilter: "blur(14px)",
+        }}
+      >
+        <h2 className="font-display text-2xl sm:text-3xl mb-4">What is SinType?</h2>
+        <p className="text-base sm:text-lg text-foreground/90 leading-relaxed">
+          SinType is a smart typing app for Windows that instantly converts the way you type English letters into beautiful Sinhala script, working everywhere on your computer.
+        </p>
+      </motion.section>
+
+      {/* Features */}
+      <motion.section
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+      >
+        <h2 className="font-display text-2xl sm:text-3xl mb-6">Key Features</h2>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <FeatureCard
+            title="Type Sinhala Anywhere"
+            description="Works in Word, Photoshop, WhatsApp, Discord, browsers—any app on your PC. Just press F10 to turn Sinhala typing on or off."
+            icon={Globe}
+          />
+          <FeatureCard
+            title="Two Typing Modes"
+            description="Switch between two styles: Modern Unicode Sinhala or Legacy FM Abhaya fonts for design work."
+            icon={Zap}
+          />
+          <FeatureCard
+            title="Control Right From Your Phone"
+            description="Use your mobile phone as a remote touchpad and keyboard. Connect via a simple QR code scan on your home network."
+            icon={Smartphone}
+          />
+          <FeatureCard
+            title="Send Files From Mobile to PC"
+            description="Drag and drop files from your phone directly to your computer over your private home network—no cloud needed."
+            icon={HardDrive}
+          />
+          <FeatureCard
+            title="Make Your Own Typing Rules"
+            description="Customize how Singlish shortcuts map to Sinhala letters. Save your personal typing dictionary."
+            icon={Sparkles}
+          />
+          <FeatureCard
+            title="Everything Stays Private"
+            description="Your typing stays on your computer. Nothing is sent to the internet or stored in the cloud."
+            icon={Lock}
+          />
+        </div>
+      </motion.section>
+
+      {/* System Requirements */}
+      <motion.section
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        className="rounded-2xl border border-white/10 p-6 sm:p-8"
+        style={{
+          background: "color-mix(in oklab, var(--card) 75%, transparent)",
+          backdropFilter: "blur(14px)",
+        }}
+      >
+        <h2 className="font-display text-2xl sm:text-3xl mb-6">System Requirements</h2>
+        <div className="grid sm:grid-cols-2 gap-6">
+          <RequirementItem label="Operating System" value="Windows 10 or Windows 11" />
+          <RequirementItem label="Memory (RAM)" value="At least 4 GB (8 GB recommended)" />
+          <RequirementItem label="Disk Space" value="About 200 MB for installation" />
+          <RequirementItem label="Internet" value="Required for license activation only" />
+        </div>
+      </motion.section>
+
+      {/* Installation */}
+      <motion.section
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+      >
+        <h2 className="font-display text-2xl sm:text-3xl mb-6">How to Install</h2>
+        <div className="space-y-4">
+          <InstallStep
+            step={1}
+            title="Download the Installer"
+            description="Click the download button above. Your browser will save the SinType installer file."
+          />
+          <InstallStep
+            step={2}
+            title="Run the Installer"
+            description="Open the downloaded file and follow the setup wizard. The app will be installed to your Programs folder."
+          />
+          <InstallStep
+            step={3}
+            title="Launch SinType"
+            description="After installation, find SinType in your Windows Start menu or desktop shortcut. Click to open the app."
+          />
+          <InstallStep
+            step={4}
+            title="Activate Your License"
+            description="Open the License tab inside the app, enter your email and activation key (from sintype.lk/license), and click Activate."
+          />
+        </div>
+      </motion.section>
+
+      {/* License Activation */}
+      <motion.section
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay: 0.4 }}
+        className="rounded-2xl border border-white/10 p-6 sm:p-8"
+        style={{
+          background: "color-mix(in oklab, var(--card) 75%, transparent)",
+          backdropFilter: "blur(14px)",
+        }}
+      >
+        <h2 className="font-display text-2xl sm:text-3xl mb-4">How to Activate Your License</h2>
+        <p className="text-muted-foreground mb-6">
+          Every PC gets its own license key tied to that computer's hardware fingerprint. Here's how to activate:
+        </p>
+        <div className="space-y-4">
+          <ActivationStep
+            step={1}
+            title="Get Your Activation Key"
+            description="Go to sintype.lk/license, sign in with your email, and copy your 30-day free key."
+          />
+          <ActivationStep
+            step={2}
+            title="Open the License Tab"
+            description="In the SinType app, click the License tab. Paste your email address and the activation key you just copied."
+          />
+          <ActivationStep
+            step={3}
+            title="Click Activate"
+            description="The app connects to our server to verify and activate your license. You'll see a confirmation message once it's active."
+          />
+        </div>
+        <div
+          className="mt-6 p-4 rounded-lg border-l-4"
+          style={{
+            background: "color-mix(in oklab, var(--neon-cyan) 10%, var(--card))",
+            borderColor: "var(--neon-cyan)",
+          }}
+        >
+          <p className="text-sm text-muted-foreground">
+            <span className="font-semibold text-foreground">Note:</span> Your license is linked to this specific computer using its hardware fingerprint. If you use SinType on another PC, you'll need a separate key.
+          </p>
+        </div>
+      </motion.section>
+
+      {/* FAQ */}
+      <motion.section
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay: 0.5 }}
+      >
+        <h2 className="font-display text-2xl sm:text-3xl mb-6">Frequently Asked Questions</h2>
+        <div className="space-y-4">
+          <FAQItem
+            question="Do I need the internet to use SinType?"
+            answer="Internet is only needed to activate your license and check for app updates. Once activated, you can type Sinhala offline without any internet. The typing conversion happens entirely on your computer."
+          />
+          <FAQItem
+            question="Can I use SinType on multiple computers?"
+            answer="Each PC needs its own license key because each computer has a unique hardware fingerprint. You can request a new key for another computer on the same email account at sintype.lk/license. This protects your license and keeps the app secure."
+          />
+          <FAQItem
+            question="How do I uninstall SinType?"
+            answer="Open Windows Settings → Apps → Installed Apps, search for 'SinType', and click Uninstall. Or you can use the uninstall button in the SinType app's Settings tab—it will remove the app cleanly. Your settings and custom typing rules are kept in your user folder just in case you want to reinstall later."
+          />
+        </div>
+      </motion.section>
+    </div>
+  );
+}
+
+function FeatureCard({
+  title,
+  description,
+  icon: Icon,
+}: {
+  title: string;
+  description: string;
+  icon: typeof Sparkles;
+}) {
+  return (
+    <div
+      className="rounded-2xl border border-white/10 p-5 sm:p-6"
+      style={{
+        background: "color-mix(in oklab, var(--card) 80%, transparent)",
+        backdropFilter: "blur(12px)",
+      }}
+    >
+      <Icon className="w-6 h-6 text-[var(--neon-cyan)]" />
+      <h3 className="font-display text-base sm:text-lg mt-3 mb-2">{title}</h3>
+      <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
+    </div>
+  );
+}
+
+function RequirementItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground font-semibold">
+        {label}
+      </p>
+      <p className="text-base sm:text-lg text-foreground mt-1">{value}</p>
+    </div>
+  );
+}
+
+function InstallStep({
+  step,
+  title,
+  description,
+}: {
+  step: number;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div
+      className="rounded-2xl border border-white/10 p-5 sm:p-6 flex gap-4"
+      style={{
+        background: "color-mix(in oklab, var(--card) 80%, transparent)",
+        backdropFilter: "blur(12px)",
+      }}
+    >
+      <div
+        className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center font-display font-bold text-primary-foreground"
+        style={{
+          background: "linear-gradient(135deg, var(--neon-cyan), var(--neon-purple))",
+        }}
+      >
+        {step}
+      </div>
+      <div>
+        <h3 className="font-display font-semibold text-base sm:text-lg">{title}</h3>
+        <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{description}</p>
+      </div>
+    </div>
+  );
+}
+
+function ActivationStep({
+  step,
+  title,
+  description,
+}: {
+  step: number;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div
+      className="rounded-xl border border-white/5 p-4 flex gap-3"
+      style={{
+        background: "color-mix(in oklab, var(--card) 60%, transparent)",
+      }}
+    >
+      <div
+        className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-semibold text-xs text-primary-foreground"
+        style={{
+          background: "var(--neon-cyan)",
+        }}
+      >
+        {step}
+      </div>
+      <div>
+        <p className="font-semibold text-foreground text-sm sm:text-base">{title}</p>
+        <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">{description}</p>
+      </div>
+    </div>
+  );
+}
+
+function FAQItem({ question, answer }: { question: string; answer: string }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div
+      className="rounded-2xl border border-white/10 p-5 sm:p-6 cursor-pointer transition-all"
+      style={{
+        background: "color-mix(in oklab, var(--card) 80%, transparent)",
+        backdropFilter: "blur(12px)",
+      }}
+      onClick={() => setOpen(!open)}
+    >
+      <div className="flex items-start justify-between gap-4">
+        <h3 className="font-display font-semibold text-base sm:text-lg text-foreground flex-1">
+          {question}
+        </h3>
+        <HelpCircle
+          className="w-5 h-5 text-[var(--neon-cyan)] shrink-0 mt-0.5 transition-transform"
+          style={{
+            transform: open ? "rotate(180deg)" : "rotate(0deg)",
+          }}
+        />
+      </div>
+      {open && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          exit={{ opacity: 0, height: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <p className="text-sm text-muted-foreground mt-3 leading-relaxed">{answer}</p>
+        </motion.div>
+      )}
+    </div>
+  );
+}
+
+// Icon for smartphone (using existing icons as fallback)
+const Smartphone = Monitor; // Using Monitor as fallback icon
