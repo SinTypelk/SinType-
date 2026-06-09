@@ -69,7 +69,7 @@ export function NotificationsPanel() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-3 pb-20 sm:p-4 sm:pb-4"
+            className="fixed inset-0 z-[9998] flex items-end sm:items-center justify-center p-3 pb-20 sm:p-4 sm:pb-4"
             style={{
               background: "rgba(0, 0, 0, 0.82)",
               backdropFilter: "blur(12px)",
@@ -82,7 +82,11 @@ export function NotificationsPanel() {
               animate={{ scale: 1, y: 0, opacity: 1 }}
               exit={{ scale: 0.98, y: 16, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-lg max-h-[min(80vh,520px)] overflow-hidden rounded-2xl border border-border shadow-2xl flex flex-col bg-card text-card-foreground isolate"
+              className="w-full sm:max-w-lg max-h-[min(80vh,520px)] overflow-hidden rounded-2xl border border-border shadow-2xl flex flex-col bg-card text-card-foreground isolate"
+              style={{
+                boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4)",
+                maxWidth: "calc(100vw - 32px)",
+              }}
             >
               <div className="flex items-center justify-between p-4 border-b border-border bg-card">
                 <h3 className="font-display text-lg">Notifications</h3>

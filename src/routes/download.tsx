@@ -475,12 +475,6 @@ function DownloadCard({
           </motion.button>
         </div>
 
-        {/* Usage & Reviews Cards */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch w-full">
-          <LiveStats />
-          <ReviewsSection />
-        </div>
-
         <KeyFeaturesSection />
 
         <div className="mt-7 relative">
@@ -702,47 +696,14 @@ function DownloadInfoSection({ config }: { config: DownloadPageConfig[] }) {
         <p className="text-base sm:text-lg text-foreground/90 leading-relaxed">
           SinType is a smart typing app for Windows that instantly converts the way you type English letters into beautiful Sinhala script, working everywhere on your computer.
         </p>
-      </motion.section>
-
-      {/* Features */}
-      <motion.section
-        initial={{ opacity: 0, y: 16 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.5, delay: 0.1 }}
-      >
-        <h2 className="font-display text-2xl sm:text-3xl mb-6">Key Features</h2>
-        <div className="grid sm:grid-cols-2 gap-4">
-          <Feature
-            title="Type Sinhala Anywhere"
-            description="Works in Word, Photoshop, WhatsApp, Discord, browsers—any app on your PC. Just press F10 to turn Sinhala typing on or off."
-            icon={Globe}
-          />
-          <Feature
-            title="Two Typing Modes"
-            description="Switch between two styles: Modern Unicode Sinhala or Legacy FM Abhaya fonts for design work."
-            icon={Zap}
-          />
-          <Feature
-            title="Control Right From Your Phone"
-            description="Use your mobile phone as a remote touchpad and keyboard. Connect via a simple QR code scan on your home network."
-            icon={Smartphone}
-          />
-          <Feature
-            title="Send Files From Mobile to PC"
-            description="Drag and drop files from your phone directly to your computer over your private home network—no cloud needed."
-            icon={HardDrive}
-          />
-          <Feature
-            title="Make Your Own Typing Rules"
-            description="Customize how Singlish shortcuts map to Sinhala letters. Save your personal typing dictionary."
-            icon={Sparkles}
-          />
-          <Feature
-            title="Everything Stays Private"
-            description="Your typing stays on your computer. Nothing is sent to the internet or stored in the cloud."
-            icon={Lock}
-          />
+        <div className="mt-4 flex justify-end">
+          <a
+            href="/about"
+            className="text-xs sm:text-sm text-cyan-400/80 hover:text-cyan-400 transition-colors duration-200 font-medium flex items-center gap-1.5"
+          >
+            Read more about our mission
+            <span>→</span>
+          </a>
         </div>
       </motion.section>
 
@@ -867,6 +828,38 @@ function DownloadInfoSection({ config }: { config: DownloadPageConfig[] }) {
             answer="Open Windows Settings → Apps → Installed Apps, search for 'SinType', and click Uninstall. Or you can use the uninstall button in the SinType app's Settings tab—it will remove the app cleanly. Your settings and custom typing rules are kept in your user folder just in case you want to reinstall later."
           />
         </div>
+      </motion.section>
+
+      {/* More Questions CTA */}
+      <motion.section
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay: 0.55 }}
+        className="rounded-2xl border border-white/10 p-8 text-center"
+        style={{
+          background: "color-mix(in oklab, var(--card) 75%, transparent)",
+          backdropFilter: "blur(14px)",
+        }}
+      >
+        <p className="text-foreground/80 mb-4">Have more questions?</p>
+        <a
+          href="/faq"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-cyan-400/30 text-cyan-400 hover:border-cyan-400/60 hover:bg-cyan-400/5 transition-all duration-300 font-medium"
+        >
+          View Full FAQ
+          <span>→</span>
+        </a>
+      </motion.section>
+
+      {/* Ratings & Reviews */}
+      <motion.section
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay: 0.6 }}
+      >
+        <ReviewsSection />
       </motion.section>
     </div>
   );
