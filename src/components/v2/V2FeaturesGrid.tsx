@@ -43,7 +43,7 @@ export function V2FeaturesGrid({
         <p className="mt-2 text-sm sm:text-base text-muted-foreground max-w-2xl">{subtitle}</p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         {displayFeatures.map((feature, i) => {
           const featureIcon = "icon" in feature ? feature.icon : "mouse-pointer-click";
           const Icon = ICONS[featureIcon];
@@ -68,20 +68,20 @@ export function V2FeaturesGrid({
                 }}
               />
               <div className="relative flex gap-4">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[var(--neon-cyan)]/25 bg-[var(--neon-cyan)]/10">
+                <div className="flex h-12 sm:h-14 md:h-11 w-12 sm:w-14 md:w-11 shrink-0 items-center justify-center rounded-xl border border-[var(--neon-cyan)]/25 bg-[var(--neon-cyan)]/10">
                   {Icon ? (
-                    <Icon className="h-5 w-5 text-[var(--neon-cyan)]" aria-hidden />
+                    <Icon className="h-6 sm:h-7 md:h-5 w-6 sm:w-7 md:w-5 text-[var(--neon-cyan)]" aria-hidden />
                   ) : (
-                    <span className="text-xl leading-none" aria-hidden>
+                    <span className="text-2xl sm:text-3xl md:text-xl leading-none" aria-hidden>
                       {featureIcon}
                     </span>
                   )}
                 </div>
                 <div>
-                  <h3 className="font-display text-lg font-semibold text-foreground">
+                  <h3 className="font-display text-lg sm:text-xl md:text-lg font-semibold text-foreground">
                     {feature.title}
                   </h3>
-                  <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">
+                  <p className="mt-1.5 text-base md:text-sm text-muted-foreground leading-relaxed">
                     {feature.description}
                   </p>
                 </div>

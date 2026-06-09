@@ -292,7 +292,7 @@ function KeyFeaturesSection() {
           <Loader2 className="h-5 w-5 animate-spin" /> Loading features…
         </div>
       ) : (
-      <div className="grid sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         {features.map((feature, index) => (
           <motion.div
             key={feature.title}
@@ -302,7 +302,7 @@ function KeyFeaturesSection() {
               duration: 0.4,
               delay: inView ? index * 0.1 : 0,
             }}
-            className="group relative rounded-xl border border-white/10 p-4 transition-all duration-300 hover:border-[var(--neon-cyan)]/50 hover:shadow-lg"
+            className="group relative rounded-xl border border-white/10 p-5 md:p-4 transition-all duration-300 hover:border-[var(--neon-cyan)]/50 hover:shadow-lg"
             style={{
               background: "color-mix(in oklab, var(--card) 60%, transparent)",
               transitionProperty: "all",
@@ -318,9 +318,9 @@ function KeyFeaturesSection() {
               el.style.boxShadow = "none";
             }}
           >
-            <div className="text-3xl mb-2">{feature.emoji}</div>
-            <h3 className="font-display font-semibold text-base mb-1.5">{feature.title}</h3>
-            <p className="text-sm text-muted-foreground">{feature.description}</p>
+            <div className="text-4xl sm:text-5xl md:text-3xl mb-3 md:mb-2">{feature.emoji}</div>
+            <h3 className="font-display font-semibold text-lg md:text-base mb-2 md:mb-1.5">{feature.title}</h3>
+            <p className="text-base md:text-sm text-muted-foreground">{feature.description}</p>
           </motion.div>
         ))}
       </div>
