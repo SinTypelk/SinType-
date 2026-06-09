@@ -169,6 +169,80 @@
             margin-top: 12px;
             line-height: 1.6;
         }
+
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            border-bottom-color: #00d9ff;
+            color: #00d9ff;
+        }
+
+        .tab-btn:not(.active) {
+            color: #94a3b8;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #475569;
+            transition: 0.3s;
+            border-radius: 28px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 24px;
+            width: 24px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #00d9ff;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(22px);
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .last-updated {
+            font-size: 0.85em;
+            color: #94a3b8;
+            margin-top: 1rem;
+            text-align: center;
+        }
 </head>
 <body>
     <!-- Password Protection Modal -->
@@ -201,11 +275,18 @@
                     Logout
                 </button>
             </div>
+
+            <!-- Tab Navigation -->
+            <div class="border-t border-slate-700 flex items-center gap-0">
+                <button class="tab-btn active" onclick="switchTab('blog')">📝 Create Blog Post</button>
+                <button class="tab-btn" onclick="switchTab('settings')">⚙️ Site Settings</button>
+            </div>
         </header>
 
         <!-- Main Content -->
         <main class="max-w-7xl mx-auto px-6 py-8">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Blog Tab Content -->
+            <div id="blog-tab" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 
                 <!-- Form Column (Left) -->
                 <div class="lg:col-span-2">
@@ -315,6 +396,114 @@
                             </div>
                         </div>
                     </aside>
+                </div>
+            </div>
+
+            <!-- Settings Tab Content (hidden by default) -->
+            <div id="settings-tab" class="hidden">
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-8 shadow-lg">
+                    <h2 class="text-2xl font-bold text-white mb-8">⚙️ Site Settings</h2>
+                    
+                    <form id="settings-form" class="space-y-8">
+                        <!-- Contact & Business Info Section -->
+                        <div>
+                            <h3 class="text-lg font-bold text-cyan-400 mb-4">📧 Contact & Business Info</h3>
+                            <div class="settings-grid">
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-300 mb-2">Business Email</label>
+                                    <input type="email" id="business_email" class="w-full px-4 py-3 rounded-lg input-field border focus:outline-none" placeholder="hello@sintype.lk">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-300 mb-2">Support Email</label>
+                                    <input type="email" id="support_email" class="w-full px-4 py-3 rounded-lg input-field border focus:outline-none" placeholder="support@sintype.lk">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-300 mb-2">GitHub URL</label>
+                                    <input type="url" id="github_url" class="w-full px-4 py-3 rounded-lg input-field border focus:outline-none" placeholder="https://github.com/...">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-300 mb-2">Facebook URL</label>
+                                    <input type="url" id="facebook_url" class="w-full px-4 py-3 rounded-lg input-field border focus:outline-none" placeholder="https://facebook.com/...">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-300 mb-2">YouTube URL</label>
+                                    <input type="url" id="youtube_url" class="w-full px-4 py-3 rounded-lg input-field border focus:outline-none" placeholder="https://youtube.com/...">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-300 mb-2">Reddit URL</label>
+                                    <input type="url" id="reddit_url" class="w-full px-4 py-3 rounded-lg input-field border focus:outline-none" placeholder="https://reddit.com/...">
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="border-slate-700">
+
+                        <!-- Site Info Section -->
+                        <div>
+                            <h3 class="text-lg font-bold text-cyan-400 mb-4">🌐 Site Info</h3>
+                            <div class="settings-grid">
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-300 mb-2">Site Name</label>
+                                    <input type="text" id="site_name" class="w-full px-4 py-3 rounded-lg input-field border focus:outline-none" placeholder="SinType">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-300 mb-2">Site Tagline</label>
+                                    <input type="text" id="site_tagline" class="w-full px-4 py-3 rounded-lg input-field border focus:outline-none" placeholder="Sinhala Typing for Everyone">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-300 mb-2">Current App Version</label>
+                                    <input type="text" id="app_version" class="w-full px-4 py-3 rounded-lg input-field border focus:outline-none" placeholder="2.0">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-300 mb-2">Download URL</label>
+                                    <input type="url" id="download_url" class="w-full px-4 py-3 rounded-lg input-field border focus:outline-none" placeholder="https://...">
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="border-slate-700">
+
+                        <!-- Notification Message Section -->
+                        <div>
+                            <h3 class="text-lg font-bold text-cyan-400 mb-4">🔔 Notification Message</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-300 mb-2">Notification Title</label>
+                                    <input type="text" id="notification_title" class="w-full px-4 py-3 rounded-lg input-field border focus:outline-none" placeholder="e.g., SinType 2.1 Available">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-300 mb-2">Notification Message</label>
+                                    <textarea id="notification_message" class="w-full px-4 py-3 rounded-lg textarea-field border focus:outline-none" rows="3" placeholder="Details about the notification..."></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-300 mb-2">Notification Link URL</label>
+                                    <input type="url" id="notification_link" class="w-full px-4 py-3 rounded-lg input-field border focus:outline-none" placeholder="https://...">
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <label class="text-sm font-semibold text-slate-300">Is Active?</label>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="notification_active" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Save Button -->
+                        <div class="flex gap-3 pt-6 border-t border-slate-700">
+                            <button type="button" onclick="saveSettings()" class="flex-1 py-3 px-4 rounded-lg btn-primary">
+                                💾 Save Settings
+                            </button>
+                            <button type="reset" class="flex-1 py-3 px-4 rounded-lg btn-secondary border">
+                                🔄 Reset Form
+                            </button>
+                        </div>
+
+                        <!-- Last Updated Info -->
+                        <div id="last-updated-info" class="last-updated hidden">
+                            Last updated: <span id="last-updated-time"></span>
+                        </div>
+                    </form>
                 </div>
             </div>
         </main>
@@ -639,6 +828,150 @@
                 navigator.clipboard.writeText(window.generatedSitemap).then(() => {
                     showToast('📋 Sitemap XML copied to clipboard!');
                 });
+            }
+        }
+
+        // Tab Switching
+        function switchTab(tabName) {
+            const blogTab = document.getElementById('blog-tab');
+            const settingsTab = document.getElementById('settings-tab');
+            const tabBtns = document.querySelectorAll('.tab-btn');
+
+            if (tabName === 'blog') {
+                blogTab.classList.remove('hidden');
+                settingsTab.classList.add('hidden');
+                tabBtns.forEach((btn, idx) => {
+                    if (idx === 0) btn.classList.add('active');
+                    else btn.classList.remove('active');
+                });
+            } else if (tabName === 'settings') {
+                blogTab.classList.add('hidden');
+                settingsTab.classList.remove('hidden');
+                tabBtns.forEach((btn, idx) => {
+                    if (idx === 1) btn.classList.add('active');
+                    else btn.classList.remove('active');
+                });
+                loadSettings();
+            }
+        }
+
+        // Supabase Client
+        const SUPABASE_URL = 'https://hxlssfjtaffispuaupgi.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh4bHNzZmp0YWZmaXNwdWF1cGdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0MzIzNzEsImV4cCI6MjA5NTAwODM3MX0.zrz4d0YHzcpuVZ4TG-XrOXLIMmxmucfGzZWNMOJzVnY';
+
+        async function supabaseCall(method, table, query = {}, body = null) {
+            const url = `${SUPABASE_URL}/rest/v1/${table}${Object.keys(query).length ? '?' + new URLSearchParams(query).toString() : ''}`;
+            const options = {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${SUPABASE_KEY}`,
+                    'apikey': SUPABASE_KEY
+                }
+            };
+            if (body) options.body = JSON.stringify(body);
+            const response = await fetch(url, options);
+            return response.json();
+        }
+
+        // Load Settings from Supabase
+        async function loadSettings() {
+            try {
+                const data = await supabaseCall('GET', 'site_settings');
+                const settings = {};
+                data.forEach(row => {
+                    settings[row.key] = row.value;
+                });
+
+                // Populate form fields
+                document.getElementById('business_email').value = settings.business_email || '';
+                document.getElementById('support_email').value = settings.support_email || '';
+                document.getElementById('github_url').value = settings.github_url || '';
+                document.getElementById('facebook_url').value = settings.facebook_url || '';
+                document.getElementById('youtube_url').value = settings.youtube_url || '';
+                document.getElementById('reddit_url').value = settings.reddit_url || '';
+                document.getElementById('site_name').value = settings.site_name || '';
+                document.getElementById('site_tagline').value = settings.site_tagline || '';
+                document.getElementById('app_version').value = settings.app_version || '';
+                document.getElementById('download_url').value = settings.download_url || '';
+                document.getElementById('notification_title').value = settings.notification_title || '';
+                document.getElementById('notification_message').value = settings.notification_message || '';
+                document.getElementById('notification_link').value = settings.notification_link || '';
+
+                // Load and set notification active status
+                const notifData = await supabaseCall('GET', 'notifications');
+                if (notifData.length > 0) {
+                    const latestNotif = notifData[notifData.length - 1];
+                    document.getElementById('notification_active').checked = latestNotif.is_active;
+                    window.latestNotificationId = latestNotif.id;
+                }
+
+                // Show last updated time
+                if (data.length > 0) {
+                    const latestUpdate = new Date(Math.max(...data.map(d => new Date(d.updated_at)))).toLocaleString();
+                    document.getElementById('last-updated-time').textContent = latestUpdate;
+                    document.getElementById('last-updated-info').classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Failed to load settings:', error);
+                showToast('❌ Failed to load settings');
+            }
+        }
+
+        // Save Settings to Supabase
+        async function saveSettings() {
+            try {
+                const settings = {
+                    business_email: document.getElementById('business_email').value,
+                    support_email: document.getElementById('support_email').value,
+                    github_url: document.getElementById('github_url').value,
+                    facebook_url: document.getElementById('facebook_url').value,
+                    youtube_url: document.getElementById('youtube_url').value,
+                    reddit_url: document.getElementById('reddit_url').value,
+                    site_name: document.getElementById('site_name').value,
+                    site_tagline: document.getElementById('site_tagline').value,
+                    app_version: document.getElementById('app_version').value,
+                    download_url: document.getElementById('download_url').value,
+                    notification_title: document.getElementById('notification_title').value,
+                    notification_message: document.getElementById('notification_message').value,
+                    notification_link: document.getElementById('notification_link').value
+                };
+
+                // Save each setting
+                for (const [key, value] of Object.entries(settings)) {
+                    const existingData = await supabaseCall('GET', 'site_settings', { key: `eq.${key}` });
+                    if (existingData.length > 0) {
+                        await supabaseCall('PATCH', 'site_settings', { key: `eq.${key}` }, { value, updated_at: new Date().toISOString() });
+                    } else {
+                        await supabaseCall('POST', 'site_settings', {}, { key, value });
+                    }
+                }
+
+                // Handle notification active status
+                const notifActive = document.getElementById('notification_active').checked;
+                if (window.latestNotificationId) {
+                    await supabaseCall('PATCH', 'notifications', { id: `eq.${window.latestNotificationId}` }, { 
+                        title: settings.notification_title,
+                        message: settings.notification_message,
+                        link: settings.notification_link,
+                        is_active: notifActive 
+                    });
+                } else if (settings.notification_title) {
+                    // Create new notification if doesn't exist
+                    await supabaseCall('POST', 'notifications', {}, {
+                        title: settings.notification_title,
+                        message: settings.notification_message,
+                        link: settings.notification_link,
+                        is_active: notifActive
+                    });
+                }
+
+                showToast('✅ Settings saved successfully!');
+                document.getElementById('last-updated-time').textContent = new Date().toLocaleString();
+                document.getElementById('last-updated-info').classList.remove('hidden');
+            } catch (error) {
+                console.error('Failed to save settings:', error);
+                showToast('❌ Failed to save settings');
             }
         }
 

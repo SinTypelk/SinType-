@@ -76,6 +76,17 @@ function Index() {
       </div>
       <Converter />
       <HomeSeoSection />
+      {/* Internal Navigation Link 1: Learn About SinType */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 pb-12 text-center">
+        <p className="text-muted-foreground mb-4">Want to know more about SinType?</p>
+        <a
+          href="/about"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-cyan-400/30 text-cyan-400 hover:border-cyan-400/60 hover:bg-cyan-400/5 transition-all duration-300 font-medium text-sm"
+        >
+          Learn About SinType
+          <span className="text-lg">→</span>
+        </a>
+      </div>
     </>
   );
 }

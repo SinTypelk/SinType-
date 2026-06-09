@@ -44,6 +44,23 @@ create table if not exists download_page_config (
   updated_at timestamptz default now()
 );
 
+create table if not exists notifications (
+  id uuid default gen_random_uuid() primary key,
+  title text not null,
+  message text not null,
+  link text,
+  is_active boolean default true,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+create table if not exists site_settings (
+  id uuid default gen_random_uuid() primary key,
+  key text unique not null,
+  value text,
+  updated_at timestamptz default now()
+);
+
 -- ========== INDEXES ==========
 
 create index if not exists site_banners_active_show_on on site_banners(is_active, show_on);
@@ -51,6 +68,8 @@ create index if not exists app_versions_channel_active on app_versions(channel, 
 create index if not exists key_features_page_visible on key_features(page, is_visible);
 create index if not exists key_features_display_order on key_features(display_order);
 create index if not exists download_page_config_field_key on download_page_config(field_key);
+create index if not exists notifications_active on notifications(is_active);
+create index if not exists site_settings_key on site_settings(key);
 
 -- ========== ROW LEVEL SECURITY ==========
 -- Public read + anon write (admin panel uses anon key; tighten in production if needed)
@@ -85,6 +104,18 @@ exception when duplicate_object then null;
 end $$;
 
 do $$ begin
+  create policy "Public read notifications"
+    on notifications for select using (true);
+exception when duplicate_object then null;
+end $$;
+
+do $$ begin
+  create policy "Public read site_settings"
+    on site_settings for select using (true);
+exception when duplicate_object then null;
+end $$;
+
+do $$ begin
   create policy "Anon write site_banners"
     on site_banners for all using (true) with check (true);
 exception when duplicate_object then null;
@@ -105,6 +136,18 @@ end $$;
 do $$ begin
   create policy "Anon write download_page_config"
     on download_page_config for all using (true) with check (true);
+exception when duplicate_object then null;
+end $$;
+
+do $$ begin
+  create policy "Anon write notifications"
+    on notifications for all using (true) with check (true);
+exception when duplicate_object then null;
+end $$;
+
+do $$ begin
+  create policy "Anon write site_settings"
+    on site_settings for all using (true) with check (true);
 exception when duplicate_object then null;
 end $$;
 

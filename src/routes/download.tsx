@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useEffect, useState, useRef } from "react";
 import {
   Download,
@@ -194,7 +194,6 @@ interface KeyFeature {
   emoji: string;
   title: string;
   description: string;
-  detailedDescription: string;
 }
 
 const KEY_FEATURES: KeyFeature[] = [
@@ -202,37 +201,31 @@ const KEY_FEATURES: KeyFeature[] = [
     emoji: "🌐",
     title: "Type Sinhala Anywhere",
     description: "Works in Word, Photoshop, WhatsApp, Discord, browsers",
-    detailedDescription: "Works seamlessly in Word, Photoshop, WhatsApp, Discord, browsers, and any application on your PC. Just press F10 to instantly switch between English and Sinhala typing modes.",
   },
   {
     emoji: "⚡",
     title: "Two Typing Modes",
     description: "Unicode Sinhala or Legacy FM Abhaya fonts",
-    detailedDescription: "Switch between Modern Unicode Sinhala for web compatibility or Legacy FM Abhaya fonts for design work. Choose the style that works best for your project.",
   },
   {
     emoji: "🖥️",
     title: "Control Right From Your Phone",
     description: "Remote touchpad & keyboard via QR",
-    detailedDescription: "Use your mobile phone as a wireless touchpad and keyboard to control your PC. Connect instantly via QR code scan on your home network—no cables or complex setup needed.",
   },
   {
     emoji: "📁",
     title: "Send Files Mobile to PC",
     description: "Drag & drop over local network, no cloud",
-    detailedDescription: "Drag and drop files directly from your phone to your computer over your private home network. Everything stays on your local network—no cloud uploads or storage subscriptions.",
   },
   {
     emoji: "✏️",
     title: "Make Your Own Typing Rules",
     description: "Custom Singlish shortcuts & personal dictionary",
-    detailedDescription: "Customize exactly how Singlish shortcuts map to Sinhala letters. Create and save your personal typing dictionary with your preferred keyboard shortcuts and typing preferences.",
   },
   {
     emoji: "🔒",
     title: "Everything Stays Private",
     description: "No internet connection, no cloud storage",
-    detailedDescription: "Your typing data never leaves your computer. All conversions happen entirely on your PC with zero internet connection needed. Your privacy is always protected.",
   },
 ];
 
@@ -240,7 +233,6 @@ function KeyFeaturesSection() {
   const [features, setFeatures] = useState(KEY_FEATURES);
   const [loadingFeatures, setLoadingFeatures] = useState(true);
   const [inView, setInView] = useState(false);
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -252,7 +244,6 @@ function KeyFeaturesSection() {
               emoji: f.icon,
               title: f.title,
               description: f.description,
-              detailedDescription: f.description,
             })),
           );
         }
@@ -301,73 +292,36 @@ function KeyFeaturesSection() {
           <Loader2 className="h-5 w-5 animate-spin" /> Loading features…
         </div>
       ) : (
-      <div className="grid sm:grid-cols-2 gap-4 relative">
+      <div className="grid sm:grid-cols-2 gap-4">
         {features.map((feature, index) => (
-          <div key={feature.title} className="relative">
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
-              transition={{
-                duration: 0.4,
-                delay: inView ? index * 0.1 : 0,
-              }}
-              className="group relative rounded-xl border border-white/10 p-4 transition-all duration-300 hover:border-[var(--neon-cyan)]/50 hover:shadow-lg cursor-pointer"
-              style={{
-                background: "color-mix(in oklab, var(--card) 60%, transparent)",
-                transitionProperty: "all",
-              }}
-              onMouseEnter={() => setHoveredIndex(index)}
-              onMouseLeave={() => setHoveredIndex(null)}
-              onMouseMove={(e) => {
-                const el = e.currentTarget as HTMLElement;
-                el.style.transform = "translateY(-4px)";
-                el.style.boxShadow = "0 8px 32px rgba(0, 217, 255, 0.2)";
-              }}
-              onMouseLeaveCapture={(e) => {
-                const el = e.currentTarget as HTMLElement;
-                el.style.transform = "translateY(0)";
-                el.style.boxShadow = "none";
-              }}
-            >
-              <div className="text-3xl mb-2">{feature.emoji}</div>
-              <h3 className="font-display font-semibold text-base mb-1.5">{feature.title}</h3>
-              <p className="text-sm text-muted-foreground">{feature.description}</p>
-            </motion.div>
-
-            {/* Tooltip Popup */}
-            <AnimatePresence>
-              {hoveredIndex === index && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95, y: -8 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95, y: -8 }}
-                  transition={{ duration: 0.2 }}
-                  className="absolute left-0 right-0 -top-2 transform -translate-y-full z-50 mb-2 pointer-events-none"
-                >
-                  <div
-                    className="rounded-lg border border-[var(--neon-cyan)]/50 p-4 shadow-xl"
-                    style={{
-                      background: "color-mix(in oklab, var(--card) 95%, var(--neon-cyan) 5%)",
-                      backdropFilter: "blur(16px)",
-                      boxShadow: "0 16px 48px rgba(0, 217, 255, 0.15)",
-                    }}
-                  >
-                    <p className="text-sm text-foreground leading-relaxed max-w-xs">
-                      {feature.detailedDescription}
-                    </p>
-                    {/* Arrow pointing down */}
-                    <div
-                      className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 rotate-45"
-                      style={{
-                        background: "color-mix(in oklab, var(--card) 95%, var(--neon-cyan) 5%)",
-                        border: "1px solid rgba(0, 217, 255, 0.5)",
-                      }}
-                    />
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+          <motion.div
+            key={feature.title}
+            initial={{ opacity: 0, y: 12 }}
+            animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
+            transition={{
+              duration: 0.4,
+              delay: inView ? index * 0.1 : 0,
+            }}
+            className="group relative rounded-xl border border-white/10 p-4 transition-all duration-300 hover:border-[var(--neon-cyan)]/50 hover:shadow-lg"
+            style={{
+              background: "color-mix(in oklab, var(--card) 60%, transparent)",
+              transitionProperty: "all",
+            }}
+            onMouseEnter={(e) => {
+              const el = e.currentTarget as HTMLElement;
+              el.style.transform = "translateY(-4px)";
+              el.style.boxShadow = "0 8px 32px rgba(0, 217, 255, 0.2)";
+            }}
+            onMouseLeave={(e) => {
+              const el = e.currentTarget as HTMLElement;
+              el.style.transform = "translateY(0)";
+              el.style.boxShadow = "none";
+            }}
+          >
+            <div className="text-3xl mb-2">{feature.emoji}</div>
+            <h3 className="font-display font-semibold text-base mb-1.5">{feature.title}</h3>
+            <p className="text-sm text-muted-foreground">{feature.description}</p>
+          </motion.div>
         ))}
       </div>
       )}
@@ -521,6 +475,12 @@ function DownloadCard({
           </motion.button>
         </div>
 
+        {/* Usage & Reviews Cards */}
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch w-full">
+          <LiveStats />
+          <ReviewsSection />
+        </div>
+
         <KeyFeaturesSection />
 
         <div className="mt-7 relative">
@@ -557,11 +517,6 @@ function DownloadCard({
         {olderReleases.length > 0 && (
           <PreviousReleases releases={olderReleases} />
         )}
-
-        {/* Ratings & Reviews Section - Moved to bottom */}
-        <div className="mt-8 w-full">
-          <ReviewsSection />
-        </div>
       </motion.div>
     </>
   );
@@ -632,17 +587,17 @@ function LiveStats() {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.1 }}
-      className="rounded-xl border border-white/10 p-4 flex flex-col w-full"
+      className="rounded-xl border border-white/10 p-3 flex flex-col w-full"
       style={{
         background: "color-mix(in oklab, var(--card) 80%, transparent)",
         WebkitBackdropFilter: "blur(20px)",
         backdropFilter: "blur(20px)",
       }}
     >
-      <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] text-muted-foreground font-semibold">
-        <Activity className="w-3 h-3 text-[var(--neon-cyan)] animate-pulse" /> Live
+      <div className="flex items-center gap-2 text-[8px] uppercase tracking-[0.25em] text-muted-foreground">
+        <Activity className="w-2 h-2 text-[var(--neon-cyan)] animate-pulse" /> Live
       </div>
-      <h3 className="font-display text-lg font-bold mt-2">Usage right now</h3>
+      <h3 className="font-display text-sm mt-1">Usage right now</h3>
 
       <div className="mt-2 space-y-1.5">
         <CompactStat
@@ -669,12 +624,12 @@ function LiveStats() {
 function CompactStat({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground font-semibold">{label}</p>
+      <p className="text-[9px] uppercase tracking-[0.15em] text-muted-foreground">{label}</p>
       <motion.p
         key={value}
         initial={{ opacity: 0.4, y: -2 }}
         animate={{ opacity: 1, y: 0 }}
-        className="font-display text-4xl font-bold mt-1"
+        className="font-display text-xl mt-0.25"
       >
         {value}
       </motion.p>
@@ -747,6 +702,48 @@ function DownloadInfoSection({ config }: { config: DownloadPageConfig[] }) {
         <p className="text-base sm:text-lg text-foreground/90 leading-relaxed">
           SinType is a smart typing app for Windows that instantly converts the way you type English letters into beautiful Sinhala script, working everywhere on your computer.
         </p>
+      </motion.section>
+
+      {/* Features */}
+      <motion.section
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+      >
+        <h2 className="font-display text-2xl sm:text-3xl mb-6">Key Features</h2>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <Feature
+            title="Type Sinhala Anywhere"
+            description="Works in Word, Photoshop, WhatsApp, Discord, browsers—any app on your PC. Just press F10 to turn Sinhala typing on or off."
+            icon={Globe}
+          />
+          <Feature
+            title="Two Typing Modes"
+            description="Switch between two styles: Modern Unicode Sinhala or Legacy FM Abhaya fonts for design work."
+            icon={Zap}
+          />
+          <Feature
+            title="Control Right From Your Phone"
+            description="Use your mobile phone as a remote touchpad and keyboard. Connect via a simple QR code scan on your home network."
+            icon={Smartphone}
+          />
+          <Feature
+            title="Send Files From Mobile to PC"
+            description="Drag and drop files from your phone directly to your computer over your private home network—no cloud needed."
+            icon={HardDrive}
+          />
+          <Feature
+            title="Make Your Own Typing Rules"
+            description="Customize how Singlish shortcuts map to Sinhala letters. Save your personal typing dictionary."
+            icon={Sparkles}
+          />
+          <Feature
+            title="Everything Stays Private"
+            description="Your typing stays on your computer. Nothing is sent to the internet or stored in the cloud."
+            icon={Lock}
+          />
+        </div>
       </motion.section>
 
       {/* System Requirements */}

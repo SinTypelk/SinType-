@@ -6,17 +6,41 @@ export type AppNotification = {
   message: string;
   user_id: string | null;
   created_at: string;
+  is_active?: boolean;
+  link?: string | null;
 };
 
 const SEEN_KEY = "sintype.notifications.last_seen_id";
 
+/**
+ * Fetch active notifications (is_active = true) for display in navbar and messages.
+ * This is the UNIFIED data source for all notification displays.
+ */
+export async function fetchActiveNotifications(limit = 10): Promise<AppNotification[]> {
+  const { data, error } = await supabase
+    .from("notifications")
+    .select("id, title, message, user_id, created_at, is_active, link")
+    .eq("is_active", true)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) throw new Error(error.message);
+
+  return (data ?? []) as AppNotification[];
+}
+
+/**
+ * Legacy function for backward compatibility.
+ * Now uses the unified active notifications query.
+ */
 export async function fetchNotificationsForUser(
   userId?: string | null,
   limit = 30,
 ): Promise<AppNotification[]> {
   const { data, error } = await supabase
     .from("notifications")
-    .select("id, title, message, user_id, created_at")
+    .select("id, title, message, user_id, created_at, is_active, link")
+    .eq("is_active", true)
     .order("created_at", { ascending: false })
     .limit(limit);
 

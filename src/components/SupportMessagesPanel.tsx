@@ -3,7 +3,7 @@ import { Bell, Loader2 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import {
   countUnread,
-  fetchNotificationsForUser,
+  fetchActiveNotifications,
   markNotificationsSeen,
   type AppNotification,
 } from "@/lib/notifications-service";
@@ -18,7 +18,8 @@ export function SupportMessagesPanel() {
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchNotificationsForUser(user?.id ?? null);
+      // Use the unified notifications query (is_active = true, ordered by created_at desc)
+      const data = await fetchActiveNotifications(30);
       setRows(data);
     } catch (e: unknown) {
       setError((e as Error).message ?? "Could not load messages.");
