@@ -65,7 +65,7 @@ function Index() {
           </div>
         ) : (
           <V2FeaturesGrid
-            title="SinType 2.0 Beta — mobile meets desktop"
+            title="SinType 2.0 — mobile meets desktop"
             subtitle="The new local web server turns your phone into a wireless remote for your PC. Typing, touchpad control, and file transfer — without leaving your home network."
             features={homeFeatures.length > 0 ? homeFeatures : undefined}
           />

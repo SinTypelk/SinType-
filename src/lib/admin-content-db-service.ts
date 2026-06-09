@@ -169,6 +169,14 @@ export async function adminDeleteFeature(id: string): Promise<void> {
   if (error) throw new Error(`Failed to delete feature: ${error.message}`);
 }
 
+export async function adminDeleteTestFeatures(): Promise<void> {
+  const { error } = await supabase
+    .from("key_features")
+    .delete()
+    .or('title.eq.Test,description.eq.Developer check');
+  if (error) throw new Error(`Failed to delete test features: ${error.message}`);
+}
+
 export async function adminReorderFeatures(updates: Array<{ id: string; display_order: number }>): Promise<void> {
   const { error } = await supabase
     .from("key_features")
@@ -198,6 +206,210 @@ export async function adminUpsertDownloadConfig(
     .from("download_page_config")
     .upsert(entries, { onConflict: "field_key" });
   if (error) throw new Error(`Failed to save config: ${error.message}`);
+}
+
+/* ========== SITE SETTINGS ========== */
+
+export interface SiteSetting {
+  id: string;
+  key: string;
+  value: string;
+  updated_at?: string;
+}
+
+export async function adminFetchSettings(): Promise<SiteSetting[]> {
+  const { data, error } = await supabase.from("site_settings").select("*");
+  if (error) throw new Error(`Failed to fetch settings: ${error.message}`);
+  return data || [];
+}
+
+export async function adminUpsertSettings(
+  entries: Array<{ key: string; value: string }>,
+): Promise<void> {
+  const { error } = await supabase
+    .from("site_settings")
+    .upsert(entries, { onConflict: "key" });
+  if (error) throw new Error(`Failed to save settings: ${error.message}`);
+}
+
+export async function adminGetSetting(key: string): Promise<string | null> {
+  const { data, error } = await supabase
+    .from("site_settings")
+    .select("value")
+    .eq("key", key)
+    .maybeSingle();
+  if (error) throw new Error(`Failed to fetch setting: ${error.message}`);
+  return data?.value || null;
+}
+
+/* ========== NOTIFICATIONS ========== */
+
+export interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  link?: string | null;
+  is_active: boolean;
+  user_id?: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export async function adminFetchNotifications(): Promise<Notification[]> {
+  const { data, error } = await supabase
+    .from("notifications")
+    .select("*")
+    .order("created_at", { ascending: false });
+  if (error) throw new Error(`Failed to fetch notifications: ${error.message}`);
+  return data || [];
+}
+
+export async function adminCreateNotification(
+  notification: Omit<Notification, "id" | "created_at" | "updated_at">,
+): Promise<Notification> {
+  const { data, error } = await supabase
+    .from("notifications")
+    .insert([notification])
+    .select()
+    .single();
+  if (error) throw new Error(`Failed to create notification: ${error.message}`);
+  return data;
+}
+
+export async function adminUpdateNotification(
+  id: string,
+  updates: Partial<Omit<Notification, "id" | "created_at">>,
+): Promise<Notification> {
+  const { data, error } = await supabase
+    .from("notifications")
+    .update({ ...updates, updated_at: new Date().toISOString() })
+    .eq("id", id)
+    .select()
+    .single();
+  if (error) throw new Error(`Failed to update notification: ${error.message}`);
+  return data;
+}
+
+export async function adminDeleteNotification(id: string): Promise<void> {
+  const { error } = await supabase.from("notifications").delete().eq("id", id);
+  if (error) throw new Error(`Failed to delete notification: ${error.message}`);
+}
+
+export async function adminToggleNotificationActive(id: string, isActive: boolean): Promise<Notification> {
+  return adminUpdateNotification(id, { is_active: isActive });
+}
+
+/* ========== BLOG POSTS ========== */
+
+export interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  date: string;
+  read_time: number;
+  tags: string[];
+  short_description: string;
+  html_content: string;
+  is_published: boolean;
+  is_featured: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export async function adminFetchBlogPosts(): Promise<BlogPost[]> {
+  const { data, error } = await supabase
+    .from("blog_posts")
+    .select("*")
+    .order("date", { ascending: false });
+  if (error) throw new Error(`Failed to fetch blog posts: ${error.message}`);
+  return data || [];
+}
+
+export async function adminCreateBlogPost(
+  post: Omit<BlogPost, "id" | "created_at" | "updated_at">,
+): Promise<BlogPost> {
+  const { data, error } = await supabase
+    .from("blog_posts")
+    .insert([post])
+    .select()
+    .single();
+  if (error) throw new Error(`Failed to create blog post: ${error.message}`);
+  return data;
+}
+
+export async function adminUpdateBlogPost(
+  id: string,
+  updates: Partial<Omit<BlogPost, "id" | "created_at">>,
+): Promise<BlogPost> {
+  const { data, error } = await supabase
+    .from("blog_posts")
+    .update({ ...updates, updated_at: new Date().toISOString() })
+    .eq("id", id)
+    .select()
+    .single();
+  if (error) throw new Error(`Failed to update blog post: ${error.message}`);
+  return data;
+}
+
+export async function adminDeleteBlogPost(id: string): Promise<void> {
+  const { error } = await supabase.from("blog_posts").delete().eq("id", id);
+  if (error) throw new Error(`Failed to delete blog post: ${error.message}`);
+}
+
+export async function adminToggleBlogPostPublished(id: string, isPublished: boolean): Promise<BlogPost> {
+  return adminUpdateBlogPost(id, { is_published: isPublished });
+}
+
+export async function adminToggleBlogPostFeatured(id: string, isFeatured: boolean): Promise<BlogPost> {
+  return adminUpdateBlogPost(id, { is_featured: isFeatured });
+}
+
+/* ========== SITEMAP GENERATION ========== */
+
+export function generateBlogPostSitemapEntry(post: BlogPost, baseUrl: string = "https://sintype.com"): string {
+  const url = `${baseUrl}/blog/${post.slug}`;
+  const lastmod = post.updated_at || post.created_at || new Date().toISOString();
+  
+  return `  <url>
+    <loc>${escapeXml(url)}</loc>
+    <lastmod>${lastmod.split("T")[0]}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>${post.is_featured ? "0.8" : "0.6"}</priority>
+  </url>`;
+}
+
+export async function generateBlogSitemap(baseUrl: string = "https://sintype.com"): Promise<string> {
+  const posts = await adminFetchBlogPosts();
+  const publishedPosts = posts.filter((p) => p.is_published);
+  
+  const entries = publishedPosts.map((post) => generateBlogPostSitemapEntry(post, baseUrl)).join("\n");
+  
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${entries}
+</urlset>`;
+}
+
+export async function downloadBlogSitemap(): Promise<void> {
+  const xml = await generateBlogSitemap();
+  const blob = new Blob([xml], { type: "application/xml" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "blog-sitemap.xml";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function escapeXml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
 }
 
 /* ========== PUBLIC FETCH FUNCTIONS (FOR FRONTEND) ========== */

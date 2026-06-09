@@ -43,7 +43,7 @@ export function HeroDownloadCta() {
       <p className="mt-4 max-w-3xl mx-auto text-muted-foreground text-sm sm:text-base leading-relaxed">
         Free <strong className="text-foreground font-medium">Singlish to Unicode</strong> in your
         browser — plus{" "}
-        <strong className="text-foreground font-medium">SinType Desktop 2.0 Beta</strong> with a
+        <strong className="text-foreground font-medium">SinType Desktop 2.0</strong> with a
         built-in local web server. {V2_TAGLINE}
       </p>
 
@@ -64,7 +64,7 @@ export function HeroDownloadCta() {
           }}
         >
           <Download className="relative w-5 h-5" strokeWidth={2.5} />
-          <span className="relative">Download v2.0 Beta</span>
+          <span className="relative">Download v2.0 </span>
         </Link>
         <button
           type="button"
@@ -76,7 +76,7 @@ export function HeroDownloadCta() {
         </button>
       </div>
       <p className="mt-3 text-xs text-muted-foreground">
-        Windows 10/11 · Beta release — see download page for stable builds
+        Windows 10/11 · release — see download page for stable/Beta builds
       </p>
     </section>
   );

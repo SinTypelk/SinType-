@@ -159,7 +159,7 @@ function DownloadPage() {
 
       <div className="mb-10">
         <p className="text-[11px] uppercase tracking-[0.35em] text-[var(--neon-cyan)]">
-          SinType Desktop 2.0 Beta
+          SinType Desktop 2.0
         </p>
         <h1 className="font-display text-4xl sm:text-5xl font-bold mt-2">
           {heroTitle}
@@ -187,7 +187,7 @@ const FALLBACK_RELEASE_NOTES = [
   "Mobile-to-PC file sync over your private LAN",
   "Mobile-QR license activation",
   "Easy mapping editor for custom Singlish rules",
-  "System-wide Unicode + Legacy FM typing (F10 toggle)",
+  "System-wide Unicode + Legacy FM typing (F9/F10/F11 toggle)",
 ];
 
 interface KeyFeature {
@@ -233,6 +233,7 @@ function KeyFeaturesSection() {
   const [features, setFeatures] = useState(KEY_FEATURES);
   const [loadingFeatures, setLoadingFeatures] = useState(true);
   const [inView, setInView] = useState(false);
+  const [expandedMobile, setExpandedMobile] = useState<string | null>(null);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -293,36 +294,72 @@ function KeyFeaturesSection() {
         </div>
       ) : (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-        {features.map((feature, index) => (
-          <motion.div
-            key={feature.title}
-            initial={{ opacity: 0, y: 12 }}
-            animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
-            transition={{
-              duration: 0.4,
-              delay: inView ? index * 0.1 : 0,
-            }}
-            className="group relative rounded-xl border border-white/10 p-5 md:p-4 transition-all duration-300 hover:border-[var(--neon-cyan)]/50 hover:shadow-lg"
-            style={{
-              background: "color-mix(in oklab, var(--card) 60%, transparent)",
-              transitionProperty: "all",
-            }}
-            onMouseEnter={(e) => {
-              const el = e.currentTarget as HTMLElement;
-              el.style.transform = "translateY(-4px)";
-              el.style.boxShadow = "0 8px 32px rgba(0, 217, 255, 0.2)";
-            }}
-            onMouseLeave={(e) => {
-              const el = e.currentTarget as HTMLElement;
-              el.style.transform = "translateY(0)";
-              el.style.boxShadow = "none";
-            }}
-          >
-            <div className="text-4xl sm:text-5xl md:text-3xl mb-3 md:mb-2">{feature.emoji}</div>
-            <h3 className="font-display font-semibold text-lg md:text-base mb-2 md:mb-1.5">{feature.title}</h3>
-            <p className="text-base md:text-sm text-muted-foreground">{feature.description}</p>
-          </motion.div>
-        ))}
+        {features.map((feature, index) => {
+          const isExpandedMobile = expandedMobile === feature.title;
+          return (
+            <motion.div
+              key={feature.title}
+              initial={{ opacity: 0, y: 12 }}
+              animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
+              transition={{
+                duration: 0.4,
+                delay: inView ? index * 0.1 : 0,
+              }}
+              onClick={() => {
+                // Mobile: toggle expand/collapse
+                const isMobile = window.innerWidth < 768;
+                if (isMobile) {
+                  setExpandedMobile(isExpandedMobile ? null : feature.title);
+                }
+              }}
+              className="group relative rounded-xl border border-white/10 p-5 md:p-4 transition-all duration-300 hover:border-[var(--neon-cyan)]/50 hover:shadow-lg cursor-pointer md:cursor-default"
+              style={{
+                background: "color-mix(in oklab, var(--card) 60%, transparent)",
+                transitionProperty: "all",
+                maxHeight: isExpandedMobile ? "300px" : "80px",
+                minHeight: "56px",
+                overflow: "hidden",
+              }}
+              onMouseEnter={(e) => {
+                const isMobile = window.innerWidth < 768;
+                if (!isMobile) {
+                  const el = e.currentTarget as HTMLElement;
+                  el.style.transform = "translateY(-4px)";
+                  el.style.boxShadow = "0 8px 32px rgba(0, 217, 255, 0.2)";
+                }
+              }}
+              onMouseLeave={(e) => {
+                const isMobile = window.innerWidth < 768;
+                if (!isMobile) {
+                  const el = e.currentTarget as HTMLElement;
+                  el.style.transform = "translateY(0)";
+                  el.style.boxShadow = "none";
+                }
+              }}
+            >
+              <div className="flex items-center justify-between w-full md:block">
+                <div className="flex items-center gap-3 flex-1 md:flex-none">
+                  <div className="text-3xl md:text-3xl flex-shrink-0">{feature.emoji}</div>
+                  <h3 className="font-display font-semibold text-base md:text-base flex-1">{feature.title}</h3>
+                </div>
+                {/* Mobile arrow indicator */}
+                <div className="md:hidden text-lg transition-transform duration-300" style={{ transform: isExpandedMobile ? "rotate(90deg)" : "rotate(0deg)" }}>
+                  ›
+                </div>
+              </div>
+              
+              {/* Description - visible on desktop always, on mobile when expanded */}
+              <p className="text-sm md:text-sm text-muted-foreground mt-3 md:mt-2 hidden md:block md:opacity-100">
+                {feature.description}
+              </p>
+              
+              {/* Mobile description - shows when expanded */}
+              <div className="md:hidden mt-2 overflow-hidden">
+                <p className="text-sm text-muted-foreground">{feature.description}</p>
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
       )}
     </motion.div>

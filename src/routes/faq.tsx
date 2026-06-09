@@ -38,7 +38,7 @@ const FAQ_DATA: FaqGroup[] = [
         id: 1,
         question: "What is SinType and how does it work?",
         answer:
-          "SinType is a Windows desktop app that converts Singlish (phonetic Sinhala typed in English letters) into Sinhala Unicode in real time. It hooks into your keyboard at the Windows level so it works in any app — no copy-paste needed.",
+          "SinType is a free Windows desktop application that converts Singlish (phonetic Sinhala typed in English letters) into Sinhala Unicode in real time. It uses low-level keyboard hooks at the Windows level to intercept your input and automatically convert it to Sinhala before injection — so it works in any app with no copy-paste needed. The app features a floating toolbar for easy access and system tray integration.",
       },
       {
         id: 2,
@@ -65,33 +65,38 @@ const FAQ_DATA: FaqGroup[] = [
     items: [
       {
         id: 5,
-        question: "What is the difference between Real-time mode and Word mode?",
+        question:
+          "What is the difference between Real-time mode and Word mode?",
         answer:
-          "Real-time mode converts each word as you finish typing it — the moment you press Space or punctuation, the word turns into Sinhala. Word mode waits for you to trigger the conversion manually, giving you more control.",
+          "Real-time mode automatically converts each word as you finish typing it — the moment you press Space, punctuation, or other word boundaries, the word turns into Sinhala with composing support and prefix extension. Word mode waits for you to trigger the conversion manually using a hotkey, giving you full control over when conversion happens. Choose based on your preference: Real-time is faster for continuous typing, Word mode is better for precision.",
       },
       {
         id: 6,
-        question: "Does SinType work inside Google Chrome, Edge, and Firefox?",
+        question:
+          "Does SinType work inside Google Chrome, Edge, and Firefox?",
         answer:
           "Yes. SinType works at the Windows keyboard-hook level, so it converts text in any browser text field — Chrome, Edge, Firefox, and others.",
       },
       {
         id: 7,
-        question: "Does it work in Microsoft Word, Excel, and other Office apps?",
+        question:
+          "Does it work in Microsoft Word, Excel, and other Office apps?",
         answer:
           "Yes. Microsoft Word, Excel, Outlook, and other Office apps are all supported. SinType injects text using Windows-native methods that work across Office versions.",
       },
       {
         id: 8,
-        question: "Does it work in Notepad, VS Code, and chat apps like WhatsApp Web?",
+        question:
+          "Does it work in Notepad, VS Code, and chat apps like WhatsApp Web?",
         answer:
-          "Yes. SinType works in Notepad, VS Code, WhatsApp Web, Facebook, Messenger, and most other text inputs. For apps where direct injection is restricted, it falls back to clipboard-paste automatically.",
+          "Yes. SinType works in Notepad, VS Code, WhatsApp Web, Facebook, Messenger, and most other text inputs. It uses fast backspace/type injection with Win32 Unicode support and intelligently falls back to clipboard-paste when direct injection is restricted by an application.",
       },
       {
         id: 9,
-        question: "Can I customize the Singlish-to-Sinhala mappings to my preference?",
+        question:
+          "Can I customize the Singlish-to-Sinhala mappings to my preference?",
         answer:
-          "Yes. You can add or override Singlish-to-Sinhala mappings using the custom mappings file. Open SinType settings and look for the Custom Mappings option to edit your personal mapping rules.",
+          "Yes. You can add or override Singlish-to-Sinhala mappings using a custom mappings JSON file stored in your user settings folder (%APPDATA%\\SinType.lk). Open SinType settings and look for the Custom Mappings option to edit your personal mapping rules. Your custom mappings are always preserved during app updates and reinstalls.",
       },
       {
         id: 10,
@@ -108,37 +113,38 @@ const FAQ_DATA: FaqGroup[] = [
         id: 11,
         question: "How do I get a license key?",
         answer:
-          "Visit sintype.lk/license to purchase a license. After payment, your key will be sent to your email.",
+          "SinType is completely free. Visit sintype.lk/download and click the 'Generate 30-day key' button to get your free license key instantly. No payment or account required. Your key is valid for 30 days and can be renewed for free at any time.",
       },
       {
         id: 12,
-        question: "Do I need internet to use SinType after activation?",
+        question: "Why does SinType use a license key if it is free?",
         answer:
-          "Internet is only required during license activation. After that, SinType works fully offline. Your license is encrypted and stored locally on your device.",
+          "The license key system allows us to notify you about important updates and new versions, and to ensure you are always running a stable, supported build. It is not a payment mechanism — SinType is and will remain free to use.",
       },
       {
         id: 13,
-        question: "My license is not activating — what do I check?",
+        question: "My license key expired — how do I renew it?",
         answer:
-          "Make sure you are using the exact email address used during purchase and that the license key is correct. An internet connection is required for the activation step. If the issue continues, use the Contact form to reach us.",
+          "Simply visit sintype.lk/download and click 'Generate 30-day key' again to get a fresh free key. Open SinType, go to the License tab, and enter your email and the new key to reactivate. Renewal is always free.",
       },
       {
         id: 14,
-        question: "What happens if I lose my license key?",
+        question: "My license is not activating — what do I check?",
         answer:
-          "Your license key is tied to your purchase email. Visit sintype.lk/license and use the key recovery option, or contact support with your purchase details.",
+          "Make sure you are using the same email address you used when generating the key and that the license key is entered correctly. An internet connection is required for the activation step. Check that your firewall is not blocking SinType. If the issue continues, generate a new key from sintype.lk/download or use the Reset Request option in the License tab.",
       },
       {
         id: 15,
         question: "Can I use SinType on more than one PC?",
         answer:
-          "Your license is bound to one device at a time for security. If you need to use SinType on a second PC, you will need a separate license or a device reset.",
+          "Each license key is bound to one device at a time. If you need to use SinType on another PC, simply visit sintype.lk/download and generate a new free key for that device. There is no limit on how many free keys you can generate.",
       },
       {
         id: 16,
-        question: "I got a new PC or reinstalled Windows — how do I re-activate?",
+        question:
+          "I got a new PC or reinstalled Windows — how do I re-activate?",
         answer:
-          "Open SinType on your new PC, go to the License tab, and enter your email and license key. If your old device binding is still active, use the Reset License option inside the app to release it first.",
+          "Open SinType on your new PC, go to the License tab, and generate a new free key from sintype.lk/download. Enter your email and the new key to activate. If your old device binding is blocking activation, use the Reset Request option inside the License tab to describe your situation. Once approved, the old binding will be released and you can activate on your new machine.",
       },
       {
         id: 17,
@@ -155,7 +161,7 @@ const FAQ_DATA: FaqGroup[] = [
         id: 18,
         question: "How does the mobile remote keyboard work?",
         answer:
-          "Open SinType on your PC, go to the Mobile Sync tab, and scan the QR code shown using your phone camera. Your phone and PC must be on the same Wi-Fi network. Once connected, type on your phone and the converted Sinhala text appears on your PC.",
+          "Open SinType on your PC, go to the Mobile Sync tab, and scan the QR code displayed using your phone camera. Your phone and PC must be on the same local Wi-Fi network. A local server runs on your PC to serve the mobile interface and handle real-time text injection. Once connected, type on your phone and the converted Sinhala text appears on your PC in real-time.",
       },
       {
         id: 19,
@@ -167,13 +173,14 @@ const FAQ_DATA: FaqGroup[] = [
         id: 20,
         question: "What if the QR code does not connect?",
         answer:
-          "Make sure both your phone and PC are connected to the same Wi-Fi network. Hotspots or separate networks will not work. Also check that your firewall is not blocking SinType on the local network.",
+          "Make sure both your phone and PC are connected to the same Wi-Fi network. Mobile hotspots or separate networks will not work. Also check that your firewall is not blocking SinType on the local network.",
       },
       {
         id: 21,
-        question: "How do I transfer files from my phone to my PC using SinType?",
+        question:
+          "How do I transfer files from my phone to my PC using SinType?",
         answer:
-          "In the Mobile Sync tab, use the File Share feature. Select the file on your phone and it will transfer to your PC in chunks with a live progress indicator. No internet or USB cable required.",
+          "In the Mobile Sync tab, use the File Share feature. Select the file on your phone and it will transfer to your PC over your local Wi-Fi with a live progress indicator. No internet connection, cloud storage, or USB cable required.",
       },
     ],
   },
@@ -196,25 +203,26 @@ const FAQ_DATA: FaqGroup[] = [
         id: 24,
         question: "Where does SinType store my settings and data?",
         answer:
-          "SinType stores your settings, preferences, and encrypted license at %APPDATA%\\SinType.lk on your PC. This folder is not deleted during a standard uninstall, so your preferences are preserved if you reinstall.",
+          "SinType stores your settings, preferences, encrypted license, and bound email at %APPDATA%\\SinType.lk on your PC. This folder is preserved during standard uninstall, so your preferences are retained if you reinstall.",
       },
       {
         id: 25,
         question: "How do I update SinType to the latest version?",
         answer:
-          "SinType will notify you when an update is available. You can also check for updates from inside the Settings panel.",
+          "SinType will notify you when an update is available. You can also check for updates from inside the Settings panel. Updates are always free.",
       },
       {
         id: 26,
         question: "How do I uninstall SinType completely?",
         answer:
-          "Go to Windows Settings → Apps, find SinType in the list, and click Uninstall. Alternatively, use the Uninstall option inside the SinType settings panel. Both methods run the standard Windows uninstaller cleanly.",
+          "Go to Windows Settings → Apps, find SinType in the list, and click Uninstall. This runs the Windows uninstaller cleanly. Note: Your user settings folder (%APPDATA%\\SinType.lk) is preserved by default so your preferences survive uninstall/reinstall. To remove all data, manually delete that folder after uninstalling.",
       },
       {
         id: 27,
-        question: "Does SinType send my keystrokes or typing data to the internet?",
+        question:
+          "Does SinType send my keystrokes or typing data to the internet?",
         answer:
-          "No. SinType processes all keystrokes locally on your PC. Your typing data is never sent to the internet. The only network activity is license activation and optional feedback submission, both of which you control.",
+          "No. SinType processes all keystrokes and conversion locally on your PC. Your typing data is never sent to the internet. The only network activity is voluntary license activation, optional feedback submission, and mobile remote requests over your local Wi-Fi network — all optional and under your control.",
       },
     ],
   },

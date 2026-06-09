@@ -149,7 +149,7 @@ export function Navbar() {
             </button>
 
             {showNotificationPanel && (
-              <div className="absolute right-0 mt-2 w-80 sm:w-72 rounded-lg border border-white/10 bg-white/5 backdrop-blur-xl shadow-xl z-50">
+              <div className="absolute right-0 mt-2 w-80 sm:w-72 rounded-lg border border-white/10 bg-slate-900/95 backdrop-blur-xl shadow-2xl z-9999" style={{ background: "rgba(10, 15, 30, 0.98)", backdropFilter: "blur(12px)", boxShadow: "0 8px 32px rgba(0, 0, 0, 0.6)" }}>
                 <div className="p-4">
                   {/* Header */}
                   <div className="flex items-center justify-between mb-3">
