@@ -37,6 +37,7 @@ import { BetaDisclaimerBanner } from "@/components/v2/BetaDisclaimerBanner";
 import { V2FeaturesGrid } from "@/components/v2/V2FeaturesGrid";
 import { V2ScreenshotGallery } from "@/components/v2/V2ScreenshotGallery";
 import { V2_TAGLINE } from "@/lib/v2-showcase";
+import { useScrollReveal } from "@/lib/use-scroll-reveal";
 import {
   fetchActiveBanners,
   fetchActiveAppVersion,
@@ -82,6 +83,7 @@ export const Route = createFileRoute("/download")({
 });
 
 function DownloadPage() {
+  useScrollReveal();
   const [banners, setBanners] = useState<SiteBanner[]>([]);
   const [config, setConfig] = useState<DownloadPageConfig[]>([]);
   const [stableVersion, setStableVersion] = useState<AppVersion | null>(null);
@@ -312,13 +314,12 @@ function KeyFeaturesSection() {
                   setExpandedMobile(isExpandedMobile ? null : feature.title);
                 }
               }}
-              className="group relative rounded-xl border border-white/10 p-5 md:p-4 transition-all duration-300 hover:border-[var(--neon-cyan)]/50 hover:shadow-lg cursor-pointer md:cursor-default"
+              className="download-feature-card feature-card-hover group relative rounded-xl border border-white/10 p-5 transition-all duration-300 hover:border-[var(--neon-cyan)]/50 hover:shadow-lg cursor-pointer md:cursor-default"
               style={{
                 background: "color-mix(in oklab, var(--card) 60%, transparent)",
                 transitionProperty: "all",
-                maxHeight: isExpandedMobile ? "300px" : "80px",
-                minHeight: "56px",
-                overflow: "hidden",
+                minHeight: "auto",
+                overflow: "visible",
               }}
               onMouseEnter={(e) => {
                 const isMobile = window.innerWidth < 768;
@@ -349,13 +350,13 @@ function KeyFeaturesSection() {
               </div>
               
               {/* Description - visible on desktop always, on mobile when expanded */}
-              <p className="text-sm md:text-sm text-muted-foreground mt-3 md:mt-2 hidden md:block md:opacity-100">
+              <p className="text-[13px] text-muted-foreground mt-3 md:mt-2 hidden md:block md:opacity-100 leading-relaxed">
                 {feature.description}
               </p>
               
               {/* Mobile description - shows when expanded */}
               <div className="md:hidden mt-2 overflow-hidden">
-                <p className="text-sm text-muted-foreground">{feature.description}</p>
+                <p className="text-[13px] text-muted-foreground leading-relaxed">{feature.description}</p>
               </div>
             </motion.div>
           );
@@ -476,7 +477,7 @@ function DownloadCard({
             rel={stableHref.startsWith("http") ? "noopener noreferrer" : undefined}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="inline-flex items-center gap-3 px-6 py-4 rounded-2xl text-primary-foreground font-semibold shadow-xl"
+            className="download-shimmer-button app-button inline-flex items-center gap-3 px-6 py-4 rounded-2xl text-primary-foreground font-semibold shadow-xl"
             style={{
               background: "linear-gradient(135deg, var(--neon-cyan), var(--neon-purple))",
             }}
@@ -526,7 +527,7 @@ function DownloadCard({
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.3, delay: index * 0.05 }}
-                className="relative rounded-lg border border-white/15 p-3.5"
+                className="release-note-item relative rounded-lg border border-white/15 p-3.5"
                 style={{
                   background: "linear-gradient(135deg, color-mix(in oklab, var(--neon-cyan) 5%, var(--card)), color-mix(in oklab, var(--neon-purple) 3%, var(--card)))",
                   backdropFilter: "blur(8px)",
@@ -1038,5 +1039,3 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
     </div>
   );
 }
-
-

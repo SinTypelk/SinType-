@@ -17,6 +17,8 @@ export function Navbar() {
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [loadingNotifications, setLoadingNotifications] = useState(false);
   const [showNotificationPanel, setShowNotificationPanel] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
   const notificationPanelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -33,6 +35,24 @@ export function Navbar() {
     return () => {
       cancelled = true;
       clearInterval(id);
+    };
+  }, []);
+
+  useEffect(() => {
+    const updateScrollState = () => {
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = maxScroll > 0 ? (window.scrollY / maxScroll) * 100 : 0;
+      setScrolled(window.scrollY > 8);
+      setScrollProgress(Math.min(100, Math.max(0, progress)));
+    };
+
+    updateScrollState();
+    window.addEventListener("scroll", updateScrollState, { passive: true });
+    window.addEventListener("resize", updateScrollState);
+
+    return () => {
+      window.removeEventListener("scroll", updateScrollState);
+      window.removeEventListener("resize", updateScrollState);
     };
   }, []);
 
@@ -85,7 +105,16 @@ export function Navbar() {
   const unreadNotifications = notifications.length > 0;
 
   return (
-    <header className="sticky top-0 z-40 backdrop-blur-xl bg-background/70 border-b border-border">
+    <header
+      className={`site-navbar sticky top-0 z-40 backdrop-blur-xl bg-background/70 border-b transition-all duration-300 ${
+        scrolled ? "site-navbar-scrolled border-[var(--neon-cyan)]/25" : "border-transparent"
+      }`}
+    >
+      <div
+        className="scroll-progress-bar"
+        style={{ transform: `scaleX(${scrollProgress / 100})` }}
+        aria-hidden
+      />
       <div className="max-w-7xl mx-auto flex items-center justify-center px-2 sm:px-4 py-3 gap-1.5 sm:gap-4">
         {/* Left: Logo */}
         <Link to="/" className="flex items-center gap-1 sm:gap-2 absolute left-2 sm:left-4" aria-label="SinType home">

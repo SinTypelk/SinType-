@@ -13,8 +13,12 @@ export function HeaderKeywordChips() {
         Popular searches
       </p>
       <ul className="flex flex-wrap justify-center gap-1.5 sm:gap-2 list-none p-0 m-0">
-        {HEADER_KEYWORD_CHIPS.map((label) => (
-          <li key={label}>
+        {HEADER_KEYWORD_CHIPS.map((label, index) => (
+          <li
+            key={label}
+            className="hero-chip-entrance"
+            style={{ animationDelay: `${0.45 + index * 0.05}s` }}
+          >
             <span className="inline-block px-2.5 py-1 rounded-full text-[10px] sm:text-[11px] text-muted-foreground border border-white/10 bg-card/30 backdrop-blur-sm">
               {label}
             </span>

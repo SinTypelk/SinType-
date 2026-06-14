@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import {
   FolderSync,
   MousePointerClick,
@@ -6,8 +5,10 @@ import {
   SlidersHorizontal,
   type LucideIcon,
 } from "lucide-react";
+import { type CSSProperties } from "react";
 import { V2_FEATURES } from "@/lib/v2-showcase";
 import { type KeyFeature } from "@/lib/app-content-service";
+import { useScrollReveal } from "@/lib/use-scroll-reveal";
 
 const ICONS: Record<string, LucideIcon> = {
   "mouse-pointer-click": MousePointerClick,
@@ -29,6 +30,7 @@ export function V2FeaturesGrid({
   className = "",
   features,
 }: V2FeaturesGridProps) {
+  useScrollReveal();
   const displayFeatures = features && features.length > 0 ? features : V2_FEATURES;
 
   return (
@@ -48,18 +50,15 @@ export function V2FeaturesGrid({
           const featureIcon = "icon" in feature ? feature.icon : "mouse-pointer-click";
           const Icon = ICONS[featureIcon];
           return (
-            <motion.article
+            <article
               key={("id" in feature ? feature.id : feature.id)}
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-40px" }}
-              transition={{ duration: 0.4, delay: i * 0.06 }}
-              className="group relative overflow-hidden rounded-2xl border border-white/10 p-4 sm:p-5 md:p-6"
+              className="reveal-on-scroll feature-card-hover group relative overflow-hidden rounded-2xl border border-white/10 p-4 sm:p-5 md:p-6"
               style={{
+                "--reveal-delay": `${i * 0.1}s`,
                 background:
                   "linear-gradient(145deg, color-mix(in oklab, var(--card) 88%, transparent), color-mix(in oklab, var(--neon-purple) 6%, var(--card)))",
                 backdropFilter: "blur(16px)",
-              }}
+              } as CSSProperties}
             >
               <div
                 className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full opacity-30 blur-2xl transition-opacity group-hover:opacity-50"
@@ -86,7 +85,7 @@ export function V2FeaturesGrid({
                   </p>
                 </div>
               </div>
-            </motion.article>
+            </article>
           );
         })}
       </div>

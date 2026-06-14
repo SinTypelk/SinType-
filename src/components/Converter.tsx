@@ -6,7 +6,9 @@ import {
   Eraser,
   Keyboard as KeyboardIcon,
   ListTree,
+  Maximize2,
   Radio,
+  X,
 } from "lucide-react";
 const VirtualKeyboard = lazy(() =>
   import("./VirtualKeyboard").then((m) => ({ default: m.VirtualKeyboard })),
@@ -42,8 +44,11 @@ export function Converter() {
   const [syncStatus, setSyncStatus] = useState<SyncConnectionStatus>("connecting");
   const [kbOpen, setKbOpen] = useState(false);
   const [mapOpen, setMapOpen] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
   const syncRef = useRef<SyncSubscription | null>(null);
   const voiceBaseRef = useRef("");
+  const typingTimerRef = useRef<number | null>(null);
   const [outputCopied, setOutputCopied] = useState(false);
 
   const output = useMemo(() => {
@@ -59,6 +64,11 @@ export function Converter() {
   // ටයිප් කරද්දී වෙනස්කම් බලාගන්නා Function එක
   const handleTyping = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     const inputValue = event.target.value;
+    setIsTyping(true);
+    if (typingTimerRef.current) {
+      window.clearTimeout(typingTimerRef.current);
+    }
+    typingTimerRef.current = window.setTimeout(() => setIsTyping(false), 700);
     setInput(inputValue); // State එක අපඩේට් කරනවා
 
     // 1. ක්ෂණිකව අපේ Local Engine එකෙන් පට්ට Speed එකට Convert කරලා පෙන්වනවා (Offline Safe)
@@ -72,6 +82,30 @@ export function Converter() {
       smartEngine.learnFromAPI(inputValue);
     }, 500);
   };
+
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setFullscreen(false);
+      }
+    };
+
+    document.body.classList.toggle("converter-fullscreen-active", fullscreen);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.body.classList.remove("converter-fullscreen-active");
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [fullscreen]);
+
+  useEffect(() => {
+    return () => {
+      if (typingTimerRef.current) {
+        window.clearTimeout(typingTimerRef.current);
+      }
+    };
+  }, []);
 
   // Push to history (debounced)
   useEffect(() => {
@@ -134,8 +168,13 @@ export function Converter() {
   };
 
   return (
-    <section id="converter" className="max-w-7xl mx-auto px-4 pt-4 pb-8 space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <section
+      id="converter"
+      className={`converter-section max-w-7xl mx-auto px-4 pt-4 pb-8 space-y-6 ${
+        fullscreen ? "is-fullscreen" : ""
+      }`}
+    >
+      <div className="converter-toolbar flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-4">
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Mode</p>
@@ -144,6 +183,16 @@ export function Converter() {
           <ModeToggle />
         </div>
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setFullscreen(true)}
+            className="converter-fullscreen-toggle app-button flex items-center gap-2 text-sm px-3 py-2 rounded-md border border-[var(--neon-cyan)] text-[var(--neon-cyan)] hover:bg-accent/30"
+            aria-label="Open converter fullscreen"
+            title="Fullscreen"
+          >
+            <Maximize2 className="w-4 h-4" aria-hidden />
+            <span className="hidden sm:inline">Fullscreen</span>
+          </button>
           <HistoryPanel onRestore={(t) => setInput(t)} />
           {user && syncStatus === "live" && (
             <span className="flex items-center gap-2 text-xs px-3 py-2 rounded-md border border-[var(--neon-cyan)] text-[var(--neon-cyan)]">
@@ -166,9 +215,22 @@ export function Converter() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {fullscreen && (
+        <button
+          type="button"
+          onClick={() => setFullscreen(false)}
+          className="converter-exit-fullscreen app-button fixed right-4 top-4 z-[10001] inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm text-foreground backdrop-blur-xl"
+          aria-label="Exit fullscreen converter"
+          title="Exit fullscreen"
+        >
+          <X className="w-4 h-4" aria-hidden />
+          <span>Exit</span>
+        </button>
+      )}
+
+      <div className="converter-grid grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* INPUT */}
-        <div className="neon-border p-5">
+        <div className={`converter-box converter-input-box neon-border p-5 ${isTyping ? "is-typing" : ""}`}>
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-display text-sm tracking-widest uppercase text-muted-foreground">Singlish Input</h2>
             <div className="flex items-center gap-2">
@@ -224,7 +286,7 @@ export function Converter() {
         </div>
 
         {/* OUTPUT */}
-        <div className="neon-border p-5">
+        <div className="converter-box converter-output-box neon-border p-5">
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-display text-sm tracking-widest uppercase text-muted-foreground">Live Output</h2>
             <button
@@ -251,7 +313,10 @@ export function Converter() {
               {outputCopied ? "Copied" : "Copy"}
             </button>
           </div>
-          <div className={`w-full h-64 overflow-y-auto text-xl leading-relaxed whitespace-pre-wrap break-words ${mode === "legacy" ? "font-fm-legacy" : ""}`}>
+          <div
+            key={output || "empty-output"}
+            className={`converter-output-text w-full h-64 overflow-y-auto text-xl leading-relaxed whitespace-pre-wrap break-words ${mode === "legacy" ? "font-fm-legacy" : ""}`}
+          >
             {input ? renderOutput() : <span className="text-muted-foreground text-base">Output appears here in real time…</span>}
           </div>
           {issues.length > 0 && mode === "unicode" && (
@@ -262,7 +327,7 @@ export function Converter() {
         </div>
       </div>
 
-      <div className="flex flex-wrap justify-center gap-3">
+      <div className="converter-extra-actions flex flex-wrap justify-center gap-3">
         <button
           type="button"
           onClick={() => setKbOpen((v) => !v)}

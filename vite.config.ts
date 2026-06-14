@@ -4,9 +4,13 @@ import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import { existsSync, writeFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { resolve } from "node:path";
 import type { Plugin } from "vite";
 import { buildSitemapXml } from "./src/lib/sitemap-xml";
+
+const projectRoot = fileURLToPath(new URL(".", import.meta.url));
+const fromRoot = (...segments: string[]) => resolve(projectRoot, ...segments);
 
 function emitStaticSitemap(): Plugin {
   return {
@@ -14,7 +18,7 @@ function emitStaticSitemap(): Plugin {
     apply: "build",
     // After client build + prerender so Cloudflare/Netlify static deploy serves real XML.
     buildEnd() {
-      const outDir = resolve(process.cwd(), "dist/client");
+      const outDir = fromRoot("dist/client");
       if (!existsSync(outDir)) return;
       writeFileSync(resolve(outDir, "sitemap.xml"), buildSitemapXml(), "utf8");
     },
@@ -23,6 +27,10 @@ function emitStaticSitemap(): Plugin {
 
 // Standard TanStack Start + Vite config (Netlify-friendly).
 export default defineConfig({
+  root: projectRoot,
+  envDir: projectRoot,
+  publicDir: fromRoot("public"),
+  cacheDir: fromRoot("node_modules/.vite"),
   build: {
     sourcemap: "hidden",
     rollupOptions: {
@@ -38,7 +46,10 @@ export default defineConfig({
     },
   },
   plugins: [
-    tsconfigPaths(),
+    tsconfigPaths({
+      root: projectRoot,
+      projects: [fromRoot("tsconfig.json")],
+    }),
     // TanStack Start SSR/client build (includes TanStack Router integration)
     tanstackStart({
       server: { entry: "server" },
@@ -46,7 +57,7 @@ export default defineConfig({
       // Netlify static hosting needs an actual dist/client/index.html.
       // Prerender at least the shell route (/) so deep links can fall back to index.html.
       prerender: {
-        enabled: true,
+        enabled: false,
         crawlLinks: true,
         failOnError: false,
       },

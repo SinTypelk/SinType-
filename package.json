@@ -4,11 +4,11 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "dev": "vite dev",
-    "build": "vite build",
-    "build:dev": "vite build --mode development",
+    "dev": "vite dev --config ./vite.config.ts --configLoader runner",
+    "build": "vite build --config ./vite.config.ts --configLoader runner",
+    "build:dev": "vite build --mode development --config ./vite.config.ts --configLoader runner",
     "deploy:cf": "wrangler deploy",
-    "preview": "vite preview",
+    "preview": "vite preview --config ./vite.config.ts --configLoader runner",
     "lint": "eslint .",
     "format": "prettier --write ."
   },
