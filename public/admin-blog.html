@@ -856,8 +856,8 @@
         }
 
         // Supabase Client
-        const SUPABASE_URL = 'https://hxlssfjtaffispuaupgi.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh4bHNzZmp0YWZmaXNwdWF1cGdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0MzIzNzEsImV4cCI6MjA5NTAwODM3MX0.zrz4d0YHzcpuVZ4TG-XrOXLIMmxmucfGzZWNMOJzVnY';
+        //const SUPABASE_URL = 'https://hxlssfjtaffispuaupgi.supabase.co';
+        //const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh4bHNzZmp0YWZmaXNwdWF1cGdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0MzIzNzEsImV4cCI6MjA5NTAwODM3MX0.zrz4d0YHzcpuVZ4TG-XrOXLIMmxmucfGzZWNMOJzVnY';
 
         async function supabaseCall(method, table, query = {}, body = null) {
             const url = `${SUPABASE_URL}/rest/v1/${table}${Object.keys(query).length ? '?' + new URLSearchParams(query).toString() : ''}`;
