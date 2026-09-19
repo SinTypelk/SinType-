@@ -57,7 +57,7 @@ export default defineConfig({
       // Netlify static hosting needs an actual dist/client/index.html.
       // Prerender at least the shell route (/) so deep links can fall back to index.html.
       prerender: {
-        enabled: false,
+        enabled: true,
         crawlLinks: true,
         failOnError: false,
       },
